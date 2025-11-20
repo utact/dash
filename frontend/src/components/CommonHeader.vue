@@ -1,25 +1,13 @@
 <template>
   <header v-if="visible" class="border-b border-white/10 bg-slate-950 sticky top-0 z-50">
     <div class="container mx-auto px-6 h-16 relative">
-      <!-- 좌측 -->
+      <!-- 좌측: 항상 서비스명 표시 (로그인 여부와 무관) -->
       <div class="absolute left-0 inset-y-0 flex items-center">
         <div class="flex items-center gap-4 justify-start">
-          <template v-if="user">
-            <div class="flex items-center gap-2 group cursor-pointer" @click="goToDashboard" aria-label="대시보드로 이동">
-              <div class="p-1.5 rounded-lg bg-indigo-500/10 group-hover:bg-indigo-500/20 transition-colors">
-                <ClipboardList :size="20" class="text-indigo-400" />
-              </div>
-              <span class="text-sm font-semibold text-white">대시보드</span>
-            </div>
-          </template>
-          <template v-else>
-            <div class="flex items-center gap-2 group cursor-pointer" @click="goHome">
-              <div class="p-1.5 rounded-lg bg-indigo-500/10 group-hover:bg-indigo-500/20 transition-colors">
-                <Code2 :size="24" class="text-indigo-400" />
-              </div>
-              <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">DASH</span>
-            </div>
-          </template>
+          <div class="flex items-center gap-2 group cursor-pointer" @click="goHome" aria-label="홈으로 이동">
+            <img src="/icons/icon-32.png" alt="DASH logo" class="w-7 h-7 object-contain drop-shadow-lg" />
+            <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">DASH</span>
+          </div>
         </div>
       </div>
 
@@ -74,7 +62,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { Code2, ClipboardList, ChevronDown } from 'lucide-vue-next'
+import { ChevronDown } from 'lucide-vue-next'
 
 import { useAuth } from '../composables/useAuth'
 
@@ -100,7 +88,6 @@ const userInitial = computed(() => {
 })
 
 const goHome = () => { window.location.href = '/' }
-const goToDashboard = () => { window.location.href = '/dashboard' }
 const handleLogin = () => { window.location.href = `${API_BASE}/oauth2/authorization/google` }
 
 const toggleProfileMenu = () => { profileMenuOpen.value = !profileMenuOpen.value }
