@@ -14,15 +14,19 @@ import com.ssafy.dash.dto.GitHubResponse;
 import com.ssafy.dash.dto.OAuth2Response;
 import com.ssafy.dash.entity.OAuthToken;
 import com.ssafy.dash.repository.OAuthTokenRepository;
+import com.ssafy.dash.entity.UserEntity;
+import com.ssafy.dash.repository.UserRepository;
 
-@Service("customOAuth2SecurityUserService")
+@Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
     private final OAuthTokenRepository tokenRepository;
+    private final UserRepository userRepository;
 
-    public CustomOAuth2UserService(OAuthTokenRepository tokenRepository) {
+    public CustomOAuth2UserService(OAuthTokenRepository tokenRepository, UserRepository userRepository) {
         this.tokenRepository = tokenRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -61,7 +65,25 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             tokenRepository.save(t);
         }
 
-        return new CustomOAuth2User(response, "ROLE_USER");
+        // 유저 정보도 저장/갱신
+        String username = response.getProvider() + "_" + response.getProviderId();
+        UserEntity userEntity = null;
+        if (userRepository != null) {
+            userEntity = userRepository.findByUsername(username)
+                .map(entity -> {
+                    entity.setEmail(response.getEmail());
+                    return userRepository.save(entity);
+                }).orElseGet(() -> {
+                    UserEntity newUser = new UserEntity();
+                    newUser.setUsername(username);
+                    newUser.setEmail(response.getEmail());
+                    newUser.setRole("ROLE_USER");
+                    return userRepository.save(newUser);
+                });
+        }
+
+        String role = (userEntity != null && userEntity.getRole() != null) ? userEntity.getRole() : "ROLE_USER";
+        return new CustomOAuth2User(response, role);
     }
 
 }
