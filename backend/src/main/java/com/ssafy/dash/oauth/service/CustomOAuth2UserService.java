@@ -1,4 +1,4 @@
-package com.ssafy.dash.oauth;
+package com.ssafy.dash.oauth.service;
 
 import java.util.Map;
 
@@ -11,6 +11,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ssafy.dash.oauth.domain.CustomOAuth2User;
+import com.ssafy.dash.user.domain.User;
 import com.ssafy.dash.user.service.UserService;
 
 @Service
@@ -35,21 +37,22 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuth2User oauth2User = delegate.loadUser(userRequest);
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        
+            
         Map<String, Object> attributes = oauth2User.getAttributes();
-        
+        System.out.println("OAuth2 Attributes: " + attributes);
+            
         String providerId = String.valueOf(attributes.get("id"));
         String email = (String) attributes.get("email");
         String login = (String) attributes.get("login");
         String avatarUrl = (String) attributes.get("avatar_url");
-        
+            
         if (email == null) {
             email = login + "@github.placeholder";
         }
-        
-        userService.createOrUpdateOAuthUser(registrationId, providerId, login, email, avatarUrl);
-
-        return oauth2User;
+            
+        User user = userService.createOrUpdateOAuthUser(registrationId, providerId, login, email, avatarUrl);
+    
+        return new CustomOAuth2User(oauth2User, user);
     }
 
 }

@@ -88,6 +88,14 @@ public class UserService {
         return user;
     }
 
+    @Transactional(readOnly = true)
+    public UserResponse findByProviderAndId(String provider, String providerId) {
+        User u = mapper.selectByProviderAndProviderId(provider, providerId);
+        if (u == null) return null;
+        
+        return toResponse(u);
+    }
+
     private UserResponse toResponse(User u) {
         
         return new UserResponse(u.getId(), u.getUsername(), u.getEmail(), u.getCreatedAt(), u.getProvider(), u.getProviderId(), u.getAvatarUrl());
