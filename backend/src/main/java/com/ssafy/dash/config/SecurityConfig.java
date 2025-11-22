@@ -6,7 +6,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.ssafy.dash.oauth.CustomOAuth2UserService;
+import com.ssafy.dash.oauth.service.CustomOAuth2UserService;
 
 @Configuration
 @EnableWebSecurity
@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .userInfoEndpoint(userInfo -> userInfo
                     .userService(customOAuth2UserService)
                 )
-                .defaultSuccessUrl("http://localhost:5173", false)
+                .defaultSuccessUrl("http://localhost:5173/oauth2/redirect", true)
             );
         
         return http.build();

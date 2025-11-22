@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import com.ssafy.dash.oauth.service.CustomOAuth2UserService;
 import com.ssafy.dash.user.domain.User;
 import com.ssafy.dash.user.service.UserService;
 
@@ -82,5 +83,5 @@ class CustomOAuth2UserServiceTest {
         assertThat(result).isNotNull();
         verify(userService).createOrUpdateOAuthUser(registrationId, "12345678", "tester", "test@example.com", "http://avatar.url");
     }
-    
+
 }
