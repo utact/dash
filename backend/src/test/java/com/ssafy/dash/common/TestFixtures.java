@@ -9,6 +9,11 @@ import com.ssafy.dash.board.dto.BoardUpdateRequest;
 import com.ssafy.dash.user.domain.User;
 import com.ssafy.dash.user.dto.UserCreateRequest;
 import com.ssafy.dash.user.dto.UserUpdateRequest;
+import com.ssafy.dash.algorithm.domain.AlgorithmRecord;
+import com.ssafy.dash.algorithm.dto.AlgorithmRecordCreateRequest;
+import com.ssafy.dash.algorithm.dto.AlgorithmRecordResponse;
+import com.ssafy.dash.algorithm.dto.AlgorithmRecordUpdateRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 public class TestFixtures {
 
@@ -22,6 +27,12 @@ public class TestFixtures {
     public static final Long TEST_BOARD_ID = 1L;
     public static final String TEST_BOARD_TITLE = "Test Title";
     public static final String TEST_BOARD_CONTENT = "Test Content";
+
+    public static final Long TEST_ALGORITHM_RECORD_ID = 1L;
+    public static final String TEST_PROBLEM_NUMBER = "1000";
+    public static final String TEST_ALGORITHM_TITLE = "A+B";
+    public static final String TEST_ALGORITHM_CODE = "import java.util.*; ...";
+    public static final String TEST_ALGORITHM_LANGUAGE = "Java";
 
     public static User createUser() {
         return new User(TEST_USER_ID, TEST_USERNAME, TEST_EMAIL, LocalDateTime.now(), TEST_PROVIDER, TEST_PROVIDER_ID, TEST_AVATAR_URL);
@@ -50,4 +61,21 @@ public class TestFixtures {
     public static BoardResponse createBoardResponse(User user) {
         return new BoardResponse(TEST_BOARD_ID, TEST_BOARD_TITLE, TEST_BOARD_CONTENT, user.getId(), user.getUsername(), LocalDateTime.now(), LocalDateTime.now());
     }
+
+    public static AlgorithmRecord createAlgorithmRecord(User user) {
+        return new AlgorithmRecord(TEST_ALGORITHM_RECORD_ID, user.getId(), TEST_PROBLEM_NUMBER, TEST_ALGORITHM_TITLE, TEST_ALGORITHM_CODE, TEST_ALGORITHM_LANGUAGE, LocalDateTime.now(), LocalDateTime.now());
+    }
+
+    public static AlgorithmRecordCreateRequest createAlgorithmRecordCreateRequest(MultipartFile file) {
+        return new AlgorithmRecordCreateRequest(TEST_PROBLEM_NUMBER, TEST_ALGORITHM_TITLE, TEST_ALGORITHM_LANGUAGE, file);
+    }
+
+    public static AlgorithmRecordUpdateRequest createAlgorithmRecordUpdateRequest(MultipartFile file) {
+        return new AlgorithmRecordUpdateRequest(TEST_PROBLEM_NUMBER, "Updated Title", TEST_ALGORITHM_LANGUAGE, file);
+    }
+
+    public static AlgorithmRecordResponse createAlgorithmRecordResponse(User user) {
+        return new AlgorithmRecordResponse(TEST_ALGORITHM_RECORD_ID, user.getId(), TEST_PROBLEM_NUMBER, TEST_ALGORITHM_TITLE, TEST_ALGORITHM_CODE, TEST_ALGORITHM_LANGUAGE, LocalDateTime.now(), LocalDateTime.now());
+    }
+    
 }
