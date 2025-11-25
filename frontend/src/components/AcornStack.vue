@@ -17,104 +17,190 @@ let runner = null;
 let mouseConstraint = null;
 let initialExistingCount = 0;
 let dynamicAddedCount = 0;
+let spawnSequence = 0;
+
+const ACORN_META = {
+  bronze: {
+    texture: "/items/acorn-1.png",
+    canvasWidth: 609,
+    canvasHeight: 609,
+    contentWidth: 600,
+    contentHeight: 608,
+    offsetX: 5,
+    offsetY: 0,
+    anchorX: 0.5,
+    anchorY: 0.5016,
+  },
+  silver: {
+    texture: "/items/acorn-2.png",
+    canvasWidth: 786,
+    canvasHeight: 786,
+    contentWidth: 664,
+    contentHeight: 768,
+    offsetX: 101,
+    offsetY: 10,
+    anchorX: 0.4981,
+    anchorY: 0.5006,
+  },
+  gold: {
+    texture: "/items/acorn-3.png",
+    canvasWidth: 1024,
+    canvasHeight: 1024,
+    contentWidth: 1014,
+    contentHeight: 1023,
+    offsetX: 0,
+    offsetY: 0,
+    anchorX: 0.4995,
+    anchorY: 0.4917,
+  },
+  platinum: {
+    texture: "/items/acorn-4.png",
+    canvasWidth: 1069,
+    canvasHeight: 1069,
+    contentWidth: 1024,
+    contentHeight: 1069,
+    offsetX: 25,
+    offsetY: 0,
+    anchorX: 0.4935,
+    anchorY: 0.4995,
+  },
+};
+
+// 목표 높이
+const TARGET_VISUAL_HEIGHT = 90;
+// 물리 바디 크기 비율
+const BODY_SQUARE_SCALE = 0.5;
+// 스폰 간격
+const SPAWN_GAP = TARGET_VISUAL_HEIGHT * 0.75;
+// 디버그 드로잉 활성화 여부
+const DEBUG_DRAW = true;
 
 const Engine = Matter.Engine,
   Render = Matter.Render,
   World = Matter.World,
   Bodies = Matter.Bodies,
+  Body = Matter.Body,
   Runner = Matter.Runner,
   Composite = Matter.Composite,
   Mouse = Matter.Mouse,
   MouseConstraintMod = Matter.MouseConstraint,
   Events = Matter.Events;
 
-const createBox = (x, y, type) => {
-  let size, color, label;
-  if (type === "platinum") {
-    size = 60;
-    color = "#27e2a4";
-    label = "100";
-  } else if (type === "gold") {
-    size = 45;
-    color = "#ec9a00";
-    label = "50";
-  } else if (type === "silver") {
-    size = 35;
-    color = "#435f7a";
-    label = "10";
-  } else {
-    size = 25;
-    color = "#ad5600";
-    label = "1";
-  }
+const buildSprite = (type, scale) => {
+  const meta = ACORN_META[type] || ACORN_META.bronze;
 
-  return Bodies.rectangle(x, y, size, size, {
-    render: { fillStyle: color, strokeStyle: "#ffffff", lineWidth: 2 },
-    restitution: 0.6,
-    friction: 0.5,
-    label: label,
-  });
+  return {
+    texture: meta.texture,
+    xScale: scale,
+    yScale: scale,
+  };
 };
 
+const createBox = (x, y, type) => {
+  let label;
+  if (type === "platinum") label = "100";
+  else if (type === "gold") label = "50";
+  else if (type === "silver") label = "10";
+  else label = "1";
+
+  const meta = ACORN_META[type] || ACORN_META.bronze;
+  const spriteScale = TARGET_VISUAL_HEIGHT / meta.contentHeight;
+  const displayWidth = meta.contentWidth * spriteScale;
+  const displayHeight = TARGET_VISUAL_HEIGHT;
+  const bodySide = displayWidth * BODY_SQUARE_SCALE;
+  const chamferSize = bodySide * 0.45;
+
+  const body = Bodies.rectangle(x, y, bodySide, bodySide, {
+    chamfer: { radius: chamferSize },
+    angle: 0,
+    render: {
+      sprite: buildSprite(type, spriteScale),
+    },
+    restitution: 0.0,
+    friction: 1.0,
+    frictionStatic: 1.0,
+    label: label,
+  });
+
+  body.plugin = body.plugin || {};
+  body.plugin.acornSpawnOrder = spawnSequence++;
+  Body.setInertia(body, Infinity);
+  Body.setAngularVelocity(body, 0);
+
+  return body;
+};
+
+// 정렬 기준 재설정
+const reorderBodies = () => {
+  if (!engine) return;
+  const sorted = engine.world.bodies;
+  sorted.sort((a, b) => {
+    const orderA = a.plugin?.acornSpawnOrder ?? Number.MIN_SAFE_INTEGER;
+    const orderB = b.plugin?.acornSpawnOrder ?? Number.MIN_SAFE_INTEGER;
+    return orderB - orderA;
+  });
+  Composite.setModified(engine.world, true, true, false);
+};
+
+// 스폰 위치 결정
 const centerX = () => window.innerWidth / 2;
 const spawnXForType = (type) => {
   const vw = window.innerWidth;
-  const base = Math.min(700, Math.max(200, Math.floor(vw * 0.35)));
-  let spread;
-  if (type === "platinum") spread = base * 1.1;
-  else if (type === "gold") spread = base * 0.9;
-  else if (type === "silver") spread = base * 0.6;
-  else spread = base * 0.4;
-  return centerX() + (Math.random() - 0.5) * spread;
+  const spread = vw;
+  let sum = 0;
+  for (let i = 0; i < 6; i++) sum += Math.random();
+  const rand = (sum - 3) / 6;
+  return centerX() + rand * spread;
 };
 
 const addBoxes = (diff) => {
   if (!engine) return;
-  const capacity = Math.max(0, 300 - initialExistingCount - dynamicAddedCount);
+  const capacity = Math.max(0, 500 - initialExistingCount - dynamicAddedCount);
   const allowed = Math.min(diff, capacity);
   if (allowed <= 0) return;
   const newBodies = [];
   let remaining = allowed;
+  let currentY = -SPAWN_GAP;
 
   const platinums = Math.floor(remaining / 100);
   remaining %= 100;
-  for (let i = 0; i < platinums; i++)
-    newBodies.push(
-      createBox(
-        spawnXForType("platinum"),
-        -Math.random() * 500 - 100,
-        "platinum"
-      )
-    );
+  for (let i = 0; i < platinums; i++) {
+    currentY -= SPAWN_GAP;
+    newBodies.push(createBox(spawnXForType("platinum"), currentY, "platinum"));
+  }
 
   const golds = Math.floor(remaining / 50);
   remaining %= 50;
-  for (let i = 0; i < golds; i++)
-    newBodies.push(
-      createBox(spawnXForType("gold"), -Math.random() * 400 - 50, "gold")
-    );
+  for (let i = 0; i < golds; i++) {
+    currentY -= SPAWN_GAP;
+    newBodies.push(createBox(spawnXForType("gold"), currentY, "gold"));
+  }
 
   const silvers = Math.floor(remaining / 10);
   remaining %= 10;
-  for (let i = 0; i < silvers; i++)
-    newBodies.push(
-      createBox(spawnXForType("silver"), -Math.random() * 300 - 50, "silver")
-    );
+  for (let i = 0; i < silvers; i++) {
+    currentY -= SPAWN_GAP;
+    newBodies.push(createBox(spawnXForType("silver"), currentY, "silver"));
+  }
 
-  for (let i = 0; i < remaining; i++)
-    newBodies.push(
-      createBox(spawnXForType("bronze"), -Math.random() * 200 - 50, "bronze")
-    );
+  for (let i = 0; i < remaining; i++) {
+    currentY -= SPAWN_GAP;
+    newBodies.push(createBox(spawnXForType("bronze"), currentY, "bronze"));
+  }
 
   if (newBodies.length > 0) {
     Composite.add(engine.world, newBodies);
     dynamicAddedCount += newBodies.length;
+    reorderBodies();
   }
 };
 
 const initMatter = () => {
   if (!scene.value) return;
   engine = Engine.create();
+  engine.positionIterations = 10;
+  engine.velocityIterations = 8;
+  engine.constraintIterations = 2;
 
   render = Render.create({
     element: scene.value,
@@ -163,6 +249,32 @@ const initMatter = () => {
   runner = Runner.create();
   Runner.run(runner, engine);
   Render.run(render);
+
+  if (DEBUG_DRAW) {
+    Events.on(render, "afterRender", () => {
+      const ctx = render.context;
+      const bodies = Composite.allBodies(engine.world);
+      ctx.save();
+      ctx.lineWidth = 1;
+      bodies.forEach((body) => {
+        if (body.isStatic) return;
+        ctx.beginPath();
+        ctx.moveTo(body.vertices[0].x, body.vertices[0].y);
+        for (let i = 1; i < body.vertices.length; i++) {
+          ctx.lineTo(body.vertices[i].x, body.vertices[i].y);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = "rgba(0, 200, 255, 0.8)";
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(body.position.x, body.position.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255, 80, 80, 0.9)";
+        ctx.fill();
+      });
+      ctx.restore();
+    });
+  }
 
   try {
     const allNow = Composite.allBodies(engine.world);
@@ -235,31 +347,29 @@ const addSpecificBoxes = (counts) => {
   toAllocate -= useBronze;
   bBronze = useBronze;
 
-  for (let i = 0; i < bPlat; i++)
-    bodies.push(
-      createBox(
-        spawnXForType("platinum"),
-        -Math.random() * 500 - 100,
-        "platinum"
-      )
-    );
-  for (let i = 0; i < bGold; i++)
-    bodies.push(
-      createBox(spawnXForType("gold"), -Math.random() * 400 - 50, "gold")
-    );
-  for (let i = 0; i < bSilver; i++)
-    bodies.push(
-      createBox(spawnXForType("silver"), -Math.random() * 300 - 50, "silver")
-    );
-  for (let i = 0; i < bBronze; i++)
-    bodies.push(
-      createBox(spawnXForType("bronze"), -Math.random() * 200 - 50, "bronze")
-    );
+  let currentY = -SPAWN_GAP;
+
+  for (let i = 0; i < bPlat; i++) {
+    currentY -= SPAWN_GAP;
+    bodies.push(createBox(spawnXForType("platinum"), currentY, "platinum"));
+  }
+  for (let i = 0; i < bGold; i++) {
+    currentY -= SPAWN_GAP;
+    bodies.push(createBox(spawnXForType("gold"), currentY, "gold"));
+  }
+  for (let i = 0; i < bSilver; i++) {
+    currentY -= SPAWN_GAP;
+    bodies.push(createBox(spawnXForType("silver"), currentY, "silver"));
+  }
+  for (let i = 0; i < bBronze; i++) {
+    currentY -= SPAWN_GAP;
+    bodies.push(createBox(spawnXForType("bronze"), currentY, "bronze"));
+  }
 
   if (bodies.length > 0) {
     Composite.add(engine.world, bodies);
-
     dynamicAddedCount += bodies.length;
+    reorderBodies();
   }
 };
 
