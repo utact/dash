@@ -94,6 +94,6 @@ class BoardControllerTest {
 
 ## 4. 리팩토링 체크리스트
 
-- [ ] 테스트 코드에 중복된 객체 생성 로직이 있는가? -> `TestFixtures`로 이동
+- [ ] 테스트 코드에 중복된 객체 생성 로직이 있는가? → `TestFixtures`로 이동
 - [ ] 테스트 메서드명이 의도를 명확히 드러내는가? (`MethodName_State_ExpectedBehavior`)
 - [ ] 불필요한 Stubbing이 없는가? (`UnnecessaryStubbingException` 주의)
