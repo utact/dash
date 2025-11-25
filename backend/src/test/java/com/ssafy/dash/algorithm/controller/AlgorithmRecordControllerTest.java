@@ -16,7 +16,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.mockito.Mockito;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,14 +33,24 @@ import com.ssafy.dash.user.domain.User;
 
 @WebMvcTest(AlgorithmRecordController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import(AlgorithmRecordControllerTest.TestConfig.class)
 @DisplayName("AlgorithmRecordController 단위 테스트")
 class AlgorithmRecordControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Autowired
     private AlgorithmRecordService algorithmRecordService;
+
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        public AlgorithmRecordService algorithmRecordService() {
+            
+            return Mockito.mock(AlgorithmRecordService.class);
+        }
+    }
 
     @Test
     @WithMockUser

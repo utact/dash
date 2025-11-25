@@ -17,7 +17,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -31,14 +34,24 @@ import com.ssafy.dash.user.domain.User;
 
 @WebMvcTest(BoardController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import(BoardControllerTest.TestConfig.class)
 @DisplayName("BoardController 통합 테스트")
 class BoardControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Autowired
     private BoardService boardService;
+
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        public BoardService boardService() {
+            
+            return Mockito.mock(BoardService.class);
+        }
+    }
 
     @Autowired
     private ObjectMapper objectMapper;
