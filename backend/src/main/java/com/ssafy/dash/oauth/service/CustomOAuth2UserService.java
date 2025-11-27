@@ -2,6 +2,8 @@ package com.ssafy.dash.oauth.service;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -17,6 +19,8 @@ import com.ssafy.dash.user.service.UserService;
 
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+
+    private static final Logger log = LoggerFactory.getLogger(CustomOAuth2UserService.class);
 
     private final UserService userService;
     private final OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate;
@@ -42,7 +46,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
             
         Map<String, Object> attributes = oauth2User.getAttributes();
-        System.out.println("OAuth2 Attributes: " + attributes);
+        log.debug("OAuth2 Attributes: {}", attributes);
             
         String providerId = String.valueOf(attributes.get("id"));
         String email = (String) attributes.get("email");
@@ -55,7 +59,14 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             
         OAuthLoginResult loginResult = userService.createOrUpdateOAuthUser(registrationId, providerId, login, email, avatarUrl);
 
-        oauthTokenService.saveAccessToken(loginResult.getUser().getId(), userRequest.getAccessToken());
+        try {
+            boolean hasToken = userRequest.getAccessToken() != null && userRequest.getAccessToken().getTokenValue() != null;
+            log.debug("Saving access token for userId={} tokenPresent={}", loginResult.getUser().getId(), hasToken);
+            oauthTokenService.saveAccessToken(loginResult.getUser().getId(), userRequest.getAccessToken());
+            log.debug("Access token save attempted for userId={}", loginResult.getUser().getId());
+        } catch (Exception ex) {
+            log.error("Failed to save access token for userId={}: {}", loginResult.getUser().getId(), ex.getMessage(), ex);
+        }
 
         return new CustomOAuth2User(oauth2User, loginResult);
     }
