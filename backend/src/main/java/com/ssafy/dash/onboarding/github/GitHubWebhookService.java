@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -41,14 +40,12 @@ public class GitHubWebhookService {
     public GitHubWebhookService(
             RestTemplateBuilder restTemplateBuilder,
             ObjectMapper objectMapper,
-            @Value("${github.webhook.callback-url:}") String callbackUrl,
-            @Value("${github.webhook.secret:}") String secret,
-            @Value("${github.webhook.events:push}") String events) {
+            GitHubWebhookProperties properties) {
         this.restTemplate = restTemplateBuilder.rootUri(ROOT_URI).build();
         this.objectMapper = objectMapper;
-        this.callbackUrl = callbackUrl;
-        this.secret = secret;
-        this.events = parseEvents(events);
+        this.callbackUrl = properties.getCallbackUrl();
+        this.secret = properties.getSecret();
+        this.events = parseEvents(properties.getEvents());
     }
 
     public void ensureWebhook(String repositoryFullName, String accessToken) {
