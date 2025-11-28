@@ -24,7 +24,7 @@ import com.ssafy.dash.onboarding.domain.OnboardingRepository;
 import com.ssafy.dash.onboarding.dto.RepositorySetupRequest;
 import com.ssafy.dash.onboarding.dto.RepositorySetupResponse;
 import com.ssafy.dash.onboarding.exception.WebhookRegistrationException;
-import com.ssafy.dash.github.service.GitHubWebhookService;
+import com.ssafy.dash.github.application.GitHubWebhookService;
 import com.ssafy.dash.onboarding.mapper.OnboardingRepositoryMapper;
 
 @ExtendWith(MockitoExtension.class)
