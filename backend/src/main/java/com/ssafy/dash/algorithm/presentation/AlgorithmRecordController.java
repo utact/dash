@@ -22,7 +22,7 @@ import com.ssafy.dash.algorithm.application.AlgorithmRecordService;
 import com.ssafy.dash.algorithm.presentation.dto.request.AlgorithmRecordCreateRequest;
 import com.ssafy.dash.algorithm.presentation.dto.request.AlgorithmRecordUpdateRequest;
 import com.ssafy.dash.algorithm.presentation.dto.response.AlgorithmRecordResponse;
-import com.ssafy.dash.oauth.infrastructure.security.CustomOAuth2User;
+import com.ssafy.dash.oauth.presentation.security.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Parameter;
 

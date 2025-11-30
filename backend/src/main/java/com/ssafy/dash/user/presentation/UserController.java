@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ssafy.dash.oauth.infrastructure.security.CustomOAuth2User;
+import com.ssafy.dash.oauth.presentation.security.CustomOAuth2User;
 import com.ssafy.dash.user.application.UserService;
 import com.ssafy.dash.user.presentation.dto.request.UserCreateRequest;
 import com.ssafy.dash.user.presentation.dto.request.UserUpdateRequest;

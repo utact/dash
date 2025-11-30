@@ -1,4 +1,4 @@
-package com.ssafy.dash.oauth.application;
+package com.ssafy.dash.oauth.presentation.security;
 
 import java.util.Collections;
 import java.util.Map;
@@ -22,8 +22,8 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import com.ssafy.dash.common.TestFixtures;
-import com.ssafy.dash.oauth.infrastructure.security.CustomOAuth2User;
 import com.ssafy.dash.oauth.domain.AuthFlowType;
+import com.ssafy.dash.oauth.application.OAuthTokenService;
 import com.ssafy.dash.oauth.application.dto.OAuthLoginResult;
 import com.ssafy.dash.user.application.UserService;
 

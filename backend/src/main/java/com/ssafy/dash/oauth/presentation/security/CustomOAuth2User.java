@@ -1,4 +1,4 @@
-package com.ssafy.dash.oauth.infrastructure.security;
+package com.ssafy.dash.oauth.presentation.security;
 
 import java.io.Serializable;
 import java.util.Collection;
