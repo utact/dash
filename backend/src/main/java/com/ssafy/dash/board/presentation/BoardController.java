@@ -33,7 +33,7 @@ public class BoardController {
     public ResponseEntity<BoardResponse> create(@RequestBody BoardCreateRequest request) {
         BoardResponse response = BoardResponse.from(boardService.create(request.toCommand()));
 
-        return ResponseEntity.created(URI.create("/api/boards/" + response.getId())).body(response);
+        return ResponseEntity.created(URI.create("/api/boards/" + response.id())).body(response);
     }
 
     @GetMapping

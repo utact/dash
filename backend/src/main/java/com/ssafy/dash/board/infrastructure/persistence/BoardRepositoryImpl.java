@@ -10,7 +10,7 @@ import com.ssafy.dash.board.domain.BoardRepository;
 import com.ssafy.dash.board.infrastructure.mapper.BoardMapper;
 
 @Repository
-class BoardRepositoryImpl implements BoardRepository {
+public class BoardRepositoryImpl implements BoardRepository {
 
     private final BoardMapper boardMapper;
 
