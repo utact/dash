@@ -1,7 +1,15 @@
 package com.ssafy.dash.board.domain;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
 public class Board {
     
     private Long id;
@@ -11,63 +19,44 @@ public class Board {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public Board() {}
-
-    public Board(Long id, String title, String content, Long userId, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.title = title;
-        this.content = content;
-        this.userId = userId;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+    private Board(Long userId, String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.userId = requirePositive(userId, "userId");
+        this.title = requireText(title, "title");
+        this.content = requireText(content, "content");
+        this.createdAt = requireTimestamp(createdAt, "createdAt");
+        this.updatedAt = requireTimestamp(updatedAt, "updatedAt");
     }
 
-    public Long getId() {
-        return id;
+    public static Board create(Long userId, String title, String content, LocalDateTime createdAt) {
+        return new Board(userId, title, content, createdAt, createdAt);
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void applyUpdate(String title, String content, LocalDateTime updatedAt) {
+        if (title != null && !title.isBlank()) {
+            this.title = title;
+        }
+        if (content != null && !content.isBlank()) {
+            this.content = content;
+        }
+        this.updatedAt = requireTimestamp(updatedAt, "updatedAt");
     }
 
-    public String getTitle() {
-        return title;
+    private static Long requirePositive(Long value, String fieldName) {
+        if (value == null || value <= 0) {
+            throw new IllegalArgumentException(fieldName + " must be positive");
+        }
+        return value;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    private static String requireText(String value, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " must not be blank");
+        }
+        return value;
     }
 
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    private static LocalDateTime requireTimestamp(LocalDateTime value, String fieldName) {
+        return Objects.requireNonNull(value, fieldName + " must not be null");
     }
 
 }
