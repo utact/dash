@@ -38,7 +38,7 @@ class AlgorithmRecordTest {
     }
 
     @Test
-    @DisplayName("시간 정보 없이 업데이트하면 예외가 발생한다")
+    @DisplayName("시간 정보 없이 업데이트하면 NullPointerException이 발생한다")
     void applyUpdate_ShouldValidateTimestamp() {
         AlgorithmRecord record = AlgorithmRecord.create(1L, "1000", "A+B", "Java", "code", FixtureTime.now());
 
@@ -47,7 +47,7 @@ class AlgorithmRecordTest {
     }
 
     @Test
-    @DisplayName("잘못된 파라미터로 생성 시 예외가 발생한다")
+    @DisplayName("잘못된 파라미터로 생성하면 IllegalArgumentException이 발생한다")
     void create_ShouldValidateArguments() {
         assertThatThrownBy(() -> AlgorithmRecord.create(0L, "", "", "", null, FixtureTime.now()))
                 .isInstanceOf(IllegalArgumentException.class);
