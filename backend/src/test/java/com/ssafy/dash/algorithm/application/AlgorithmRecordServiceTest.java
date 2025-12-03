@@ -51,7 +51,7 @@ class AlgorithmRecordServiceTest {
     }
 
     @Test
-    @DisplayName("사용자가 존재할 때 알고리즘 기록을 생성한다")
+    @DisplayName("사용자가 존재하면 알고리즘 기록을 생성하고 결과를 반환한다")
     void createRecord_Success() {
         AlgorithmRecordCreateCommand command = TestFixtures.createAlgorithmRecordCreateCommand(TestFixtures.TEST_ALGORITHM_CODE);
         given(userRepository.findById(command.userId())).willReturn(Optional.of(user));
@@ -64,7 +64,7 @@ class AlgorithmRecordServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 사용자로 기록 생성 시 예외가 발생한다")
+    @DisplayName("존재하지 않는 사용자로 기록을 생성하면 UserNotFoundException이 발생한다")
     void createRecord_UserMissing_Throws() {
         AlgorithmRecordCreateCommand command = TestFixtures.createAlgorithmRecordCreateCommand(TestFixtures.TEST_ALGORITHM_CODE);
         given(userRepository.findById(command.userId())).willReturn(Optional.empty());
@@ -75,7 +75,7 @@ class AlgorithmRecordServiceTest {
     }
 
     @Test
-    @DisplayName("ID로 알고리즘 기록을 조회한다")
+    @DisplayName("ID로 알고리즘 기록을 조회하면 결과 DTO를 반환한다")
     void findById_Success() {
         given(algorithmRecordRepository.findById(TestFixtures.TEST_ALGORITHM_RECORD_ID)).willReturn(Optional.of(record));
 
@@ -86,7 +86,7 @@ class AlgorithmRecordServiceTest {
     }
 
     @Test
-    @DisplayName("없는 ID로 조회 시 예외가 발생한다")
+    @DisplayName("존재하지 않는 ID로 조회하면 AlgorithmRecordNotFoundException이 발생한다")
     void findById_NotFound_Throws() {
         given(algorithmRecordRepository.findById(TestFixtures.TEST_ALGORITHM_RECORD_ID)).willReturn(Optional.empty());
 
@@ -95,7 +95,7 @@ class AlgorithmRecordServiceTest {
     }
 
     @Test
-    @DisplayName("모든 알고리즘 기록을 조회한다")
+    @DisplayName("모든 알고리즘 기록을 조회하면 리스트를 반환한다")
     void findAll_Success() {
         given(algorithmRecordRepository.findAll()).willReturn(List.of(record));
 
@@ -108,7 +108,7 @@ class AlgorithmRecordServiceTest {
     }
 
     @Test
-    @DisplayName("사용자별 알고리즘 기록을 조회한다")
+    @DisplayName("사용자별 알고리즘 기록을 조회하면 해당 사용자의 목록을 반환한다")
     void findByUserId_Success() {
         given(algorithmRecordRepository.findByUserId(TestFixtures.TEST_USER_ID)).willReturn(List.of(record));
 
@@ -121,7 +121,7 @@ class AlgorithmRecordServiceTest {
     }
 
     @Test
-    @DisplayName("기록을 수정하면 변경 값이 반영된다")
+    @DisplayName("기록을 수정하면 변경된 값이 결과에 반영된다")
     void updateRecord_Success() {
         AlgorithmRecordUpdateCommand command = TestFixtures.createAlgorithmRecordUpdateCommand("updated code");
         given(algorithmRecordRepository.findById(TestFixtures.TEST_ALGORITHM_RECORD_ID)).willReturn(Optional.of(record));
@@ -134,7 +134,7 @@ class AlgorithmRecordServiceTest {
     }
 
     @Test
-    @DisplayName("없는 기록 수정 시 예외가 발생한다")
+    @DisplayName("존재하지 않는 기록을 수정하면 AlgorithmRecordNotFoundException이 발생한다")
     void updateRecord_NotFound_Throws() {
         AlgorithmRecordUpdateCommand command = TestFixtures.createAlgorithmRecordUpdateCommand("updated code");
         given(algorithmRecordRepository.findById(TestFixtures.TEST_ALGORITHM_RECORD_ID)).willReturn(Optional.empty());
@@ -144,7 +144,7 @@ class AlgorithmRecordServiceTest {
     }
 
     @Test
-    @DisplayName("기록 삭제 시 true를 반환하면 예외 없이 끝난다")
+    @DisplayName("기록 삭제가 성공하면 예외 없이 종료된다")
     void deleteRecord_Success() {
         given(algorithmRecordRepository.delete(TestFixtures.TEST_ALGORITHM_RECORD_ID)).willReturn(true);
 
@@ -154,7 +154,7 @@ class AlgorithmRecordServiceTest {
     }
 
     @Test
-    @DisplayName("삭제할 기록이 없으면 예외가 발생한다")
+    @DisplayName("삭제할 기록이 없으면 AlgorithmRecordNotFoundException이 발생한다")
     void deleteRecord_NotFound_Throws() {
         given(algorithmRecordRepository.delete(TestFixtures.TEST_ALGORITHM_RECORD_ID)).willReturn(false);
 

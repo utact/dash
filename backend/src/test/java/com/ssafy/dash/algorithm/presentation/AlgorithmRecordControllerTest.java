@@ -70,7 +70,7 @@ class AlgorithmRecordControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("알고리즘 기록 생성 성공")
+    @DisplayName("알고리즘 기록 생성 요청이 성공하면 201과 결과를 반환한다")
     void createRecord_Success() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "Main.java", "text/plain", TestFixtures.TEST_ALGORITHM_CODE.getBytes());
         given(algorithmRecordService.create(any(AlgorithmRecordCreateCommand.class))).willReturn(recordResult);
@@ -90,7 +90,7 @@ class AlgorithmRecordControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("알고리즘 기록 전체 조회 성공")
+    @DisplayName("알고리즘 기록 전체를 조회하면 목록을 반환한다")
     void getAllRecords_Success() throws Exception {
         given(algorithmRecordService.findAll()).willReturn(List.of(recordResult));
 
@@ -101,7 +101,7 @@ class AlgorithmRecordControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("알고리즘 기록 단건 조회 성공")
+    @DisplayName("ID로 알고리즘 기록을 조회하면 단건 결과를 반환한다")
     void getRecordById_Success() throws Exception {
         given(algorithmRecordService.findById(TestFixtures.TEST_ALGORITHM_RECORD_ID)).willReturn(recordResult);
 
@@ -112,7 +112,7 @@ class AlgorithmRecordControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("알고리즘 기록 단건 조회 실패_존재하지 않으면 404")
+    @DisplayName("존재하지 않는 알고리즘 기록을 조회하면 404를 반환한다")
     void getRecordById_Failure_NotFound() throws Exception {
         given(algorithmRecordService.findById(TestFixtures.TEST_ALGORITHM_RECORD_ID))
                 .willThrow(new AlgorithmRecordNotFoundException(TestFixtures.TEST_ALGORITHM_RECORD_ID));
@@ -125,7 +125,7 @@ class AlgorithmRecordControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("알고리즘 기록 수정 성공")
+    @DisplayName("알고리즘 기록 수정 요청이 성공하면 변경된 결과를 반환한다")
     void updateRecord_Success() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "Main.java", "text/plain", "updated".getBytes());
         given(algorithmRecordService.update(eq(TestFixtures.TEST_ALGORITHM_RECORD_ID), any(AlgorithmRecordUpdateCommand.class))).willReturn(recordResult);
@@ -145,7 +145,7 @@ class AlgorithmRecordControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("알고리즘 기록 삭제 성공")
+    @DisplayName("알고리즘 기록 삭제에 성공하면 204를 반환한다")
     void deleteRecord_Success() throws Exception {
         mockMvc.perform(delete("/api/algorithm-records/" + TestFixtures.TEST_ALGORITHM_RECORD_ID))
                 .andExpect(status().isNoContent());
@@ -155,7 +155,7 @@ class AlgorithmRecordControllerTest {
 
     @Test
     @WithMockUser
-    @DisplayName("알고리즘 기록 삭제 실패_존재하지 않으면 404")
+    @DisplayName("존재하지 않는 알고리즘 기록을 삭제하면 404를 반환한다")
     void deleteRecord_Failure_NotFound() throws Exception {
         willThrow(new AlgorithmRecordNotFoundException(TestFixtures.TEST_ALGORITHM_RECORD_ID))
                 .given(algorithmRecordService).delete(TestFixtures.TEST_ALGORITHM_RECORD_ID);
