@@ -1,23 +1,5 @@
 package com.ssafy.dash.algorithm.application;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import com.ssafy.dash.algorithm.application.dto.command.AlgorithmRecordCreateCommand;
 import com.ssafy.dash.algorithm.application.dto.command.AlgorithmRecordUpdateCommand;
 import com.ssafy.dash.algorithm.application.dto.result.AlgorithmRecordResult;
@@ -28,6 +10,23 @@ import com.ssafy.dash.common.TestFixtures;
 import com.ssafy.dash.user.domain.User;
 import com.ssafy.dash.user.domain.UserRepository;
 import com.ssafy.dash.user.domain.exception.UserNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AlgorithmRecordService 단위 테스트")
@@ -55,12 +54,12 @@ class AlgorithmRecordServiceTest {
     @DisplayName("사용자가 존재할 때 알고리즘 기록을 생성한다")
     void createRecord_Success() {
         AlgorithmRecordCreateCommand command = TestFixtures.createAlgorithmRecordCreateCommand(TestFixtures.TEST_ALGORITHM_CODE);
-        given(userRepository.findById(command.getUserId())).willReturn(Optional.of(user));
+        given(userRepository.findById(command.userId())).willReturn(Optional.of(user));
 
         AlgorithmRecordResult response = algorithmRecordService.create(command);
 
         verify(algorithmRecordRepository).save(any(AlgorithmRecord.class));
-        assertThat(response.problemNumber()).isEqualTo(command.getProblemNumber());
+        assertThat(response.problemNumber()).isEqualTo(command.problemNumber());
         assertThat(response.code()).isEqualTo(TestFixtures.TEST_ALGORITHM_CODE);
     }
 
@@ -68,7 +67,7 @@ class AlgorithmRecordServiceTest {
     @DisplayName("존재하지 않는 사용자로 기록 생성 시 예외가 발생한다")
     void createRecord_UserMissing_Throws() {
         AlgorithmRecordCreateCommand command = TestFixtures.createAlgorithmRecordCreateCommand(TestFixtures.TEST_ALGORITHM_CODE);
-        given(userRepository.findById(command.getUserId())).willReturn(Optional.empty());
+        given(userRepository.findById(command.userId())).willReturn(Optional.empty());
 
         assertThatThrownBy(() -> algorithmRecordService.create(command))
                 .isInstanceOf(UserNotFoundException.class);
@@ -162,5 +161,5 @@ class AlgorithmRecordServiceTest {
         assertThatThrownBy(() -> algorithmRecordService.delete(TestFixtures.TEST_ALGORITHM_RECORD_ID))
                 .isInstanceOf(AlgorithmRecordNotFoundException.class);
     }
-    
+
 }
