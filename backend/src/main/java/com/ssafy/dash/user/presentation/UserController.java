@@ -38,7 +38,7 @@ public class UserController {
     public ResponseEntity<UserResponse> create(@RequestBody UserCreateRequest req) {
         UserResponse created = UserResponse.from(service.create(req.toCommand()));
         
-        return ResponseEntity.created(URI.create("/api/users/" + created.getId())).body(created);
+        return ResponseEntity.created(URI.create("/api/users/" + created.id())).body(created);
     }
 
     @GetMapping("/{id}")
