@@ -8,17 +8,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.dash.common.TestFixtures;
+import com.ssafy.dash.user.presentation.dto.request.UserCreateRequest;
+import com.ssafy.dash.user.presentation.dto.request.UserUpdateRequest;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ssafy.dash.common.TestFixtures;
-import com.ssafy.dash.user.presentation.dto.request.UserCreateRequest;
-import com.ssafy.dash.user.presentation.dto.request.UserUpdateRequest;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
@@ -33,7 +34,7 @@ public class UserControllerIntegrationTest {
     ObjectMapper mapper;
 
     @Test
-    @DisplayName("유저 CRUD 전체 흐름 성공")
+    @DisplayName("유저 CRUD 전체 흐름을 수행하면 201-200-204 응답을 순차로 반환한다")
     public void crudFlow() throws Exception {
         // 유저 생성
         UserCreateRequest create = TestFixtures.createUserCreateRequest();
