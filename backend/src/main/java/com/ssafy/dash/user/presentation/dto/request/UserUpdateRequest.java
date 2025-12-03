@@ -1,38 +1,22 @@
 package com.ssafy.dash.user.presentation.dto.request;
 
-import com.ssafy.dash.user.application.dto.UserUpdateCommand;
+import com.ssafy.dash.user.application.dto.command.UserUpdateCommand;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserUpdateRequest {
 
     private String username;
     private String email;
 
-    public UserUpdateRequest() {}
-
-    public UserUpdateRequest(String username, String email) {
-        this.username = username;
-        this.email = email;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public UserUpdateCommand toCommand() {
-
         return new UserUpdateCommand(username, email);
     }
-    
+
 }

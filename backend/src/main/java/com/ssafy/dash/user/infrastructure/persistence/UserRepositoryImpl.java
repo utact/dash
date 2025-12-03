@@ -11,7 +11,6 @@ import com.ssafy.dash.user.infrastructure.mapper.UserMapper;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
-    
     private final UserMapper userMapper;
 
     public UserRepositoryImpl(UserMapper userMapper) {
