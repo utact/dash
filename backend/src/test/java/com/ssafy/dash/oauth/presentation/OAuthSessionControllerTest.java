@@ -1,12 +1,14 @@
 package com.ssafy.dash.oauth.presentation;
 
-import java.util.Collections;
-import java.util.Map;
-
+import com.ssafy.dash.common.TestFixtures;
+import com.ssafy.dash.oauth.application.dto.result.OAuthLoginResult;
+import com.ssafy.dash.oauth.domain.AuthFlowType;
+import com.ssafy.dash.oauth.presentation.security.CustomOAuth2User;
+import com.ssafy.dash.user.application.UserService;
+import com.ssafy.dash.user.application.dto.result.UserResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import static org.mockito.BDDMockito.given;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,16 +23,14 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Collections;
+import java.util.Map;
+
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import com.ssafy.dash.common.TestFixtures;
-import com.ssafy.dash.oauth.application.dto.OAuthLoginResult;
-import com.ssafy.dash.oauth.domain.AuthFlowType;
-import com.ssafy.dash.oauth.presentation.security.CustomOAuth2User;
-import com.ssafy.dash.user.application.UserService;
-import com.ssafy.dash.user.application.dto.UserResult;
 
 @WebMvcTest(OAuthSessionController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -41,16 +41,16 @@ class OAuthSessionControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-        @Autowired
-        private UserService userService;
+    @Autowired
+    private UserService userService;
 
-        @TestConfiguration
-        static class TestConfig {
-                @Bean
-                UserService userService() {
-                        return Mockito.mock(UserService.class);
-                }
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        UserService userService() {
+            return Mockito.mock(UserService.class);
         }
+    }
 
     @AfterEach
     void tearDown() {
@@ -58,7 +58,7 @@ class OAuthSessionControllerTest {
     }
 
     @Test
-    @DisplayName("세션 조회 시 로그인 흐름 정보를 반환한다")
+    @DisplayName("세션을 조회하면 로그인 흐름 정보를 반환한다")
     void sessionReturnsFlowType() throws Exception {
         UserResult userResult = TestFixtures.createUserResult();
         given(userService.findById(TestFixtures.TEST_USER_ID)).willReturn(userResult);
@@ -79,5 +79,14 @@ class OAuthSessionControllerTest {
                 .andExpect(jsonPath("$.flowType").value("SIGN_UP"))
                 .andExpect(jsonPath("$.user.id").value(TestFixtures.TEST_USER_ID));
     }
-    
+
+    @Test
+    @DisplayName("로그인하지 않고 세션을 조회하면 401을 반환한다")
+    void sessionReturnsUnauthorized() throws Exception {
+        mockMvc.perform(get("/api/oauth/session"))
+                .andExpect(status().isUnauthorized());
+
+        Mockito.verifyNoInteractions(userService);
+    }
+
 }

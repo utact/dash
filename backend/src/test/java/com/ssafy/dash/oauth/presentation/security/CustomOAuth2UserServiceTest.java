@@ -3,15 +3,11 @@ package com.ssafy.dash.oauth.presentation.security;
 import java.util.Collections;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.verify;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -22,17 +18,22 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import com.ssafy.dash.common.TestFixtures;
-import com.ssafy.dash.oauth.domain.AuthFlowType;
 import com.ssafy.dash.oauth.application.OAuthTokenService;
-import com.ssafy.dash.oauth.application.dto.OAuthLoginResult;
-import com.ssafy.dash.user.application.UserService;
+import com.ssafy.dash.oauth.application.OAuthUserService;
+import com.ssafy.dash.oauth.application.dto.result.OAuthLoginResult;
+import com.ssafy.dash.oauth.domain.AuthFlowType;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CustomOAuth2UserService 단위 테스트")
 class CustomOAuth2UserServiceTest {
 
     @Mock
-    private UserService userService;
+    private OAuthUserService oauthUserService;
 
     @Mock
     private OAuthTokenService oauthTokenService;
@@ -44,7 +45,7 @@ class CustomOAuth2UserServiceTest {
     private CustomOAuth2UserService customOAuth2UserService;
 
     @Test
-    @DisplayName("GitHub 로그인 시 유저 서비스 호출 성공")
+    @DisplayName("GitHub 로그인 시 사용자/토큰 서비스를 호출해 CustomOAuth2User를 만든다")
     void loadUser_callsUserService() {
         // given
         String registrationId = TestFixtures.TEST_PROVIDER;
@@ -79,7 +80,7 @@ class CustomOAuth2UserServiceTest {
                 Collections.emptySet(), attributes, userNameAttributeName);
 
         given(delegate.loadUser(userRequest)).willReturn(oauth2User);
-        given(userService.createOrUpdateOAuthUser(anyString(), anyString(), anyString(), anyString(), anyString()))
+        given(oauthUserService.createOrUpdateOAuthUser(anyString(), anyString(), anyString(), anyString(), anyString()))
             .willReturn(new OAuthLoginResult(TestFixtures.createUser(), AuthFlowType.LOGIN));
 
         // when
@@ -90,7 +91,7 @@ class CustomOAuth2UserServiceTest {
             assertThat(customUser.getFlowType()).isEqualTo(AuthFlowType.LOGIN);
             assertThat(customUser.isSignUp()).isFalse();
         });
-        verify(userService).createOrUpdateOAuthUser(registrationId, TestFixtures.TEST_PROVIDER_ID, TestFixtures.TEST_USERNAME, TestFixtures.TEST_EMAIL, TestFixtures.TEST_AVATAR_URL);
+        verify(oauthUserService).createOrUpdateOAuthUser(registrationId, TestFixtures.TEST_PROVIDER_ID, TestFixtures.TEST_USERNAME, TestFixtures.TEST_EMAIL, TestFixtures.TEST_AVATAR_URL);
         verify(oauthTokenService).saveAccessToken(TestFixtures.TEST_USER_ID, accessToken);
     }
 
