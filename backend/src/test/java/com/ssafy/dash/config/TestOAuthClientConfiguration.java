@@ -26,8 +26,7 @@ public class TestOAuthClientConfiguration {
                 .userNameAttributeName("id")
                 .clientName("Test")
                 .build();
-
         return new InMemoryClientRegistrationRepository(registration);
     }
-    
+
 }
