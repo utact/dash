@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ssafy.dash.oauth.presentation.security.CustomOAuth2User;
 import com.ssafy.dash.onboarding.application.OnboardingService;
-import com.ssafy.dash.onboarding.application.dto.RepositorySetupCommand;
-import com.ssafy.dash.onboarding.application.dto.RepositorySetupResult;
+import com.ssafy.dash.onboarding.application.dto.command.RepositorySetupCommand;
+import com.ssafy.dash.onboarding.application.dto.result.RepositorySetupResult;
 import com.ssafy.dash.onboarding.presentation.dto.request.RepositorySetupRequest;
 import com.ssafy.dash.onboarding.presentation.dto.response.RepositorySetupResponse;
 
@@ -36,7 +36,7 @@ public class OnboardingController {
             @Parameter(hidden = true) @AuthenticationPrincipal OAuth2User principal,
             @Validated @RequestBody RepositorySetupRequest request) {
         if (principal instanceof CustomOAuth2User customUser) {
-            RepositorySetupCommand command = new RepositorySetupCommand(customUser.getUserId(), request.getRepositoryName());
+            RepositorySetupCommand command = request.toCommand(customUser.getUserId());
             RepositorySetupResult result = onboardingService.setupRepository(command);
 
             return ResponseEntity.ok(RepositorySetupResponse.from(result));
