@@ -2,7 +2,6 @@ package com.ssafy.dash.oauth.application;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +44,7 @@ public class OAuthTokenService {
             (issuedAtInstant != null && expiresAtInstant != null) ? expiresAtInstant.getEpochSecond() - issuedAtInstant.getEpochSecond() : null);
 
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime expiresAt = toLocalDateTime(expiresAtInstant);
+        LocalDateTime expiresAt = null;
         String tokenType = accessToken.getTokenType() != null ? accessToken.getTokenType().getValue() : null;
 
         UserOAuthToken token = tokenRepository.findByUserId(userId)
@@ -89,14 +88,6 @@ public class OAuthTokenService {
         }
 
         return token;
-    }
-
-    private LocalDateTime toLocalDateTime(Instant instant) {
-        if (instant == null) {
-            return null;
-        }
-
-        return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
     }
 
     private String mask(String tokenValue) {
