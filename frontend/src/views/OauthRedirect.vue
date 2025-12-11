@@ -77,7 +77,11 @@
             >
               <li>
                 마켓에서
-                <span class="font-medium text-indigo-300">BaekjoonHub Dash</span
+                <a
+                  href="https://chromewebstore.google.com/detail/kimjgflahdmnlhilmojcoaechlgkokhc?utm_source=item-share-cb"
+                  target="_blank"
+                  class="font-medium text-indigo-300 underline underline-offset-2 hover:text-indigo-200 transition-colors"
+                  >BaekjoonHub Dash</a
                 >를 설치합니다.
               </li>
               <li>Webhook을 설정할 리포지토리를 입력합니다.</li>
