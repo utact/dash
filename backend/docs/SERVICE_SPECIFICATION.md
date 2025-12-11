@@ -40,7 +40,7 @@
     *   백엔드는 코드를 AI 서버로 전송하여 **복잡도, 효율성, 코드 스타일**을 분석합니다.
     *   대시보드에 **카드 형태**로 풀이 내역과 AI 분석 결과가 시각화됩니다.
 4.  **반례 찾기 (Debug)**:
-    *   실패한 코드(카드)를 클릭하면, AI가 해당 로직의 **반례(Counterexample)**를 찾아 알려줍니다.
+    *   실패한 코드(카드)를 클릭하면, AI가 해당 로직의 **반례(Counterexample)를** 찾아 알려줍니다.
 
 ---
 
@@ -53,7 +53,7 @@
 *   **검증 메커니즘**:
     *   Git Commit Message Parsing: 메시지에 포함된 실행 시간(ms)과 메모리(kb) 정보를 파싱합니다.
     *   **실패 판단**: 메모리/시간 값이 `-1`이거나 실패 키워드가 있는 경우 적립 제외.
-*   **공유 자산**: 획득한 도토리는 개인 소유가 아닌 **스터디 금고(Shared Vault)**에 쌓입니다.
+*   **공유 자산**: 획득한 도토리는 개인 소유가 아닌 **스터디 금고(Shared Vault)에** 쌓입니다.
 
 ### 3.2 소비 (Spending) - AI Hint
 *   **용도**: 안 풀리는 문제에 대해 AI에게 힌트를 요청할 때 사용합니다.
@@ -97,28 +97,28 @@
 ```mermaid
 graph TD
     subgraph Client
-        Browser[Web Browser]
-        Extension[Chrome Extension]
-        Playground[2D Playground (Canvas/WebGL)]
+        Browser["Web Browser"]
+        Extension["Chrome Extension"]
+        Playground["2D Playground (Canvas/WebGL)"]
     end
 
     subgraph External
-        BOJ[Baekjoon Online Judge]
-        SolvedAC[Solved.ac API]
-        GH[GitHub]
+        BOJ["Baekjoon Online Judge"]
+        SolvedAC["Solved.ac API"]
+        GH["GitHub"]
     end
 
     subgraph Backend_Server
-        API[Core API Server]
-        Auth[Auth Service]
-        Game[Game State engine]
-        Repo[DB Persistence]
+        API["Core API Server"]
+        Auth["Auth Service"]
+        Game["Game State Engine"]
+        Repo["DB Persistence"]
     end
 
     subgraph AI_Server
-        LLM[LLM Engine]
-        Analyzer[Code Analyzer]
-        HintGen[Hint/Counterexample Gen]
+        LLM["LLM Engine"]
+        Analyzer["Code Analyzer"]
+        HintGen["Hint/Counterexample Gen"]
     end
 
     Browser -- User Interaction --> API
