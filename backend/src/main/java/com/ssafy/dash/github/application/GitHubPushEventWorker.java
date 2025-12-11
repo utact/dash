@@ -16,6 +16,8 @@ import com.ssafy.dash.oauth.application.OAuthTokenService;
 import com.ssafy.dash.oauth.domain.UserOAuthToken;
 import com.ssafy.dash.onboarding.domain.Onboarding;
 import com.ssafy.dash.onboarding.domain.OnboardingRepository;
+import com.ssafy.dash.user.domain.User;
+import com.ssafy.dash.user.domain.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +48,7 @@ public class GitHubPushEventWorker {
     private final GitHubSubmissionMetadataExtractor metadataExtractor;
     private final int maxBatchSize;
     private final TransactionTemplate transactionTemplate;
+    private final UserRepository userRepository;
 
     public GitHubPushEventWorker(GitHubPushEventRepository pushEventRepository,
                                  OnboardingRepository onboardingRepository,
@@ -55,6 +58,7 @@ public class GitHubPushEventWorker {
                                  ObjectMapper objectMapper,
                                  GitHubSubmissionMetadataExtractor metadataExtractor,
                                  PlatformTransactionManager transactionManager,
+                                 UserRepository userRepository,
                                  @Value("${github.push-worker.max-batch:5}") int maxBatchSize) {
         this.pushEventRepository = pushEventRepository;
         this.onboardingRepository = onboardingRepository;
@@ -65,6 +69,7 @@ public class GitHubPushEventWorker {
         this.metadataExtractor = metadataExtractor;
         this.maxBatchSize = Math.max(1, maxBatchSize);
         this.transactionTemplate = new TransactionTemplate(transactionManager);
+        this.userRepository = userRepository;
     }
 
     @Scheduled(fixedDelayString = "${github.push-worker.fixed-delay:10000}")
@@ -145,9 +150,13 @@ public class GitHubPushEventWorker {
         String reference = StringUtils.hasText(file.commitSha()) ? file.commitSha() : event.getHeadCommitSha();
         String code = gitHubClient.fetchFileContent(event.getRepositoryName(), file.path(), reference, accessToken);
         LocalDateTime now = LocalDateTime.now();
+        
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new GitHubWebhookException("User not found: " + userId));
 
         AlgorithmRecord record = AlgorithmRecord.create(
                 userId,
+                user.getStudyId(),
                 metadata.problemNumber(),
                 metadata.title(),
                 metadata.language(),

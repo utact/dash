@@ -1,3 +1,9 @@
+CREATE TABLE IF NOT EXISTS studies (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS users (
 
 	id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -8,7 +14,10 @@ CREATE TABLE IF NOT EXISTS users (
     provider VARCHAR(50),
 	provider_id VARCHAR(255),
     avatar_url VARCHAR(512),
-    deleted_at TIMESTAMP NULL DEFAULT NULL
+    avatar_url VARCHAR(512),
+    study_id BIGINT,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    FOREIGN KEY (study_id) REFERENCES studies(id)
     
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -28,6 +37,7 @@ CREATE TABLE IF NOT EXISTS algorithm_records (
     
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
+    study_id BIGINT,
     problem_number VARCHAR(50) NOT NULL,
     title VARCHAR(255) NOT NULL,
     code LONGTEXT,

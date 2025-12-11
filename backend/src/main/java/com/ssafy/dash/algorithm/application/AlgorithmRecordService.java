@@ -32,7 +32,17 @@ public class AlgorithmRecordService {
                 .orElseThrow(() -> new UserNotFoundException(command.userId()));
 
         LocalDateTime now = LocalDateTime.now();
-        AlgorithmRecord record = AlgorithmRecord.create(command.userId(), command.problemNumber(), command.title(), command.language(), command.code(), now);
+        AlgorithmRecord record = AlgorithmRecord.create(
+                command.userId(),
+                userRepository.findById(command.userId())
+                        .map(com.ssafy.dash.user.domain.User::getStudyId)
+                        .orElse(null),
+                command.problemNumber(), 
+                command.title(), 
+                command.language(), 
+                command.code(), 
+                now
+        );
 
         algorithmRecordRepository.save(record);
 

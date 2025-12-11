@@ -49,7 +49,7 @@ public final class AlgorithmRecordFixtures {
     ) {
         
         public AlgorithmRecord toDomain(LocalDateTime createdAt) {
-            AlgorithmRecord record = AlgorithmRecord.create(userId, problemNumber, title,
+            AlgorithmRecord record = AlgorithmRecord.create(userId, null, problemNumber, title,
                     language, code, createdAt);
             record.setId(id);
             return record;

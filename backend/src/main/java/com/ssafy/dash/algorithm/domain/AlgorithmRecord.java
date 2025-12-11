@@ -14,6 +14,7 @@ public class AlgorithmRecord {
 
     private Long id;
     private Long userId;
+    private Long studyId;
     private String problemNumber;
     private String title;
     private String language;
@@ -30,8 +31,9 @@ public class AlgorithmRecord {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private AlgorithmRecord(Long userId, String problemNumber, String title, String language, String code, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    private AlgorithmRecord(Long userId, Long studyId, String problemNumber, String title, String language, String code, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.userId = requirePositive(userId);
+        this.studyId = studyId;
         this.problemNumber = requireText(problemNumber, "problemNumber");
         this.title = requireText(title, "title");
         this.language = requireText(language, "language");
@@ -41,16 +43,17 @@ public class AlgorithmRecord {
         this.updatedAt = requireTimestamp(updatedAt, "updatedAt");
     }
 
-    public static AlgorithmRecord create(Long userId, String problemNumber, String title, String language, String code, LocalDateTime createdAt) {
+    public static AlgorithmRecord create(Long userId, Long studyId, String problemNumber, String title, String language, String code, LocalDateTime createdAt) {
         return new AlgorithmRecord(
                 userId,
+                studyId,
                 problemNumber,
                 title,
                 language,
                 code,
                 createdAt,
                 createdAt
-            );
+        );
     }
 
     public void applyUpdate(String problemNumber, String title, String language, String code, LocalDateTime updatedAt) {

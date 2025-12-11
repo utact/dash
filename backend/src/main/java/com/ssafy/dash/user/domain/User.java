@@ -19,6 +19,7 @@ public class User {
     private String provider;
     private String providerId;
     private String avatarUrl;
+    private Long studyId;
     private LocalDateTime deletedAt;
 
     private User(Long id, String username, String email, LocalDateTime createdAt,
@@ -45,6 +46,10 @@ public class User {
         this.username = requireText(username, "username");
         this.email = requireText(email, "email");
         this.avatarUrl = avatarUrl;
+    }
+
+    public void updateStudy(Long studyId) {
+        this.studyId = studyId;
     }
 
     private static String requireText(String value, String fieldName) {
