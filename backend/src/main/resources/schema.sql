@@ -102,3 +102,40 @@ CREATE TABLE IF NOT EXISTS github_push_event (
     UNIQUE KEY uk_github_push_event_delivery (delivery_id)
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS tag_families (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    family_key VARCHAR(50) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    order_index INT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS tags (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    tag_key VARCHAR(50) NOT NULL UNIQUE,
+    boj_tag_id INT NOT NULL UNIQUE,
+    family_id BIGINT,
+    parent_tag_key VARCHAR(50),
+    importance_tier VARCHAR(10),
+    weight DOUBLE DEFAULT 0.0,
+    is_core BOOLEAN DEFAULT FALSE,
+    display_names VARCHAR(100),
+    FOREIGN KEY (family_id) REFERENCES tag_families(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS problems (
+    problem_number VARCHAR(50) PRIMARY KEY,
+    title VARCHAR(255),
+    level INT,
+    class INT,
+    essential BOOLEAN DEFAULT FALSE,
+    sprout BOOLEAN DEFAULT FALSE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS problem_tags (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    problem_number VARCHAR(50) NOT NULL,
+    tag_key VARCHAR(50) NOT NULL,
+    FOREIGN KEY (problem_number) REFERENCES problems(problem_number),
+    FOREIGN KEY (tag_key) REFERENCES tags(tag_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
