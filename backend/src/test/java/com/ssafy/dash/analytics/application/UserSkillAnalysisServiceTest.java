@@ -3,13 +3,11 @@ package com.ssafy.dash.analytics.application;
 import com.ssafy.dash.analytics.application.dto.TagStrengthDto;
 import com.ssafy.dash.analytics.application.dto.TagWeaknessDto;
 import com.ssafy.dash.analytics.application.dto.SkillSummaryDto;
-import com.ssafy.dash.analytics.domain.UserClassStat;
 import com.ssafy.dash.analytics.domain.UserTagStat;
 import com.ssafy.dash.analytics.infrastructure.persistence.UserClassStatMapper;
 import com.ssafy.dash.analytics.infrastructure.persistence.UserTagStatMapper;
 import com.ssafy.dash.user.domain.User;
 import com.ssafy.dash.user.domain.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -211,4 +209,5 @@ class UserSkillAnalysisServiceTest {
                     .hasMessageContaining("User not found");
         }
     }
+    
 }

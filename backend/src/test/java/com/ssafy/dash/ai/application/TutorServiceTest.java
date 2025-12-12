@@ -38,7 +38,7 @@ class TutorServiceTest {
 
     @BeforeEach
     void setUp() {
-        tutorService = new TutorService(aiClient, userRepository, tagStatMapper);
+        tutorService = new TutorService(aiClient, userRepository, tagStatMapper, null);
     }
 
     @Test
@@ -61,7 +61,7 @@ class TutorServiceTest {
         when(aiClient.chat(any(TutorChatRequest.class))).thenReturn(mockResponse);
 
         // when
-        TutorChatResponse result = tutorService.chat(userId, message, null, null, null);
+        TutorChatResponse result = tutorService.chat(userId, message, List.of(), null, null);
 
         // then
         assertThat(result).isNotNull();
