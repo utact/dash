@@ -1,0 +1,98 @@
+package com.ssafy.dash.ai.client.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+/**
+ * AI 서버 코드 분석 응답 DTO
+ * AI 서버의 StructuredResponse 스키마와 매핑
+ */
+@Data
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class CodeReviewResponse {
+
+    private String summary;
+    private ProblemInfo problem;
+    private AlgorithmInfo algorithm;
+    private List<StructureItem> structure;
+    private List<KeyBlock> keyBlocks;
+    private TraceExample traceExample;
+    private ComplexityInfo complexity;
+    private PitfallsInfo pitfalls;
+    private RefactorInfo refactor;
+
+    @Data
+    @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class ProblemInfo {
+        private String description;
+        private String input;
+        private String output;
+        private boolean isGuess;
+        private String guessReason;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class AlgorithmInfo {
+        private List<String> patterns;
+        private String intuition;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class StructureItem {
+        private String name;
+        private String role;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class KeyBlock {
+        private String code;
+        private String explanation;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class TraceExample {
+        private boolean hasExample;
+        private String inputExample;
+        private List<String> steps;
+        private String note;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class ComplexityInfo {
+        private String time;
+        private String space;
+        private String explanation;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class PitfallsInfo {
+        private List<String> items;
+        private List<String> improvements;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class RefactorInfo {
+        private boolean provided;
+        private String code;
+        private String explanation;
+    }
+}

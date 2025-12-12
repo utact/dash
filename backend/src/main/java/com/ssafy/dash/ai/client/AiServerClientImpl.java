@@ -1,0 +1,42 @@
+package com.ssafy.dash.ai.client;
+
+import com.ssafy.dash.ai.client.dto.CodeReviewRequest;
+import com.ssafy.dash.ai.client.dto.CodeReviewResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
+
+/**
+ * AI 서버 통신 클라이언트 구현체
+ */
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class AiServerClientImpl implements AiServerClient {
+
+    @Value("${ai.server.base-url:http://localhost:8000}")
+    private String baseUrl;
+
+    private final RestClient restClient;
+
+    @Override
+    public CodeReviewResponse analyzeCode(CodeReviewRequest request) {
+        try {
+            log.debug("Requesting code analysis for problem: {}", request.getProblemNumber());
+
+            return restClient.post()
+                    .uri(baseUrl + "/review")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(request)
+                    .retrieve()
+                    .body(CodeReviewResponse.class);
+        } catch (RestClientException e) {
+            log.error("Failed to analyze code: {}", e.getMessage(), e);
+            throw new AiServerException("코드 분석 요청에 실패했습니다", e);
+        }
+    }
+}
