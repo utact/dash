@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -120,28 +121,27 @@ public class SolvedacSyncService {
             }
 
             // 코드 없이 레코드 생성
-            var record = com.ssafy.dash.algorithm.domain.AlgorithmRecord.create(
-                    userId,
-                    null, // studyId
-                    item.getProblemId(),
-                    item.getTitleKo(),
-                    "none", // 언어 필수
-                    "",     // 코드 없음
-                    LocalDateTime.now()
-            );
-            
+            com.ssafy.dash.algorithm.domain.AlgorithmRecord record = com.ssafy.dash.algorithm.domain.AlgorithmRecord
+                    .create(
+                            userId,
+                            null, // studyId
+                            item.getProblemId(),
+                            item.getTitleKo(),
+                            "none", // 언어 필수
+                            "", // 코드 없음
+                            LocalDateTime.now());
+
             // 난이도(레벨) 등의 메타데이터 추가
             record.enrichMetadata(
-                "BOJ", 
-                String.valueOf(item.getLevel()), 
-                null, 
-                null, 
-                "Solved.ac Sync", 
-                null, 
-                null, 
-                null, 
-                LocalDateTime.now()
-            );
+                    "BOJ",
+                    String.valueOf(item.getLevel()),
+                    null,
+                    null,
+                    "Solved.ac Sync",
+                    null,
+                    null,
+                    null,
+                    LocalDateTime.now());
 
             recordRepository.save(record);
             count++;
