@@ -4,6 +4,7 @@ import com.ssafy.dash.oauth.presentation.security.CustomOAuth2User;
 import com.ssafy.dash.study.application.StudyService;
 import com.ssafy.dash.study.domain.Study;
 import com.ssafy.dash.study.presentation.dto.CreateStudyRequest;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,5 +53,12 @@ public class StudyController {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @Operation(summary = "스터디 문제 풀이 통계 조회", description = "스터디의 티어별 문제 해결 수를 조회합니다.")
+    @GetMapping("/{studyId}/stats")
+    public ResponseEntity<StudyStatsResponse> getStudyStats(
+            @PathVariable Long studyId) {
+        return ResponseEntity.ok(StudyStatsResponse.from(studyService.getStudyStats(studyId)));
     }
 }

@@ -12,5 +12,9 @@ export const studyApi = {
     // Join an existing study
     joinStudy(studyId) {
         return http.post(`/studies/${studyId}/join`);
+    },
+    // Get study statistics
+    getStats(studyId) {
+        return http.get(`/studies/${studyId}/stats`);
     }
 };

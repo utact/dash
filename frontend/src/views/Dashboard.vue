@@ -1,186 +1,171 @@
 <template>
-  <div class="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500/30">
-    <main class="container mx-auto px-6 py-10">
-      <!-- Header -->
-      <section class="mb-12 flex justify-between items-end">
-        <div>
-          <h1 class="text-3xl md:text-4xl font-bold mb-2 animate-fade-in-up">
-            <span class="text-indigo-400">스터디</span> 대시보드
-          </h1>
-          <p class="text-slate-400 animate-fade-in-up delay-100">
-            팀원들의 최근 알고리즘 풀이 현황입니다.
-          </p>
-        </div>
-        <div class="flex gap-2 animate-fade-in-up delay-200">
-            <button @click="$router.push('/simcity')" class="px-4 py-2 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 transition-colors text-sm font-medium flex items-center gap-2">
-                <LayoutGrid :size="16" />
-                심시티
-            </button>
-            <button @click="$router.push('/youtube')" class="px-4 py-2 rounded-lg bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-colors text-sm font-medium flex items-center gap-2">
-                <Youtube :size="16" />
-                영상 학습
-            </button>
-        </div>
-      </section>
+  <div class="min-h-screen bg-slate-50 text-slate-800">
+    <!-- Navbar / Header Area -->
 
-      <!-- Algorithm Cards Grid -->
-      <section v-if="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="i in 6" :key="i" class="h-48 rounded-2xl bg-slate-900/50 border border-white/5 animate-pulse"></div>
-      </section>
 
-      <section v-else-if="records.length === 0" class="text-center py-20 bg-slate-900/30 rounded-3xl border border-white/5 border-dashed">
-        <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-500">
-            <Code2 :size="32" />
+
+    <main class="container mx-auto px-6 py-8">
+      <!-- Welcome Section -->
+      <div class="mb-10">
+        <h1 class="text-3xl font-extrabold text-slate-900 mb-2">
+          안녕하세요, <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">탐험가님!</span> 👋
+        </h1>
+        <p class="text-slate-500">오늘도 알고리즘의 바다를 항해할 준비가 되셨나요?</p>
+      </div>
+
+      <!-- Content Grid -->
+      <div v-if="loading" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div v-for="i in 6" :key="i" class="h-64 rounded-3xl bg-white shadow-sm border border-slate-100 animate-pulse"></div>
+      </div>
+
+      <div v-else-if="records.length === 0" class="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-dashed border-slate-300">
+        <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
+          <Code2 :size="40" class="text-indigo-400" />
         </div>
-        <h3 class="text-lg font-semibold text-slate-300 mb-2">아직 기록이 없습니다</h3>
-        <p class="text-slate-500">문제를 풀고 깃허브에 커밋해보세요!</p>
-      </section>
+        <h3 class="text-xl font-bold text-slate-800 mb-2">기록된 모험이 없습니다</h3>
+        <p class="text-slate-500 mb-6">첫 번째 알고리즘 문제를 해결하고 커밋해보세요!</p>
+        <button class="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-colors">
+          가이드 보기
+        </button>
+      </div>
 
-      <section v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <!-- Record Card -->
         <div 
-            v-for="record in records" 
-            :key="record.id" 
-            class="group bg-slate-900/50 border border-white/10 hover:border-indigo-500/50 rounded-2xl p-6 transition-all hover:bg-slate-900 hover:shadow-xl hover:shadow-indigo-500/10 flex flex-col relative overflow-hidden"
+          v-for="record in records" 
+          :key="record.id" 
+          class="group relative bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
         >
-          <!-- Background Glow -->
-          <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-all"></div>
-
-          <!-- Header: User & Meta -->
-          <div class="flex justify-between items-start mb-4 relative z-10">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-300 font-bold shrink-0">
-                {{ (record.repositoryName || 'U').substring(0, 1).toUpperCase() }}
-              </div>
-              <div class="overflow-hidden">
-                <p class="text-sm font-medium text-slate-200 truncate">{{ record.repositoryName || 'Unknown User' }}</p>
-                <p class="text-xs text-slate-500">{{ formatDate(record.committedAt) }}</p>
-              </div>
-            </div>
-            <div class="px-2 py-1 rounded bg-slate-800 text-xs font-mono text-slate-400 border border-white/5">
-                {{ record.language }}
-            </div>
+          <!-- Language Badge -->
+          <div class="absolute top-6 right-6">
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 uppercase tracking-wider">
+              {{ record.language }}
+            </span>
           </div>
 
-          <!-- Content: Problem Title -->
-          <div class="mb-4 relative z-10 flex-grow">
-            <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs font-bold text-slate-500">#{{ record.problemNumber }}</span>
-                <a :href="`https://www.acmicpc.net/problem/${record.problemNumber}`" target="_blank" class="text-xs text-indigo-400 hover:underline flex items-center gap-0.5">
-                    문제 보기 <ExternalLink :size="10" />
-                </a>
+          <!-- Problem Info -->
+          <div class="mb-6 mt-2">
+            <div class="flex items-center gap-2 mb-2">
+               <span class="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded">#{{ record.problemNumber }}</span>
             </div>
-            <h3 class="text-lg font-bold text-white group-hover:text-indigo-300 transition-colors line-clamp-2">
-                {{ record.title }}
+            <h3 class="text-lg font-bold text-slate-800 leading-snug line-clamp-2 group-hover:text-indigo-600 transition-colors">
+              {{ record.title }}
             </h3>
-          </div>
-
-          <!-- Metrics -->
-          <div class="grid grid-cols-2 gap-2 mb-4 relative z-10">
-            <div class="bg-slate-950/50 rounded-lg p-2 flex flex-col items-center border border-white/5">
-                <Zap :size="14" class="text-yellow-400 mb-1" />
-                <span class="text-xs text-slate-400">{{ record.runtimeMs }} ms</span>
-            </div>
-            <div class="bg-slate-950/50 rounded-lg p-2 flex flex-col items-center border border-white/5">
-                <Database :size="14" class="text-blue-400 mb-1" />
-                <span class="text-xs text-slate-400">{{ record.memoryKb }} KB</span>
+            <div class="text-xs text-slate-400 mt-2 flex items-center gap-1">
+              {{ formatDate(record.committedAt) }}
             </div>
           </div>
 
-          <!-- Actions (AI) -->
-          <div class="grid grid-cols-2 gap-2 relative z-10 mt-auto">
-            <button 
+          <!-- Stats Row -->
+          <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="bg-slate-50 rounded-2xl p-3 flex flex-col items-center justify-center border border-slate-100">
+              <Zap :size="16" class="text-amber-400 mb-1" />
+              <span class="text-sm font-bold text-slate-700">{{ record.runtimeMs }}ms</span>
+            </div>
+            <div class="bg-slate-50 rounded-2xl p-3 flex flex-col items-center justify-center border border-slate-100">
+              <Database :size="16" class="text-blue-400 mb-1" />
+              <span class="text-sm font-bold text-slate-700">{{ record.memoryKb }}KB</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="mt-auto grid grid-cols-2 gap-3">
+             <button 
                 @click="requestReview(record)" 
-                class="flex items-center justify-center gap-2 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-50 text-indigo-600 font-bold text-sm hover:bg-indigo-100 transition-colors"
                 :disabled="processing === record.id"
             >
                 <Bot :size="16" />
-                <span v-if="processing === record.id">분석 중...</span>
-                <span v-else>AI 리뷰</span>
+                <span v-if="processing === record.id">...</span>
+                <span v-else>리뷰</span>
             </button>
             <button 
                 @click="requestHint(record)" 
-                class="flex items-center justify-center gap-2 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-colors border border-white/10"
+                class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-amber-50 text-amber-600 font-bold text-sm hover:bg-amber-100 transition-colors"
             >
-                <Lightbulb :size="16" class="text-yellow-400" />
+                <Lightbulb :size="16" />
                 힌트
             </button>
           </div>
         </div>
-      </section>
+      </div>
+    </main>
 
-      <!-- AI Modal -->
-      <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closeModal"></div>
-        <div class="bg-slate-900 border border-white/10 rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto relative shadow-2xl animate-fade-in-up">
-            <div class="sticky top-0 bg-slate-900/95 backdrop-blur border-b border-white/10 p-4 flex justify-between items-center z-10">
-                <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                    <Bot v-if="modalType === 'review'" class="text-indigo-400" />
-                    <Lightbulb v-else class="text-yellow-400" />
-                    {{ modalTitle }}
-                </h3>
-                <button @click="closeModal" class="p-1 rounded-full hover:bg-white/10 text-slate-400">
-                    <X :size="20" />
-                </button>
+    <!-- Trendy Modal -->
+    <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
+      <div class="bg-white rounded-[32px] w-full max-w-2xl max-h-[85vh] overflow-hidden relative shadow-2xl flex flex-col animate-pop-in">
+        
+        <!-- Modal Header -->
+        <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white/80 backdrop-blur z-10 sticky top-0">
+           <h3 class="text-2xl font-black text-slate-800 flex items-center gap-3">
+             <div class="p-2 rounded-xl" :class="modalType === 'review' ? 'bg-indigo-100 text-indigo-600' : 'bg-amber-100 text-amber-600'">
+                <Bot v-if="modalType === 'review'" :size="24" />
+                <Lightbulb v-else :size="24" />
+             </div>
+             {{ modalTitle }}
+           </h3>
+           <button @click="closeModal" class="p-2 rounded-full hover:bg-slate-100 text-slate-400 transition-colors">
+             <X :size="24" />
+           </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="p-8 overflow-y-auto custom-scrollbar">
+            <!-- Loading -->
+            <div v-if="modalLoading" class="py-20 flex flex-col items-center justify-center text-center">
+                 <div class="w-16 h-16 border-4 border-indigo-100 border-t-indigo-500 rounded-full animate-spin mb-6"></div>
+                 <h4 class="text-lg font-bold text-slate-800">AI가 분석중입니다</h4>
+                 <p class="text-slate-500">잠시만 기다려주세요...</p>
             </div>
-            <div class="p-6">
-                <!-- Loading State -->
-                <div v-if="modalLoading" class="flex flex-col items-center justify-center py-10">
-                    <div class="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p class="text-slate-400 animate-pulse">AI가 열심히 분석하고 있습니다...</p>
-                </div>
 
-                <!-- Review Content -->
-                <div v-else-if="modalType === 'review' && modalData" class="space-y-6">
-                    <div class="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
-                        <h4 class="font-bold text-indigo-300 mb-2">분석 요약</h4>
-                        <p class="text-slate-300 text-sm leading-relaxed">{{ modalData.summary }}</p>
-                    </div>
+            <!-- Review Data -->
+            <div v-else-if="modalType === 'review' && modalData" class="space-y-8">
+                 <div class="bg-indigo-50/50 p-6 rounded-3xl border border-indigo-100">
+                    <h4 class="text-sm font-bold text-indigo-900 uppercase tracking-wide mb-3">Analysis Summary</h4>
+                    <p class="text-slate-700 leading-relaxed text-lg">{{ modalData.summary }}</p>
+                 </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                         <div class="p-4 bg-slate-800/50 rounded-xl">
-                            <h4 class="font-semibold text-slate-300 mb-1 text-sm">시간 복잡도</h4>
-                            <p class="text-lg font-mono text-white">{{ modalData.complexity?.time || 'N/A' }}</p>
-                        </div>
-                        <div class="p-4 bg-slate-800/50 rounded-xl">
-                            <h4 class="font-semibold text-slate-300 mb-1 text-sm">공간 복잡도</h4>
-                            <p class="text-lg font-mono text-white">{{ modalData.complexity?.space || 'N/A' }}</p>
-                        </div>
-                    </div>
+                 <div class="grid grid-cols-2 gap-4">
+                     <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                         <span class="text-xs font-bold text-slate-400 uppercase">Time Complexity</span>
+                         <div class="text-2xl font-black text-slate-800 mt-1">{{ modalData.complexity?.time || '-' }}</div>
+                     </div>
+                     <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                         <span class="text-xs font-bold text-slate-400 uppercase">Space Complexity</span>
+                         <div class="text-2xl font-black text-slate-800 mt-1">{{ modalData.complexity?.space || '-' }}</div>
+                     </div>
+                 </div>
 
-                     <div>
-                        <h4 class="font-bold text-slate-200 mb-2 flex items-center gap-2">
-                             <TrendingUp :size="18" class="text-green-400" /> 개선할 점
-                        </h4>
-                        <ul class="list-disc list-inside space-y-1 text-sm text-slate-300 bg-slate-800/30 p-4 rounded-xl">
-                            <li v-for="(item, idx) in (modalData.pitfalls?.improvements || ['완벽합니다!'])" :key="idx">
-                                {{ item }}
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                 <div>
+                     <h4 class="flex items-center gap-2 text-lg font-bold text-slate-800 mb-4">
+                         <TrendingUp class="text-green-500" /> 개선 포인트
+                     </h4>
+                     <ul class="space-y-3">
+                         <li v-for="(item, idx) in (modalData.pitfalls?.improvements || [])" :key="idx" class="flex items-start gap-3 bg-slate-50 p-4 rounded-xl">
+                             <div class="w-1.5 h-1.5 rounded-full bg-slate-400 mt-2 shrink-0"></div>
+                             <span class="text-slate-600">{{ item }}</span>
+                         </li>
+                     </ul>
+                 </div>
+            </div>
 
-                <!-- Hint Content -->
-                <div v-else-if="modalType === 'hint' && modalData" class="space-y-6">
-                     <div class="p-6 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-center">
-                        <Lightbulb :size="32" class="text-yellow-400 mx-auto mb-3" />
-                        <h4 class="font-bold text-yellow-300 mb-2 text-lg">Level {{ modalData.level }} 힌트</h4>
-                        <p class="text-slate-200 text-lg font-medium leading-relaxed">"{{ modalData.hint }}"</p>
+            <!-- Hint Data -->
+            <div v-else-if="modalType === 'hint' && modalData" class="space-y-8">
+                <div class="text-center py-6">
+                    <div class="inline-block p-4 rounded-full bg-amber-100 text-amber-500 mb-4">
+                        <Lightbulb :size="48" />
                     </div>
-
-                    <div>
-                        <h4 class="font-semibold text-slate-300 mb-2 text-sm">관련 개념</h4>
-                        <div class="flex flex-wrap gap-2">
-                            <span v-for="tag in (modalData.relatedConcepts || [])" :key="tag" class="px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-xs border border-white/10">
-                                {{ tag }}
-                            </span>
-                        </div>
-                    </div>
+                    <h4 class="text-2xl font-bold text-slate-800 mb-4">Level 1 Hint</h4>
+                    <p class="text-xl text-slate-600 font-medium leading-relaxed">
+                        "{{ modalData.hint }}"
+                    </p>
                 </div>
             </div>
         </div>
-      </div>
 
-    </main>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -198,15 +183,15 @@ import {
   X,
   TrendingUp,
   LayoutGrid,
-  Youtube
+  Youtube,
+  Map
 } from 'lucide-vue-next';
 
 const records = ref([]);
 const loading = ref(true);
-
 const processing = ref(null);
 const showModal = ref(false);
-const modalType = ref(''); // 'review' | 'hint'
+const modalType = ref('');
 const modalTitle = ref('');
 const modalLoading = ref(false);
 const modalData = ref(null);
@@ -215,8 +200,8 @@ onMounted(async () => {
   try {
     const res = await dashboardApi.getRecords();
     records.value = res.data;
-  } catch (e) {
-    console.error("Failed to load records", e);
+  } catch(e) {
+    console.error(e);
   } finally {
     loading.value = false;
   }
@@ -224,21 +209,13 @@ onMounted(async () => {
 
 const formatDate = (dateString) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return new Date(dateString).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
 };
 
 const requestReview = async (record) => {
-    openModal('review', 'AI 코드 리뷰');
+    openModal('review', 'AI Code Review');
     modalLoading.value = true;
     try {
-        // 백엔드 사양에 맞춰 코드 리뷰 요청 페이로드를 구성합니다.
-        // 백엔드는 algorithmRecordId, code, language, problemNumber를 예상합니다.
-        // 클라이언트는 POST /api/ai/review 로 다음 바디를 보냅니다:
-        // { "algorithmRecordId": ..., "code": ..., "language": ..., "problemNumber": ... }
-        
-        // 백엔드 컨트롤러 구현을 확인하여 올바르게 호출합니다.
-        // 표준 POST /api/ai/review 를 가정합니다.
         const res = await http.post('/ai/review', {
             algorithmRecordId: record.id,
             code: record.code,
@@ -247,17 +224,16 @@ const requestReview = async (record) => {
         });
         modalData.value = res.data;
     } catch (e) {
-        console.error(e);
-        modalData.value = { summary: '코드를 분석하는 도중 오류가 발생했습니다.' };
+        modalData.value = { summary: 'Error analyzing code.' };
     } finally {
         modalLoading.value = false;
     }
 };
 
 const requestHint = async (record) => {
-    openModal('hint', '맞춤형 힌트');
+    openModal('hint', 'Smart Hint');
     modalLoading.value = true;
-     try {
+    try {
         const res = await http.post('/ai/hint', {
             userId: record.userId, 
             problemNumber: String(record.problemNumber),
@@ -265,9 +241,8 @@ const requestHint = async (record) => {
             level: 1
         });
         modalData.value = res.data;
-    } catch (e) {
-        console.error(e);
-         modalData.value = { hint: '힌트를 불러올 수 없습니다.', level: 1 };
+    } catch(e) {
+        modalData.value = { hint: 'Error fetching hint.' };
     } finally {
         modalLoading.value = false;
     }
@@ -286,19 +261,38 @@ const closeModal = () => {
 </script>
 
 <style scoped>
-.animate-fade-in-up {
-  animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  opacity: 0;
-  transform: translateY(20px);
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+* {
+  font-family: 'Pretendard', sans-serif;
 }
 
-.delay-100 { animation-delay: 0.1s; }
-.delay-200 { animation-delay: 0.2s; }
+.btn-primary-soft {
+  @apply flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-50 text-indigo-600 font-bold hover:bg-indigo-100 transition-colors;
+}
 
-@keyframes fade-in-up {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.btn-secondary-soft {
+  @apply flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 text-slate-600 font-bold hover:bg-slate-200 transition-colors;
+}
+
+.animate-pop-in {
+  animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+@keyframes popIn {
+  to { opacity: 1; transform: scale(1); }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
 }
 </style>

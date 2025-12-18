@@ -43,4 +43,15 @@
     DELETE FROM algorithm_records WHERE id = #{id}
   </delete>
 
+  <select id="countsByStudyId" resultType="com.ssafy.dash.study.application.dto.result.StudyStatsResult" parameterType="long">
+    SELECT
+      SUM(CASE WHEN difficulty LIKE '%Bronze%' THEN 1 ELSE 0 END) as bronze,
+      SUM(CASE WHEN difficulty LIKE '%Silver%' THEN 1 ELSE 0 END) as silver,
+      SUM(CASE WHEN difficulty LIKE '%Gold%' THEN 1 ELSE 0 END) as gold,
+      SUM(CASE WHEN difficulty LIKE '%Platinum%' THEN 1 ELSE 0 END) as platinum
+    FROM algorithm_records
+    WHERE study_id = #{studyId}
+  </select>
+
+
 </mapper>

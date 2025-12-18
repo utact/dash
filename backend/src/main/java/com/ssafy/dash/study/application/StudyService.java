@@ -1,5 +1,7 @@
 package com.ssafy.dash.study.application;
 
+import com.ssafy.dash.algorithm.infrastructure.mapper.AlgorithmRecordMapper;
+import com.ssafy.dash.study.application.dto.result.StudyStatsResult;
 import com.ssafy.dash.study.domain.Study;
 import com.ssafy.dash.study.domain.StudyRepository;
 import com.ssafy.dash.user.domain.User;
@@ -16,6 +18,7 @@ public class StudyService {
 
     private final StudyRepository studyRepository;
     private final UserRepository userRepository;
+    private final AlgorithmRecordMapper algorithmRecordMapper;
 
     @Transactional(readOnly = true)
     public List<Study> findAll() {
@@ -46,5 +49,10 @@ public class StudyService {
         user.updateStudy(studyId);
         user.updateStudy(studyId);
         userRepository.update(user);
+    }
+
+    @Transactional(readOnly = true)
+    public StudyStatsResult getStudyStats(Long studyId) {
+        return algorithmRecordMapper.countsByStudyId(studyId);
     }
 }

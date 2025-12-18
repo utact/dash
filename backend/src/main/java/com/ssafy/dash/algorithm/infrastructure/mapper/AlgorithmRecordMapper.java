@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.ssafy.dash.algorithm.domain.AlgorithmRecord;
+import com.ssafy.dash.study.application.dto.result.StudyStatsResult;
 
 @Mapper
 public interface AlgorithmRecordMapper {
@@ -19,7 +20,11 @@ public interface AlgorithmRecordMapper {
 
     List<AlgorithmRecord> selectByStudyId(Long studyId);
     
+    void save(AlgorithmRecord record);
+    
     void update(AlgorithmRecord record);
+
+    StudyStatsResult countsByStudyId(Long studyId);
     
     int delete(Long id);
 
