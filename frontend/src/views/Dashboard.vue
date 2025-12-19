@@ -269,16 +269,71 @@
                  </div>
             </div>
 
-            <!-- Hint Data -->
+            <!-- Hint Selection -->
+            <div v-else-if="modalType === 'hint' && !modalData" class="space-y-4">
+                 <div class="text-center mb-6">
+                     <p class="text-slate-600">
+                         도토리를 사용하여 힌트를 확인할 수 있습니다.<br>
+                         높은 단계일수록 더 강력한 힌트가 제공됩니다.
+                     </p>
+                 </div>
+                 
+                 <div class="grid grid-cols-1 gap-3">
+                     <button @click="requestHintWithLevel(1)" 
+                             class="flex items-center justify-between p-4 rounded-xl border-2 border-slate-100 hover:border-amber-300 hover:bg-amber-50 transition-all group"
+                             :disabled="modalLoading">
+                         <div class="flex flex-col text-left">
+                             <span class="font-bold text-slate-800">Level 1. 알고리즘 유형</span>
+                             <span class="text-xs text-slate-500">어떤 알고리즘을 써야 할까요?</span>
+                         </div>
+                         <div class="flex items-center gap-1 bg-amber-100 px-3 py-1.5 rounded-lg text-amber-700 font-bold text-sm">
+                             <span>🌰</span> 5 
+                         </div>
+                     </button>
+
+                     <button @click="requestHintWithLevel(2)" 
+                             class="flex items-center justify-between p-4 rounded-xl border-2 border-slate-100 hover:border-amber-300 hover:bg-amber-50 transition-all group"
+                             :disabled="modalLoading">
+                         <div class="flex flex-col text-left">
+                             <span class="font-bold text-slate-800">Level 2. 접근 방법</span>
+                             <span class="text-xs text-slate-500">문제 풀이의 핵심 아이디어는?</span>
+                         </div>
+                         <div class="flex items-center gap-1 bg-amber-100 px-3 py-1.5 rounded-lg text-amber-700 font-bold text-sm">
+                             <span>🌰</span> 10 
+                         </div>
+                     </button>
+
+                     <button @click="requestHintWithLevel(3)" 
+                             class="flex items-center justify-between p-4 rounded-xl border-2 border-slate-100 hover:border-amber-300 hover:bg-amber-50 transition-all group"
+                             :disabled="modalLoading">
+                         <div class="flex flex-col text-left">
+                             <span class="font-bold text-slate-800">Level 3. 상세 가이드</span>
+                             <span class="text-xs text-slate-500">코드 구조와 구현 팁까지!</span>
+                         </div>
+                         <div class="flex items-center gap-1 bg-amber-100 px-3 py-1.5 rounded-lg text-amber-700 font-bold text-sm">
+                             <span>🌰</span> 15 
+                         </div>
+                     </button>
+                 </div>
+            </div>
+
+            <!-- Hint Data Display -->
             <div v-else-if="modalType === 'hint' && modalData" class="space-y-8">
                 <div class="text-center py-6">
                     <div class="inline-block p-4 rounded-full bg-amber-100 text-amber-500 mb-4">
                         <Lightbulb :size="48" />
                     </div>
-                    <h4 class="text-2xl font-bold text-slate-800 mb-4">Level 1 Hint</h4>
-                    <p class="text-xl text-slate-600 font-medium leading-relaxed">
-                        "{{ modalData.hint }}"
-                    </p>
+                    <h4 class="text-2xl font-bold text-slate-800 mb-4">Hint Level {{ modalData.level }}</h4>
+                    <div class="bg-amber-50 p-6 rounded-2xl text-left border border-amber-100">
+                        <p class="text-lg text-slate-700 font-medium leading-relaxed whitespace-pre-wrap">
+                            {{ modalData.hint }}
+                        </p>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <button @click="modalData = null" class="text-slate-500 hover:text-slate-800 text-sm font-medium underline">
+                        다른 힌트 보기
+                    </button>
                 </div>
             </div>
 
@@ -471,19 +526,36 @@ const requestReview = async (record) => {
     }
 };
 
-const requestHint = async (record) => {
-    openModal('hint', 'Smart Hint');
+
+
+const currentRecord = ref(null);
+
+const requestHint = (record) => {
+    currentRecord.value = record;
+    openModal('hint', '스마트 힌트 (도토리 사용)');
+};
+
+const requestHintWithLevel = async (level) => {
+    if (!currentRecord.value) return;
+    
     modalLoading.value = true;
     try {
         const res = await http.post('/ai/hint', {
-            userId: record.userId, 
-            problemNumber: String(record.problemNumber),
-            problemTitle: record.title,
-            level: 1
+            userId: currentRecord.value.userId, 
+            problemNumber: String(currentRecord.value.problemNumber),
+            problemTitle: currentRecord.value.title,
+            level: level
         });
-        modalData.value = res.data;
+        modalData.value = { ...res.data, level };
+        
+        // Refresh study data to update acorn count
+        if (user.value?.studyId) {
+            const studyRes = await studyApi.get(user.value.studyId);
+            studyData.value = studyRes.data;
+        }
     } catch(e) {
-        modalData.value = { hint: 'Error fetching hint.' };
+        alert('도토리가 부족하거나 오류가 발생했습니다.');
+        console.error(e);
     } finally {
         modalLoading.value = false;
     }
