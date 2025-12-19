@@ -1,9 +1,9 @@
 package com.ssafy.dash.analytics.application;
 
 import com.ssafy.dash.analytics.domain.UserClassStat;
+import com.ssafy.dash.analytics.domain.UserClassStatRepository;
 import com.ssafy.dash.analytics.domain.UserTagStat;
-import com.ssafy.dash.analytics.infrastructure.persistence.UserClassStatMapper;
-import com.ssafy.dash.analytics.infrastructure.persistence.UserTagStatMapper;
+import com.ssafy.dash.analytics.domain.UserTagStatRepository;
 import com.ssafy.dash.external.solvedac.SolvedacApiClient;
 import com.ssafy.dash.external.solvedac.dto.ClassStatResponse;
 import com.ssafy.dash.external.solvedac.dto.SolvedacUserResponse;
@@ -27,8 +27,8 @@ public class SolvedacSyncService {
 
     private final SolvedacApiClient solvedacClient;
     private final UserRepository userRepository;
-    private final UserClassStatMapper classStatMapper;
-    private final UserTagStatMapper tagStatMapper;
+    private final UserClassStatRepository classStatRepository;
+    private final UserTagStatRepository tagStatRepository;
     private final com.ssafy.dash.algorithm.domain.AlgorithmRecordRepository recordRepository;
 
     /**
@@ -76,7 +76,7 @@ public class SolvedacSyncService {
                     stat.getEssentials(),
                     stat.getEssentialSolved(),
                     stat.getDecoration());
-            classStatMapper.upsert(entity);
+            classStatRepository.save(entity);
         });
 
         log.info("Synced {} class stats for user {}", classStats.size(), userId);
@@ -97,7 +97,7 @@ public class SolvedacSyncService {
                     item.getSolved(),
                     item.getPartial(),
                     item.getTried());
-            tagStatMapper.upsert(entity);
+            tagStatRepository.save(entity);
         });
 
         log.info("Synced {} tag stats for user {}", response.getCount(), userId);

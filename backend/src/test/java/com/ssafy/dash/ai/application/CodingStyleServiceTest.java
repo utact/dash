@@ -4,9 +4,9 @@ import com.ssafy.dash.ai.client.AiServerClient;
 import com.ssafy.dash.ai.client.dto.CodingStyleRequest;
 import com.ssafy.dash.ai.client.dto.CodingStyleResponse;
 import com.ssafy.dash.algorithm.domain.AlgorithmRecord;
-import com.ssafy.dash.algorithm.infrastructure.mapper.AlgorithmRecordMapper;
+import com.ssafy.dash.algorithm.domain.AlgorithmRecordRepository;
 import com.ssafy.dash.analytics.domain.UserTagStat;
-import com.ssafy.dash.analytics.infrastructure.persistence.UserTagStatMapper;
+import com.ssafy.dash.analytics.domain.UserTagStatRepository;
 import com.ssafy.dash.user.domain.User;
 import com.ssafy.dash.user.domain.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,10 +33,10 @@ class CodingStyleServiceTest {
     private AiServerClient aiClient;
 
     @Mock
-    private AlgorithmRecordMapper recordMapper;
+    private AlgorithmRecordRepository recordRepository;
 
     @Mock
-    private UserTagStatMapper tagStatMapper;
+    private UserTagStatRepository tagStatRepository;
 
     @Mock
     private UserRepository userRepository;
@@ -45,7 +45,7 @@ class CodingStyleServiceTest {
 
     @BeforeEach
     void setUp() {
-        codingStyleService = new CodingStyleService(aiClient, recordMapper, tagStatMapper, userRepository);
+        codingStyleService = new CodingStyleService(aiClient, recordRepository, tagStatRepository, userRepository);
     }
 
     @Test
@@ -70,8 +70,8 @@ class CodingStyleServiceTest {
         CodingStyleResponse mockResponse = createMockResponse();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(recordMapper.selectByUserId(userId)).thenReturn(List.of(record));
-        when(tagStatMapper.findByUserId(userId)).thenReturn(List.of(tagStat));
+        when(recordRepository.findByUserId(userId)).thenReturn(List.of(record));
+        when(tagStatRepository.findByUserId(userId)).thenReturn(List.of(tagStat));
         when(aiClient.analyzeCodingStyle(any(CodingStyleRequest.class))).thenReturn(mockResponse);
 
         // when
@@ -91,8 +91,8 @@ class CodingStyleServiceTest {
     }
 
     @Test
-    @DisplayName("코드 샘플 없으면 예외 발생")
-    void analyzeCodingStyle_shouldThrowWhenNoCodeSamples() {
+    @DisplayName("코드 샘플 없으면 예외 발생 -> READY 상태 반환으로 변경됨")
+    void analyzeCodingStyle_shouldReturnReadyWhenNoCodeSamples() {
         // given
         Long userId = 1L;
         User user = createUser(userId, 11, 150);
@@ -102,12 +102,15 @@ class CodingStyleServiceTest {
         recordWithoutCode.setCode(null); // 코드 없음
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(recordMapper.selectByUserId(userId)).thenReturn(List.of(recordWithoutCode));
+        when(recordRepository.findByUserId(userId)).thenReturn(List.of(recordWithoutCode));
 
-        // when & then
-        assertThatThrownBy(() -> codingStyleService.analyzeCodingStyle(userId))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("분석할 코드가 없습니다");
+        // when
+        CodingStyleResponse result = codingStyleService.analyzeCodingStyle(userId);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getMbtiCode()).isEqualTo("READY");
+        assertThat(result.getNickname()).isEqualTo("준비된 도전자");
     }
 
     @Test

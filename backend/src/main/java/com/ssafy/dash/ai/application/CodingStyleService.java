@@ -4,9 +4,9 @@ import com.ssafy.dash.ai.client.AiServerClient;
 import com.ssafy.dash.ai.client.dto.CodingStyleRequest;
 import com.ssafy.dash.ai.client.dto.CodingStyleResponse;
 import com.ssafy.dash.algorithm.domain.AlgorithmRecord;
-import com.ssafy.dash.algorithm.infrastructure.mapper.AlgorithmRecordMapper;
+import com.ssafy.dash.algorithm.domain.AlgorithmRecordRepository;
 import com.ssafy.dash.analytics.domain.UserTagStat;
-import com.ssafy.dash.analytics.infrastructure.persistence.UserTagStatMapper;
+import com.ssafy.dash.analytics.domain.UserTagStatRepository;
 import com.ssafy.dash.user.domain.User;
 import com.ssafy.dash.user.domain.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +25,8 @@ import java.util.List;
 public class CodingStyleService {
 
         private final AiServerClient aiClient;
-        private final AlgorithmRecordMapper recordMapper;
-        private final UserTagStatMapper tagStatMapper;
+        private final AlgorithmRecordRepository recordRepository;
+        private final UserTagStatRepository tagStatRepository;
         private final UserRepository userRepository;
 
         /**
@@ -42,7 +42,7 @@ public class CodingStyleService {
                                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
 
                 // 최근 코드 샘플 수집 (최대 10개)
-                List<AlgorithmRecord> recentRecords = recordMapper.selectByUserId(userId);
+                List<AlgorithmRecord> recentRecords = recordRepository.findByUserId(userId);
                 List<CodingStyleRequest.CodeSample> codeSamples = recentRecords.stream()
                                 .filter(r -> r.getCode() != null && !r.getCode().isEmpty())
                                 .limit(10)
@@ -97,7 +97,7 @@ public class CodingStyleService {
                                 .orElse(0);
 
                 // 선호 태그 (가장 많이 푼 태그)
-                List<String> preferredTags = tagStatMapper.findByUserId(user.getId()).stream()
+                List<String> preferredTags = tagStatRepository.findByUserId(user.getId()).stream()
                                 .sorted(Comparator.comparing(UserTagStat::getSolved).reversed())
                                 .limit(5)
                                 .map(UserTagStat::getTagKey)

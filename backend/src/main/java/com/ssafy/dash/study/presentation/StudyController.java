@@ -4,6 +4,7 @@ import com.ssafy.dash.oauth.presentation.security.CustomOAuth2User;
 import com.ssafy.dash.study.application.StudyService;
 import com.ssafy.dash.study.domain.Study;
 import com.ssafy.dash.study.presentation.dto.CreateStudyRequest;
+import com.ssafy.dash.study.presentation.dto.response.StudyStatsResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

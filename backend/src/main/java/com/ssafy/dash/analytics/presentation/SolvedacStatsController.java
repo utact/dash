@@ -3,9 +3,9 @@ package com.ssafy.dash.analytics.presentation;
 import com.ssafy.dash.analytics.application.SolvedacSyncService;
 import com.ssafy.dash.analytics.application.dto.RegisterHandleRequest;
 import com.ssafy.dash.analytics.domain.UserClassStat;
+import com.ssafy.dash.analytics.domain.UserClassStatRepository;
 import com.ssafy.dash.analytics.domain.UserTagStat;
-import com.ssafy.dash.analytics.infrastructure.persistence.UserClassStatMapper;
-import com.ssafy.dash.analytics.infrastructure.persistence.UserTagStatMapper;
+import com.ssafy.dash.analytics.domain.UserTagStatRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -26,8 +26,8 @@ import java.util.Map;
 public class SolvedacStatsController {
 
     private final SolvedacSyncService syncService;
-    private final UserClassStatMapper classStatMapper;
-    private final UserTagStatMapper tagStatMapper;
+    private final UserClassStatRepository classStatRepository;
+    private final UserTagStatRepository tagStatRepository;
 
     /**
      * Solved.ac 핸들 등록 및 초기 데이터 동기화
@@ -49,7 +49,7 @@ public class SolvedacStatsController {
     @Operation(summary = "클래스별 통계 조회", description = "사용자의 Solved.ac 클래스별 문제 풀이 통계를 조회합니다")
     @GetMapping("/stats/classes")
     public ResponseEntity<List<UserClassStat>> getClassStats(@PathVariable Long userId) {
-        List<UserClassStat> stats = classStatMapper.findByUserId(userId);
+        List<UserClassStat> stats = classStatRepository.findByUserId(userId);
         return ResponseEntity.ok(stats);
     }
 
@@ -61,7 +61,7 @@ public class SolvedacStatsController {
     public ResponseEntity<List<UserTagStat>> getTagStats(
             @PathVariable Long userId,
             @RequestParam(required = false, defaultValue = "20") Integer limit) {
-        List<UserTagStat> stats = tagStatMapper.findByUserId(userId);
+        List<UserTagStat> stats = tagStatRepository.findByUserId(userId);
         return ResponseEntity.ok(limit != null && stats.size() > limit
                 ? stats.subList(0, limit)
                 : stats);
