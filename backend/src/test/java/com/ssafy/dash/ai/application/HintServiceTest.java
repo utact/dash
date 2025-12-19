@@ -35,23 +35,28 @@ class HintServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private com.ssafy.dash.acorn.application.AcornService acornService;
+
     private HintService hintService;
 
     @BeforeEach
     void setUp() {
-        hintService = new HintService(aiClient, skillAnalysisService, userRepository);
+        hintService = new HintService(aiClient, skillAnalysisService, userRepository, acornService);
     }
 
     @Test
-    @DisplayName("힌트 생성 시 사용자 컨텍스트 포함")
+    @DisplayName("힌트 생성 시 사용자 컨텍스트 포함 및 도토리 차감")
     void generateHint_shouldIncludeUserContext() {
         // given
         Long userId = 1L;
+        Long studyId = 10L;
         String problemNumber = "1000";
         String problemTitle = "A+B";
         int level = 1;
 
         User user = createUser(userId, 11, 150); // Gold V
+        user.updateStudy(studyId); // Set studyId
 
         TagWeaknessDto weakness = TagWeaknessDto.builder()
                 .tagKey("dp")
@@ -75,6 +80,9 @@ class HintServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getHint()).isEqualTo("테스트 힌트");
 
+        // Verify Acorn Usage
+        verify(acornService).use(eq(studyId), eq(userId), eq(5), anyString());
+
         ArgumentCaptor<HintRequest> captor = ArgumentCaptor.forClass(HintRequest.class);
         verify(aiClient).generateHint(captor.capture());
 
@@ -86,25 +94,19 @@ class HintServiceTest {
     }
 
     @Test
-    @DisplayName("사용자 없이도 힌트 생성 가능")
-    void generateHint_shouldWorkWithoutUser() {
+    @DisplayName("스터디 미가입 사용자는 힌트 사용 불가 (예외 발생)")
+    void generateHint_shouldThrowExceptionStartingWithoutStudy() {
         // given
-        Long userId = 999L;
+        Long userId = 1L;
+        User user = createUser(userId, 0, 0); 
+        // No studyId set
 
-        HintResponse mockResponse = new HintResponse();
-        mockResponse.setLevel(1);
-        mockResponse.setHint("기본 힌트");
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-        when(skillAnalysisService.getWeaknessTags(userId)).thenReturn(List.of());
-        when(aiClient.generateHint(any(HintRequest.class))).thenReturn(mockResponse);
-
-        // when
-        HintResponse result = hintService.generateHint(userId, "1000", "A+B", 1);
-
-        // then
-        assertThat(result).isNotNull();
-        assertThat(result.getHint()).isEqualTo("기본 힌트");
+        // when & then
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalStateException.class, () -> {
+            hintService.generateHint(userId, "1000", "A+B", 1);
+        });
     }
 
     private User createUser(Long id, Integer tier, Integer rating) {
@@ -114,5 +116,4 @@ class HintServiceTest {
         user.setSolvedacRating(rating);
         return user;
     }
-    
 }
