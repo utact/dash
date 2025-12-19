@@ -29,61 +29,72 @@
         </button>
       </div>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <!-- Record Card -->
+      <div v-else class="grid grid-cols-1 gap-4">
+        <!-- Record Card (Horizontal) -->
         <div 
           v-for="record in records" 
           :key="record.id" 
-          class="group relative bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
+          class="group relative bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col md:flex-row items-center gap-6"
         >
-          <!-- Language Badge -->
-          <div class="absolute top-6 right-6">
-            <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 uppercase tracking-wider">
-              {{ record.language }}
-            </span>
-          </div>
-
-          <!-- Problem Info -->
-          <div class="mb-6 mt-2">
+          <!-- Left: Info -->
+          <div class="flex-1 w-full md:w-auto text-left">
             <div class="flex items-center gap-2 mb-2">
-               <span class="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded">#{{ record.problemNumber }}</span>
+               <a 
+                 :href="`https://www.acmicpc.net/problem/${record.problemNumber}`" 
+                 target="_blank"
+                 class="flex items-center gap-1 text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded hover:bg-indigo-100 transition-colors"
+               >
+                 #{{ record.problemNumber }}
+                 <ExternalLink :size="10" />
+               </a>
+               <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 uppercase tracking-wider">
+                 {{ record.language }}
+               </span>
             </div>
-            <h3 class="text-lg font-bold text-slate-800 leading-snug line-clamp-2 group-hover:text-indigo-600 transition-colors">
+            <h3 class="text-xl font-bold text-slate-800 leading-snug truncate group-hover:text-indigo-600 transition-colors">
               {{ record.title }}
             </h3>
-            <div class="text-xs text-slate-400 mt-2 flex items-center gap-1">
-              {{ formatDate(record.committedAt) }}
+            <div class="flex items-center gap-2 mt-2">
+                 <div class="flex items-center gap-1.5 px-2 py-1 bg-slate-100 rounded-md">
+                    <div class="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-[10px] font-bold text-indigo-600">
+                        {{ (record.username || '?').charAt(0).toUpperCase() }}
+                    </div>
+                    <span class="text-xs font-bold text-slate-600">{{ record.username || 'Unknown' }}</span>
+                 </div>
+                 <div class="text-xs text-slate-400 flex items-center gap-1">
+                   {{ formatDate(record.committedAt) }}
+                 </div>
             </div>
           </div>
 
-          <!-- Stats Row -->
-          <div class="grid grid-cols-2 gap-3 mb-6">
-            <div class="bg-slate-50 rounded-2xl p-3 flex flex-col items-center justify-center border border-slate-100">
-              <Zap :size="16" class="text-amber-400 mb-1" />
+          <!-- Middle: Stats -->
+          <div class="flex items-center gap-3 w-full md:w-auto shrink-0">
+            <div class="flex-1 md:flex-none bg-slate-50 rounded-2xl px-5 py-3 flex items-center justify-center gap-2 border border-slate-100 min-w-[100px]">
+              <Zap :size="18" class="text-amber-400" />
               <span class="text-sm font-bold text-slate-700">{{ record.runtimeMs }}ms</span>
             </div>
-            <div class="bg-slate-50 rounded-2xl p-3 flex flex-col items-center justify-center border border-slate-100">
-              <Database :size="16" class="text-blue-400 mb-1" />
+            <div class="flex-1 md:flex-none bg-slate-50 rounded-2xl px-5 py-3 flex items-center justify-center gap-2 border border-slate-100 min-w-[100px]">
+              <Database :size="18" class="text-blue-400" />
               <span class="text-sm font-bold text-slate-700">{{ record.memoryKb }}KB</span>
             </div>
           </div>
 
-          <!-- Actions -->
-          <div class="mt-auto grid grid-cols-2 gap-3">
+          <!-- Right: Actions -->
+          <div class="flex items-center gap-2 w-full md:w-auto shrink-0">
              <button 
                 @click="requestReview(record)" 
-                class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-indigo-50 text-indigo-600 font-bold text-sm hover:bg-indigo-100 transition-colors"
+                class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-indigo-50 text-indigo-600 font-bold text-sm hover:bg-indigo-100 transition-colors"
                 :disabled="processing === record.id"
             >
-                <Bot :size="16" />
+                <Bot :size="18" />
                 <span v-if="processing === record.id">...</span>
                 <span v-else>리뷰</span>
             </button>
             <button 
                 @click="requestHint(record)" 
-                class="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-amber-50 text-amber-600 font-bold text-sm hover:bg-amber-100 transition-colors"
+                class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-amber-50 text-amber-600 font-bold text-sm hover:bg-amber-100 transition-colors"
             >
-                <Lightbulb :size="16" />
+                <Lightbulb :size="18" />
                 힌트
             </button>
           </div>
@@ -209,7 +220,14 @@ onMounted(async () => {
 
 const formatDate = (dateString) => {
     if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ko-KR', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 };
 
 const requestReview = async (record) => {

@@ -12,9 +12,7 @@
             @click="goHome"
             aria-label="홈으로 이동"
           >
-             <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:scale-105 transition-transform">
-              D
-            </div>
+            <img src="/icons/icon-128.png" alt="Dash Logo" class="w-8 h-8 rounded-lg shadow-md group-hover:scale-105 transition-transform" />
             <span
               class="text-xl font-bold text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors"
               >Dash</span

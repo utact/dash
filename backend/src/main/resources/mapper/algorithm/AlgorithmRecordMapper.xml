@@ -19,15 +19,26 @@
   </select>
 
   <select id="selectAll" resultType="AlgorithmRecord">
-    SELECT * FROM algorithm_records ORDER BY id DESC
+    SELECT r.*, u.username
+    FROM algorithm_records r
+    LEFT JOIN users u ON r.user_id = u.id
+    ORDER BY r.id DESC
   </select>
 
   <select id="selectByUserId" resultType="AlgorithmRecord" parameterType="long">
-    SELECT * FROM algorithm_records WHERE user_id = #{userId} ORDER BY id DESC
+    SELECT r.*, u.username 
+    FROM algorithm_records r
+    LEFT JOIN users u ON r.user_id = u.id
+    WHERE r.user_id = #{userId} 
+    ORDER BY r.id DESC
   </select>
 
   <select id="selectByStudyId" resultType="AlgorithmRecord" parameterType="long">
-    SELECT * FROM algorithm_records WHERE study_id = #{studyId} ORDER BY id DESC
+    SELECT r.*, u.username 
+    FROM algorithm_records r
+    LEFT JOIN users u ON r.user_id = u.id
+    WHERE r.study_id = #{studyId} 
+    ORDER BY r.id DESC
   </select>
 
   <update id="update" parameterType="AlgorithmRecord">
