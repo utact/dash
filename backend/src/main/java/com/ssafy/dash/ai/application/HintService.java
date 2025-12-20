@@ -24,6 +24,7 @@ public class HintService {
     private final AiServerClient aiClient;
     private final UserSkillAnalysisService skillAnalysisService;
     private final UserRepository userRepository;
+    private final com.ssafy.dash.acorn.application.AcornService acornService;
 
     /**
      * 사용자 맞춤 힌트 생성
@@ -34,13 +35,35 @@ public class HintService {
      * @param level         힌트 레벨 (1: 유형, 2: 접근법, 3: 상세)
      * @return 생성된 힌트
      */
+
     public HintResponse generateHint(Long userId, String problemNumber, String problemTitle, int level) {
         log.info("Generating hint for user: {}, problem: {}, level: {}", userId, problemNumber, level);
 
-        // 사용자 컨텍스트 수집
+        // 0. 레벨 유효성 체크
+        if (level < 1 || level > 3) {
+            throw new IllegalArgumentException("Invalid hint level (1~3)");
+        }
+
+        // 1. 도토리 차감 로직
+        int cost = level * 5; // Level 1: 5개, Level 2: 10개, Level 3: 15개
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+        
+        if (user.getStudyId() == null) {
+            throw new IllegalStateException("User does not belong to a study, cannot use acorns.");
+        }
+
+        acornService.use(
+            user.getStudyId(), 
+            userId, 
+            cost, 
+            String.format("Hint Level %d used for Problem %s", level, problemNumber)
+        );
+
+        // 2. 사용자 컨텍스트 수집 (이미 user 조회했으므로 리팩토링 가능하지만, 기존 메소드 활용)
         HintRequest.UserContext userContext = collectUserContext(userId);
 
-        // 힌트 요청 생성
+        // 3. 힌트 요청 생성
         HintRequest request = HintRequest.builder()
                 .problemNumber(problemNumber)
                 .problemTitle(problemTitle)
@@ -48,7 +71,7 @@ public class HintService {
                 .userContext(userContext)
                 .build();
 
-        // AI 서버에 힌트 요청
+        // 4. AI 서버에 힌트 요청
         return aiClient.generateHint(request);
     }
 

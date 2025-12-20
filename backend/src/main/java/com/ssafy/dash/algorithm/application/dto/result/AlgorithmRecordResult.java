@@ -22,9 +22,16 @@ public record AlgorithmRecordResult(
         String commitMessage,
         LocalDateTime committedAt,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt) {
+        LocalDateTime updatedAt,
+        // Analysis Fields
+        Integer score,
+        String timeComplexity,
+        String complexityExplanation,
+        String patterns) {
 
     public static AlgorithmRecordResult from(AlgorithmRecord record) {
+        // NOTE: Analysis result is not directly on AlgorithmRecord entity yet (OneToOne relation needed or fetch join)
+        // For now, initializing null. Service layer must populate this.
         return new AlgorithmRecordResult(
                 record.getId(),
                 record.getUserId(),
@@ -43,7 +50,11 @@ public record AlgorithmRecordResult(
                 record.getCommitMessage(),
                 record.getCommittedAt(),
                 record.getCreatedAt(),
-                record.getUpdatedAt());
+                record.getUpdatedAt(),
+                record.getScore(),
+                record.getTimeComplexity(),
+                record.getComplexityExplanation(),
+                record.getPatterns());
     }
 
 }
