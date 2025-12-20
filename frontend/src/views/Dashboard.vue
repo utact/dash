@@ -195,57 +195,38 @@
 
           <!-- Right: Actions -->
           <div class="flex items-center gap-2 w-full md:w-auto shrink-0">
-             <button 
-                @click="toggleCode(record.id)" 
-                class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-colors"
-                :class="expandedCodeId === record.id ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
+            <button 
+                @click.stop="requestReview(record)" 
+                class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-colors bg-slate-800 text-white hover:bg-slate-700 shadow-md hover:shadow-lg"
             >
-                <Code2 :size="18" />
-                <span v-if="expandedCodeId === record.id">숨기기</span>
-                <span v-else>코드</span>
+                <Bot :size="18" />
+                코드 리뷰
             </button>
             <button 
-                @click="requestHint(record)" 
-                class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-amber-50 text-amber-600 font-bold text-sm hover:bg-amber-100 transition-colors"
+                @click.stop="requestHint(record)" 
+                :disabled="record.runtimeMs > 0 && record.memoryKb > 0"
+                class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                :class="!(record.runtimeMs > 0 && record.memoryKb > 0) ? 'bg-amber-50 text-amber-600 hover:bg-amber-100' : 'bg-slate-100 text-slate-400'"
             >
                 <Lightbulb :size="18" />
-                hints
+                힌트
             </button>
           </div>
-        </div>
-        
-        <!-- Expanded Code & Detailed Analysis Section -->
-        <div v-if="expandedCodeId === record.id" class="mt-[-20px] mb-4 bg-slate-50 rounded-b-3xl border-x border-b border-slate-100 p-6 animate-fade-in mx-4">
-             <!-- Analysis Badge List -->
-             <div v-if="record.patterns" class="flex flex-wrap gap-2 mb-4">
-                 <span v-for="tag in parsePatterns(record.patterns)" :key="tag" class="px-3 py-1 bg-white border border-slate-200 rounded-full text-xs font-bold text-slate-600 shadow-sm">
-                   #{{ tag }}
-                 </span>
-                 <span v-if="record.complexityExplanation" class="px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-xs font-bold shadow-sm">
-                   💡 {{ record.complexityExplanation }}
-                 </span>
-             </div>
-
-             <!-- Code Block -->
-             <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-inner relative group">
-                 <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button @click="copyCode(record.code)" class="text-xs bg-white/10 text-white px-2 py-1 rounded hover:bg-white/20">Copy</button>
-                 </div>
-                 <pre class="p-6 text-sm font-mono text-green-400 overflow-x-auto selection:bg-green-900 selection:text-white"><code>{{ record.code || '// No code available' }}</code></pre>
-             </div>
         </div>
         </template>
       </div>
     </main>
 
     <!-- Trendy Modal -->
-    <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
-      <div class="bg-white rounded-[32px] w-full max-w-2xl max-h-[85vh] overflow-hidden relative shadow-2xl flex flex-col animate-pop-in">
+    <!-- Full Screen Modal (Split View) -->
+    <div v-if="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-4">
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
+      
+      <div class="bg-white w-full h-full md:h-[95vh] md:w-[95vw] md:rounded-[32px] overflow-hidden relative shadow-2xl flex flex-col animate-pop-in">
         
         <!-- Modal Header -->
-        <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-white/80 backdrop-blur z-10 sticky top-0">
-           <h3 class="text-2xl font-black text-slate-800 flex items-center gap-3">
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white z-20 shrink-0">
+           <h3 class="text-xl font-black text-slate-800 flex items-center gap-3">
              <div class="p-2 rounded-xl" :class="modalType === 'review' ? 'bg-indigo-100 text-indigo-600' : 'bg-amber-100 text-amber-600'">
                 <Bot v-if="modalType === 'review'" :size="24" />
                 <Lightbulb v-else :size="24" />
@@ -257,191 +238,206 @@
            </button>
         </div>
 
-        <!-- Modal Content -->
-        <div class="p-8 overflow-y-auto custom-scrollbar">
-            <!-- Loading -->
-            <div v-if="modalLoading" class="py-20 flex flex-col items-center justify-center text-center">
-                 <div class="w-16 h-16 border-4 border-indigo-100 border-t-indigo-500 rounded-full animate-spin mb-6"></div>
-                 <h4 class="text-lg font-bold text-slate-800">AI가 분석중입니다</h4>
-                 <p class="text-slate-500">잠시만 기다려주세요...</p>
-            </div>
-
-            <!-- Review Data -->
-            <div v-else-if="modalType === 'review' && modalData" class="space-y-6">
-                 <!-- Summary -->
-                 <div class="bg-indigo-50/50 p-6 rounded-3xl border border-indigo-100">
-                    <h4 class="text-sm font-bold text-indigo-900 uppercase tracking-wide mb-3">📝 분석 요약</h4>
-                    <p class="text-slate-700 leading-relaxed">{{ modalData.summary }}</p>
-                 </div>
-
-                 <!-- Problem Info -->
-                 <div v-if="modalData.problem" class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                    <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wide mb-3">🎯 문제 분석</h4>
-                    <p class="text-slate-600 mb-2">{{ modalData.problem.description }}</p>
-                    <div v-if="modalData.problem.isGuess" class="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded inline-block">
-                      ⚠️ {{ modalData.problem.guessReason }}
-                    </div>
-                 </div>
-
-                 <!-- Algorithm Patterns -->
-                 <div v-if="modalData.algorithm?.patterns?.length" class="bg-purple-50 p-5 rounded-2xl border border-purple-100">
-                    <h4 class="text-sm font-bold text-purple-800 uppercase tracking-wide mb-3">🧩 알고리즘 패턴</h4>
-                    <div class="flex flex-wrap gap-2 mb-3">
-                      <span v-for="(pattern, idx) in modalData.algorithm.patterns" :key="idx" 
-                            class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-                        {{ pattern }}
-                      </span>
-                    </div>
-                    <p v-if="modalData.algorithm.intuition" class="text-slate-600 text-sm">{{ modalData.algorithm.intuition }}</p>
-                 </div>
-
-                 <!-- Complexity -->
-                 <div class="grid grid-cols-2 gap-4">
-                     <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                         <span class="text-xs font-bold text-slate-400 uppercase">⏱️ Time</span>
-                         <div class="text-xl font-black text-slate-800 mt-1">{{ modalData.complexity?.time || '-' }}</div>
-                     </div>
-                     <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                         <span class="text-xs font-bold text-slate-400 uppercase">💾 Space</span>
-                         <div class="text-xl font-black text-slate-800 mt-1">{{ modalData.complexity?.space || '-' }}</div>
-                     </div>
-                 </div>
-
-                 <!-- Key Code Blocks -->
-                 <div v-if="modalData.keyBlocks?.length">
-                     <h4 class="flex items-center gap-2 text-lg font-bold text-slate-800 mb-4">
-                         💡 핵심 코드 블록
-                     </h4>
-                     <div class="space-y-3">
-                         <div v-for="(block, idx) in modalData.keyBlocks" :key="idx" class="bg-slate-900 rounded-xl overflow-hidden">
-                             <pre class="p-4 text-sm text-green-400 overflow-x-auto"><code>{{ block.code }}</code></pre>
-                             <div class="px-4 pb-3 text-slate-400 text-sm">{{ block.explanation }}</div>
-                         </div>
-                     </div>
-                 </div>
-
-                 <!-- Pitfalls -->
-                 <div v-if="modalData.pitfalls?.items?.length">
-                     <h4 class="flex items-center gap-2 text-lg font-bold text-red-600 mb-4">
-                         ⚠️ 주의할 점
-                     </h4>
-                     <ul class="space-y-2">
-                         <li v-for="(item, idx) in modalData.pitfalls.items" :key="idx" class="flex items-start gap-3 bg-red-50 p-3 rounded-xl border border-red-100">
-                             <div class="w-1.5 h-1.5 rounded-full bg-red-400 mt-2 shrink-0"></div>
-                             <span class="text-slate-700 text-sm">{{ item }}</span>
-                         </li>
-                     </ul>
-                 </div>
-
-                 <!-- Improvements -->
-                 <div v-if="modalData.pitfalls?.improvements?.length">
-                     <h4 class="flex items-center gap-2 text-lg font-bold text-slate-800 mb-4">
-                         <TrendingUp class="text-green-500" /> 개선 포인트
-                     </h4>
-                     <ul class="space-y-2">
-                         <li v-for="(item, idx) in modalData.pitfalls.improvements" :key="idx" class="flex items-start gap-3 bg-green-50 p-3 rounded-xl border border-green-100">
-                             <div class="w-1.5 h-1.5 rounded-full bg-green-400 mt-2 shrink-0"></div>
-                             <span class="text-slate-700 text-sm">{{ item }}</span>
-                         </li>
-                     </ul>
-                 </div>
-            </div>
-
-            <!-- Hint Selection -->
-            <div v-else-if="modalType === 'hint' && !modalData" class="space-y-4">
-                 <div class="text-center mb-6">
-                     <p class="text-slate-600">
-                         도토리를 사용하여 힌트를 확인할 수 있습니다.<br>
-                         높은 단계일수록 더 강력한 힌트가 제공됩니다.
-                     </p>
-                 </div>
-                 
-                 <div class="grid grid-cols-1 gap-3">
-                     <button @click="requestHintWithLevel(1)" 
-                             class="flex items-center justify-between p-4 rounded-xl border-2 border-slate-100 hover:border-amber-300 hover:bg-amber-50 transition-all group"
-                             :disabled="modalLoading">
-                         <div class="flex flex-col text-left">
-                             <span class="font-bold text-slate-800">Level 1. 알고리즘 유형</span>
-                             <span class="text-xs text-slate-500">어떤 알고리즘을 써야 할까요?</span>
-                         </div>
-                         <div class="flex items-center gap-1 bg-amber-100 px-3 py-1.5 rounded-lg text-amber-700 font-bold text-sm">
-                             <span>🌰</span> 5 
-                         </div>
-                     </button>
-
-                     <button @click="requestHintWithLevel(2)" 
-                             class="flex items-center justify-between p-4 rounded-xl border-2 border-slate-100 hover:border-amber-300 hover:bg-amber-50 transition-all group"
-                             :disabled="modalLoading">
-                         <div class="flex flex-col text-left">
-                             <span class="font-bold text-slate-800">Level 2. 접근 방법</span>
-                             <span class="text-xs text-slate-500">문제 풀이의 핵심 아이디어는?</span>
-                         </div>
-                         <div class="flex items-center gap-1 bg-amber-100 px-3 py-1.5 rounded-lg text-amber-700 font-bold text-sm">
-                             <span>🌰</span> 10 
-                         </div>
-                     </button>
-
-                     <button @click="requestHintWithLevel(3)" 
-                             class="flex items-center justify-between p-4 rounded-xl border-2 border-slate-100 hover:border-amber-300 hover:bg-amber-50 transition-all group"
-                             :disabled="modalLoading">
-                         <div class="flex flex-col text-left">
-                             <span class="font-bold text-slate-800">Level 3. 상세 가이드</span>
-                             <span class="text-xs text-slate-500">코드 구조와 구현 팁까지!</span>
-                         </div>
-                         <div class="flex items-center gap-1 bg-amber-100 px-3 py-1.5 rounded-lg text-amber-700 font-bold text-sm">
-                             <span>🌰</span> 15 
-                         </div>
-                     </button>
-                 </div>
-            </div>
-
-            <!-- Hint Data Display -->
-            <div v-else-if="modalType === 'hint' && modalData" class="space-y-8">
-                <div class="text-center py-6">
-                    <div class="inline-block p-4 rounded-full bg-amber-100 text-amber-500 mb-4">
-                        <Lightbulb :size="48" />
-                    </div>
-                    <h4 class="text-2xl font-bold text-slate-800 mb-4">Hint Level {{ modalData.level }}</h4>
-                    <div class="bg-amber-50 p-6 rounded-2xl text-left border border-amber-100">
-                        <p class="text-lg text-slate-700 font-medium leading-relaxed whitespace-pre-wrap">
-                            {{ modalData.hint }}
-                        </p>
-                    </div>
+        <!-- Split View Content -->
+        <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+            
+            <!-- Left Panel: Source Code -->
+            <div v-if="modalType === 'review'" class="flex w-full md:w-[45%] bg-[#282c34] flex-col border-b md:border-b-0 md:border-r border-slate-200 h-[200px] md:h-auto shrink-0">
+                <div class="px-4 py-2 bg-[#21252b] text-slate-400 text-xs font-mono border-b border-[#181a1f] flex justify-between items-center shrink-0">
+                    <span>Source Code.java</span>
+                    <span class="px-2 py-0.5 rounded bg-white/10 text-slate-300">Read Only</span>
                 </div>
-                <div class="text-center">
-                    <button @click="modalData = null" class="text-slate-500 hover:text-slate-800 text-sm font-medium underline">
-                        다른 힌트 보기
+                <div class="flex-1 overflow-y-auto custom-scrollbar p-0">
+                    <pre class="m-0 p-6 text-sm font-mono leading-relaxed"><code class="hljs language-java" v-html="highlightCodeContent(currentRecordCode || '// 코드를 불러올 수 없습니다.', 'java')"></code></pre>
+                </div>
+            </div>
+
+            <!-- Right Panel: Analysis & Tabs -->
+            <div class="flex-1 flex flex-col bg-slate-50 w-full md:w-[55%] relative h-full overflow-hidden">
+                <!-- ... existing right panel content ... -->
+                
+                <!-- Loading State -->
+                <div v-if="modalLoading" class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-white/80 backdrop-blur">
+                     <div class="w-16 h-16 border-4 border-indigo-100 border-t-indigo-500 rounded-full animate-spin mb-6"></div>
+                     <h4 class="text-lg font-bold text-slate-800">AI가 코드를 정밀 분석중입니다</h4>
+                     <p class="text-slate-500">잠시만 기다려주세요...</p>
+                </div>
+
+                <!-- Tabs (Only for Review) -->
+                <div v-if="modalType === 'review' && modalData" class="flex items-center px-6 border-b border-slate-200 bg-white sticky top-0 z-10">
+                    <button @click="activeTab = 'insight'" 
+                        class="px-4 py-4 text-sm font-bold border-b-2 transition-colors flex items-center gap-2"
+                        :class="activeTab === 'insight' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'">
+                        <LayoutGrid :size="16" /> Insight
+                    </button>
+                    <button @click="activeTab = 'structure'" 
+                        class="px-4 py-4 text-sm font-bold border-b-2 transition-colors flex items-center gap-2"
+                        :class="activeTab === 'structure' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'">
+                        <Network :size="16" /> Structure
+                    </button>
+                    <button @click="activeTab = 'feedback'" 
+                        class="px-4 py-4 text-sm font-bold border-b-2 transition-colors flex items-center gap-2"
+                        :class="activeTab === 'feedback' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'">
+                        <MessageSquare :size="16" /> Feedback
                     </button>
                 </div>
-            </div>
 
-            <!-- Acorn History -->
-            <div v-else-if="modalType === 'acorn'" class="space-y-4">
-                 <div v-if="!modalData || modalData.length === 0" class="text-center py-10 text-slate-400">
-                     내역이 없습니다.
-                 </div>
-                 <div v-else v-for="log in modalData" :key="log.id" class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                     <div class="flex items-center gap-3">
-                         <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm"
-                              :class="log.amount > 0 ? 'bg-amber-100 text-amber-600' : 'bg-slate-200 text-slate-500'">
-                             {{ log.amount > 0 ? '🌰' : '💸' }}
-                         </div>
-                         <div>
-                             <p class="font-bold text-slate-800">{{ log.reason }}</p>
-                             <div class="flex items-center gap-2 text-xs text-slate-400 font-medium">
-                                 <span>{{ log.username }}</span>
-                                 <span>•</span>
-                                 <span>{{ formatDate(log.createdAt) }}</span>
+                <!-- Content Area -->
+                <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                    
+                    <!-- REVIEW CONTENT -->
+                    <div v-if="modalType === 'review' && modalData">
+                        
+                        <!-- TAB 1: INSIGHT -->
+                        <div v-if="activeTab === 'insight'" class="space-y-6 animate-fade-in">
+                             <!-- Summary -->
+                             <div class="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-2xl border border-indigo-100 shadow-sm">
+                                <h4 class="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-3">Analysis Summary</h4>
+                                <p class="text-slate-800 text-lg font-medium leading-relaxed">{{ modalData.summary }}</p>
                              </div>
+                             
+                             <!-- Complexity Cards -->
+                             <div class="grid grid-cols-2 gap-4">
+                                 <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
+                                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Time Complexity</span>
+                                     <div class="text-3xl font-black text-slate-800 mt-2">{{ modalData.complexity?.time || '-' }}</div>
+                                 </div>
+                                 <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
+                                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Space Complexity</span>
+                                     <div class="text-3xl font-black text-slate-800 mt-2">{{ modalData.complexity?.space || '-' }}</div>
+                                 </div>
+                             </div>
+
+                             <!-- Problem & Intuition -->
+                             <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                                <h4 class="flex items-center gap-2 text-sm font-bold text-slate-800 mb-4">
+                                    🎯 문제의 본질 & 직관
+                                </h4>
+                                <div class="bg-slate-50 p-4 rounded-xl text-slate-600 text-sm mb-4">
+                                    {{ modalData.problem?.description }}
+                                </div>
+                                <div v-if="modalData.algorithm?.intuition" 
+                                     class="prose prose-sm prose-slate max-w-none text-slate-600" 
+                                     v-html="renderMarkdown(modalData.algorithm.intuition)">
+                                </div>
+                             </div>
+                        </div>
+
+                        <!-- TAB 2: STRUCTURE -->
+                        <div v-if="activeTab === 'structure'" class="space-y-6 animate-fade-in">
+                            <!-- Code Structure Map -->
+                            <div v-if="modalData.structure?.length" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                                <h4 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">🏗️ 코드 구조도</h4>
+                                <div class="space-y-2">
+                                    <div v-for="(item, idx) in modalData.structure" :key="idx" class="flex items-center gap-4 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                        <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs shrink-0">
+                                            {{ idx + 1 }}
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="font-bold text-slate-800 text-sm">{{ item.name }}</div>
+                                            <div class="text-xs text-slate-500">{{ item.role }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Trace -->
+                            <div v-if="modalData.traceExample?.steps?.length" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                                <h4 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">🔍 실행 추적 (Trace)</h4>
+                                <div class="bg-slate-900 rounded-xl p-4 mb-4 font-mono text-xs text-blue-300">
+                                    Input: {{ modalData.traceExample.inputExample }}
+                                </div>
+                                <div class="space-y-4 pl-2">
+                                    <div v-for="(step, idx) in modalData.traceExample.steps" :key="idx" class="flex gap-4 relative">
+                                        <!-- Vertical Line -->
+                                        <div v-if="idx !== modalData.traceExample.steps.length - 1" class="absolute left-[11px] top-6 bottom-[-20px] w-0.5 bg-slate-100"></div>
+                                        
+                                        <div class="w-6 h-6 rounded-full bg-blue-50 border-2 border-blue-100 flex items-center justify-center shrink-0 z-10">
+                                            <div class="w-2 h-2 rounded-full bg-blue-400"></div>
+                                        </div>
+                                        <div class="text-sm text-slate-600 pt-0.5">{{ step }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB 3: FEEDBACK -->
+                        <div v-if="activeTab === 'feedback'" class="space-y-6 animate-fade-in">
+                            <!-- Complexity Detail -->
+                            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                                <h4 class="text-sm font-bold text-slate-800 mb-4">⏱️ 복잡도 상세 분석</h4>
+                                <div v-if="modalData.complexity?.explanation" 
+                                     class="prose prose-sm prose-slate max-w-none text-slate-600 bg-slate-50 p-4 rounded-xl"
+                                     v-html="renderMarkdown(modalData.complexity.explanation)">
+                                </div>
+                            </div>
+
+                            <!-- Pitfalls -->
+                            <div v-if="modalData.pitfalls?.items?.length" class="bg-red-50 p-6 rounded-2xl border border-red-100">
+                                <h4 class="text-red-800 font-bold mb-4 flex items-center gap-2">⚠️ 주의사항 (Pitfalls)</h4>
+                                <ul class="space-y-2">
+                                    <li v-for="(item, idx) in modalData.pitfalls.items" :key="idx" class="flex gap-3 text-red-700 text-sm bg-white/50 p-3 rounded-xl">
+                                        <span>•</span>
+                                        <span>{{ item }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Refactor -->
+                            <div v-if="modalData.refactor?.code" class="bg-emerald-50 p-6 rounded-2xl border border-emerald-100">
+                                <h4 class="text-emerald-800 font-bold mb-4 flex items-center gap-2">✨ 리팩토링 제안</h4>
+                                <div class="prose prose-sm max-w-none text-emerald-800 mb-4" v-html="renderMarkdown(modalData.refactor.explanation)"></div>
+                                <div class="bg-[#282c34] rounded-xl overflow-hidden shadow-sm">
+                                    <div class="px-4 py-2 bg-[#21252b] text-slate-400 text-xs font-mono border-b border-[#181a1f] flex justify-between">
+                                        <span>Refactored.java</span>
+                                        <button @click="copyCode(modalData.refactor.code)" class="hover:text-white">Copy</button>
+                                    </div>
+                                    <pre class="m-0 p-4 text-sm font-mono text-emerald-300 overflow-x-auto"><code>{{ modalData.refactor.code }}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <!-- HINT CONTENT (Legacy Support) -->
+                    <div v-else-if="modalType === 'hint'">
+                         <!-- Reuse existing hint UI here or simplify -->
+                         <div v-if="!modalData" class="py-10 text-center">
+                            <h4 class="font-bold text-slate-800 text-lg mb-4">어떤 힌트가 필요하신가요?</h4>
+                            <div class="grid gap-3">
+                                 <button @click="requestHintWithLevel(1)" class="p-4 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 text-left">
+                                     <div class="font-bold text-slate-800">1단계: 알고리즘 유형 (5🌰)</div>
+                                     <div class="text-xs text-slate-500">어떤 알고리즘을 써야 할까요?</div>
+                                 </button>
+                                 <button @click="requestHintWithLevel(2)" class="p-4 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 text-left">
+                                     <div class="font-bold text-slate-800">2단계: 접근 아이디어 (10🌰)</div>
+                                     <div class="text-xs text-slate-500">핵심 로직 힌트</div>
+                                 </button>
+                                 <button @click="requestHintWithLevel(3)" class="p-4 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 text-left">
+                                     <div class="font-bold text-slate-800">3단계: 상세 가이드 (15🌰)</div>
+                                     <div class="text-xs text-slate-500">코드 구조 및 구현 팁</div>
+                                 </button>
+                            </div>
                          </div>
-                     </div>
-                     <span class="font-black text-lg" :class="log.amount > 0 ? 'text-amber-500' : 'text-slate-400'">
-                         {{ log.amount > 0 ? '+' : '' }}{{ log.amount }}
-                     </span>
-                 </div>
+                         <div v-else class="p-6 bg-amber-50 rounded-2xl border border-amber-100">
+                             <h4 class="font-black text-amber-600 text-xl mb-4">Hint Level {{ modalData.level }}</h4>
+                             <p class="whitespace-pre-wrap text-slate-700 leading-relaxed">{{ modalData.hint }}</p>
+                             <button @click="modalData = null" class="mt-6 text-sm underline text-slate-500 hover:text-slate-800">Back</button>
+                         </div>
+                    </div>
+
+                    <!-- ACORN CONTENT (Legacy Support) -->
+                    <div v-else-if="modalType === 'acorn'">
+                        <!-- Reuse existing acorn UI -->
+                         <div v-for="log in modalData" :key="log.id" class="flex justify-between p-4 border-b">
+                            <span>{{ log.reason }}</span>
+                            <span class="font-bold">{{ log.amount }}</span>
+                         </div>
+                    </div>
+
+                </div>
             </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -466,8 +462,11 @@ import {
   Youtube,
   Nut,
   Trophy,
-  Activity
+  Activity,
+  Network
 } from 'lucide-vue-next';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/atom-one-dark.css';
 
 // ... (other imports)
 
@@ -482,6 +481,7 @@ const modalType = ref('');
 const modalTitle = ref('');
 const modalData = ref(null);
 const modalLoading = ref(false);
+const activeTab = ref('insight');
 
 const tooltipData = ref(null);
 const tooltipPos = ref({ x: 0, y: 0 });
@@ -614,29 +614,98 @@ const formatDate = (dateString) => {
     });
 };
 
-const requestReview = async (record) => {
-    // Deprecated: Review is now automatic.
-    // Keeping function structure if called by legacy, but UI shouldn't call it.
-    console.warn("Manual review is deprecated.");
+import { marked } from 'marked';
+
+// Markdown Renderer
+const renderMarkdown = (text) => {
+    if (!text) return '';
+    return marked.parse(text);
 };
 
-
-const expandedCodeId = ref(null);
-
-const toggleCode = (id) => {
-    if (expandedCodeId.value === id) {
-        expandedCodeId.value = null;
-    } else {
-        expandedCodeId.value = id;
+const highlightCodeContent = (code, lang = 'java') => {
+    if (!code) return '';
+    try {
+        return hljs.highlight(code, { language: lang }).value;
+    } catch (e) {
+        try {
+             return hljs.highlightAuto(code).value;
+        } catch (e2) {
+             return code;
+        }
     }
 };
 
-const copyCode = (text) => {
-    navigator.clipboard.writeText(text).then(() => {
-        // Optional: Toast notification
-        console.log("Copied to clipboard");
-    });
+const copyCode = (code) => {
+    navigator.clipboard.writeText(code);
+    alert('코드가 복사되었습니다.');
 };
+
+const currentRecordCode = ref('');
+
+const adaptAnalysisData = (result) => {
+    if (result.fullResponse) {
+        try {
+            return JSON.parse(result.fullResponse);
+        } catch (e) {
+            console.error("JSON Parse failed, falling back to flat fields", e);
+        }
+    }
+
+    // Fallback Adaptor for Flat DTO
+    return {
+        summary: result.summary,
+        complexity: {
+            time: result.timeComplexity || '-',
+            space: result.spaceComplexity || '-',
+            explanation: result.complexityExplanation
+        },
+        algorithm: {
+            intuition: result.algorithmIntuition,
+            patterns: parsePatterns(result.patterns)
+        },
+        structure: [],
+        traceExample: { steps: [] },
+        pitfalls: {
+            items: parsePatterns(result.pitfalls),
+            improvements: parsePatterns(result.improvements)
+        },
+        refactor: {
+            code: result.refactorCode,
+            explanation: result.refactorExplanation
+        }
+    };
+};
+
+const requestReview = async (record) => {
+    modalType.value = 'review';
+    modalTitle.value = 'AI 코드 분석';
+    modalLoading.value = true;
+    showModal.value = true;
+    modalData.value = null;
+    currentRecordCode.value = record.code || '';
+    activeTab.value = 'insight';
+
+    try {
+        const response = await http.get(`/ai/review/${record.id}`);
+        console.log("Analysis Result:", response.data); // Debug
+        modalData.value = adaptAnalysisData(response.data);
+    } catch (error) {
+        console.error("Failed to fetch review:", error);
+        const status = error.response?.status || 'Unknown';
+        const msg = error.response?.data?.message || error.message;
+        modalData.value = { 
+            summary: `분석 데이터를 불러오는 데 실패했습니다. (Error ${status}: ${msg})`,
+            complexity: { time: '-', space: '-', explanation: '서버 연결 확인 필요' }
+        };
+    } finally {
+        modalLoading.value = false;
+    }
+};
+
+
+
+
+
 
 const parsePatterns = (jsonString) => {
     if (!jsonString) return [];

@@ -236,6 +236,7 @@ CREATE TABLE IF NOT EXISTS code_analysis_results (
     refactor_code TEXT,
     refactor_explanation TEXT,
     score INT,
+    full_response LONGTEXT,
     analyzed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
