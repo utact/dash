@@ -132,12 +132,6 @@
                         <p class="pl-4">}</p>
                         <p>}</p>
                      </div>
-                     <!-- Transform Arrow -->
-                     <div class="absolute inset-0 flex items-center justify-center bg-slate-900/10 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div class="bg-white p-4 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                           <ArrowDown :size="32" class="text-indigo-600" />
-                        </div>
-                     </div>
                   </div>
                </div>
             </div>
@@ -266,35 +260,6 @@
             </div>
           </div>
         </section>
-
-        <!-- CTA -->
-        <section class="container mx-auto px-6 py-24 pb-32">
-          <div
-            class="relative rounded-[48px] bg-slate-900 overflow-hidden text-center p-12 md:p-24 shadow-2xl"
-          >
-            <!-- Fancy Background elements within CTA -->
-            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500 rounded-full blur-[80px] opacity-30"></div>
-            <div class="absolute bottom-0 left-0 w-64 h-64 bg-purple-500 rounded-full blur-[80px] opacity-30"></div>
-            
-            <div class="relative z-10 max-w-3xl mx-auto">
-              <h2 class="text-4xl md:text-5xl font-black mb-8 text-white leading-tight">
-                준비되셨나요? <br/>
-                <span class="text-indigo-400">Dash</span>로 멋진 항해를 시작하세요.
-              </h2>
-              <p class="text-slate-400 text-lg mb-10">
-                 지금 바로 무료로 시작해보세요. 팀원 초대는 언제든지 가능합니다.
-              </p>
-
-              <button
-                @click="handleLogin"
-                class="inline-flex items-center justify-center gap-2 px-10 py-5 rounded-2xl bg-white text-slate-900 hover:bg-indigo-50 transition-all font-bold text-lg shadow-lg hover:shadow-white/20 hover:scale-105"
-              >
-                <Github :size="20" />
-                지금 Dash 시작하기
-              </button>
-            </div>
-          </div>
-        </section>
       </template>
     </main>
     
@@ -303,7 +268,7 @@
         <div class="text-2xl font-black text-slate-900 mb-6">Dash</div>
         <div class="text-sm text-slate-400">
           © 2025 DASH. All rights reserved. <br/>
-          Designed for developers, by developers.
+          Designed for utact, canit0221.
         </div>
       </div>
     </footer>
