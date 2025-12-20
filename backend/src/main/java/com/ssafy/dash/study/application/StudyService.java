@@ -48,7 +48,6 @@ public class StudyService {
         }
 
         user.updateStudy(studyId);
-        user.updateStudy(studyId);
         userRepository.update(user);
     }
 
@@ -57,4 +56,10 @@ public class StudyService {
         StudyStats stats = algorithmRecordRepository.countsByStudyId(studyId);
         return new StudyStatsResult(stats.bronze(), stats.silver(), stats.gold(), stats.platinum());
     }
+
+    @Transactional(readOnly = true)
+    public java.util.Optional<Study> findStudyById(Long studyId) {
+        return studyRepository.findById(studyId);
+    }
+
 }

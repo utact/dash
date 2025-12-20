@@ -7,12 +7,12 @@
             algorithm_record_id, summary, time_complexity, space_complexity,
             complexity_explanation, patterns, algorithm_intuition,
             pitfalls, improvements, refactor_provided, refactor_code,
-            refactor_explanation, score, analyzed_at
+            refactor_explanation, score, full_response, analyzed_at
         ) VALUES (
             #{algorithmRecordId}, #{summary}, #{timeComplexity}, #{spaceComplexity},
             #{complexityExplanation}, #{patterns}, #{algorithmIntuition},
             #{pitfalls}, #{improvements}, #{refactorProvided}, #{refactorCode},
-            #{refactorExplanation}, #{score}, #{analyzedAt}
+            #{refactorExplanation}, #{score}, #{fullResponse}, #{analyzedAt}
         )
     </insert>
 
@@ -35,6 +35,7 @@
             refactor_code = #{refactorCode},
             refactor_explanation = #{refactorExplanation},
             score = #{score},
+            full_response = #{fullResponse},
             analyzed_at = #{analyzedAt}
         WHERE id = #{id}
     </update>
