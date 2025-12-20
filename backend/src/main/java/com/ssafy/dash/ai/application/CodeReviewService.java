@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -30,7 +31,7 @@ public class CodeReviewService {
     /**
      * 코드 분석 요청 및 결과 저장
      */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public CodeAnalysisResult analyzeAndSave(Long algorithmRecordId, String code, String language,
             String problemNumber) {
         log.info("Analyzing code for record: {}", algorithmRecordId);
@@ -66,7 +67,7 @@ public class CodeReviewService {
      * AI 응답을 엔티티로 변환
      */
     private CodeAnalysisResult convertToEntity(Long algorithmRecordId, CodeReviewResponse response) {
-        return CodeAnalysisResult.builder()
+        var builder = CodeAnalysisResult.builder()
                 .algorithmRecordId(algorithmRecordId)
                 .summary(response.getSummary())
                 .timeComplexity(response.getComplexity() != null ? response.getComplexity().getTime() : null)
@@ -81,8 +82,16 @@ public class CodeReviewService {
                 .refactorCode(response.getRefactor() != null ? response.getRefactor().getCode() : null)
                 .refactorExplanation(response.getRefactor() != null ? response.getRefactor().getExplanation() : null)
                 .score(calculateScore(response))
-                .analyzedAt(LocalDateTime.now())
-                .build();
+                .analyzedAt(LocalDateTime.now());
+
+        try {
+            builder.fullResponse(objectMapper.writeValueAsString(response));
+        } catch (JsonProcessingException e) {
+            log.error("Failed to serialize full response", e);
+            builder.fullResponse("{}");
+        }
+
+        return builder.build();
     }
 
     /**

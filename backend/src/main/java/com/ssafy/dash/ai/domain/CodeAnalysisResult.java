@@ -43,5 +43,8 @@ public class CodeAnalysisResult {
     // 점수 (0-100)
     private Integer score;
 
+    // Full JSON Response (for UI rendering)
+    private String fullResponse;
+
     private LocalDateTime analyzedAt;
 }

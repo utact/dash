@@ -29,6 +29,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -86,18 +87,37 @@ public class GitHubPushEventWorker {
                 return;
             }
             GitHubPushEvent event = optional.get();
-            transactionTemplate.executeWithoutResult(status -> processEvent(event));
+            // 트랜잭션 내에서 레코드 저장 후, 생성된 레코드 목록 반환
+            List<AlgorithmRecord> newRecords = transactionTemplate.execute(status -> processEvent(event));
+
+            // 트랜잭션 커밋 후 AI 분석 실행 (별도 트랜잭션)
+            if (newRecords != null) {
+                for (AlgorithmRecord record : newRecords) {
+                    try {
+                        codeReviewService.analyzeAndSave(
+                                record.getId(),
+                                record.getCode(),
+                                record.getLanguage(),
+                                record.getProblemNumber()
+                        );
+                    } catch (Exception e) {
+                        log.error("Auto-analysis failed via worker for record: {}", record.getId(), e);
+                    }
+                }
+            }
         }
     }
 
-    void processEvent(GitHubPushEvent event) {
+    List<AlgorithmRecord> processEvent(GitHubPushEvent event) {
         if (event.getStatus() != PushEventStatus.QUEUED) {
-            return;
+            return Collections.emptyList();
         }
 
         LocalDateTime now = LocalDateTime.now();
         event.markProcessing(now);
         pushEventRepository.update(event);
+
+        List<AlgorithmRecord> createdRecords = new ArrayList<>();
 
         try {
             Onboarding onboarding = onboardingRepository.findByRepositoryName(event.getRepositoryName())
@@ -111,7 +131,8 @@ public class GitHubPushEventWorker {
                 if (!file.isProcessable()) {
                     continue;
                 }
-                storeAlgorithmRecord(event, onboarding.getUserId(), token.getAccessToken(), file);
+                AlgorithmRecord record = storeAlgorithmRecord(event, onboarding.getUserId(), token.getAccessToken(), file);
+                createdRecords.add(record);
                 processed = true;
             }
 
@@ -120,6 +141,8 @@ public class GitHubPushEventWorker {
             }
 
             event.markCompleted(LocalDateTime.now());
+            return createdRecords;
+
         } catch (GitHubFileDownloadException ex) {
             log.warn("GitHub push event {} 파일 다운로드 실패: {}", event.getDeliveryId(), ex.getMessage());
             event.markFailed("GitHub 파일 다운로드 실패: " + ex.getMessage(), LocalDateTime.now());
@@ -132,6 +155,7 @@ public class GitHubPushEventWorker {
         } finally {
             pushEventRepository.update(event);
         }
+        return Collections.emptyList();
     }
 
     private List<QueuedPushFile> readFiles(String filesJson) {
@@ -146,7 +170,7 @@ public class GitHubPushEventWorker {
         }
     }
 
-    private void storeAlgorithmRecord(GitHubPushEvent event,
+    private AlgorithmRecord storeAlgorithmRecord(GitHubPushEvent event,
                                       Long userId,
                                       String accessToken,
                                       QueuedPushFile file) {
@@ -198,20 +222,9 @@ public class GitHubPushEventWorker {
             } catch (Exception e) {
                 log.error("Acorn accumulation failed for record: {}", record.getId(), e);
             }
-
-            // Auto-Analysis Logic
-            try {
-                codeReviewService.analyzeAndSave(
-                    record.getId(),
-                    record.getCode(),
-                    record.getLanguage(),
-                    record.getProblemNumber()
-                );
-            } catch (Exception e) {
-                log.error("Auto-analysis failed for record: {}", record.getId(), e);
-                // Analysis failure should not roll back the record saving
-            }
         }
+        
+        return record;
     }
 
     private record QueuedPushFile(
