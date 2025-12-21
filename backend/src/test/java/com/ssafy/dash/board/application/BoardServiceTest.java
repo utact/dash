@@ -1,6 +1,5 @@
 package com.ssafy.dash.board.application;
 
-
 import com.ssafy.dash.board.application.dto.command.BoardCreateCommand;
 import com.ssafy.dash.board.application.dto.command.BoardUpdateCommand;
 import com.ssafy.dash.board.application.dto.result.BoardResult;
@@ -116,7 +115,7 @@ class BoardServiceTest {
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
 
-        BoardResult response = boardService.update(board.getId(), command);
+        BoardResult response = boardService.update(board.getId(), command, user.getId());
 
         verify(boardRepository).update(any(Board.class));
         assertThat(response.title()).isEqualTo(command.title());
@@ -128,7 +127,7 @@ class BoardServiceTest {
         BoardUpdateCommand command = TestFixtures.createBoardUpdateCommand();
         given(boardRepository.findById(board.getId())).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> boardService.update(board.getId(), command))
+        assertThatThrownBy(() -> boardService.update(board.getId(), command, user.getId()))
                 .isInstanceOf(BoardNotFoundException.class);
         verify(boardRepository, never()).update(any(Board.class));
     }
@@ -138,7 +137,7 @@ class BoardServiceTest {
     void deleteBoard_Success() {
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
 
-        boardService.delete(board.getId());
+        boardService.delete(board.getId(), user.getId());
 
         verify(boardRepository).delete(board.getId());
     }
@@ -148,7 +147,7 @@ class BoardServiceTest {
     void deleteBoard_NotFound_Throws() {
         given(boardRepository.findById(board.getId())).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> boardService.delete(board.getId()))
+        assertThatThrownBy(() -> boardService.delete(board.getId(), user.getId()))
                 .isInstanceOf(BoardNotFoundException.class);
         verify(boardRepository, never()).delete(anyLong());
     }

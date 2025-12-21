@@ -6,6 +6,7 @@ import com.ssafy.dash.board.application.dto.result.BoardResult;
 import com.ssafy.dash.board.domain.Board;
 import com.ssafy.dash.board.domain.BoardRepository;
 import com.ssafy.dash.board.domain.exception.BoardNotFoundException;
+import com.ssafy.dash.common.exception.UnauthorizedAccessException;
 import com.ssafy.dash.user.domain.User;
 import com.ssafy.dash.user.domain.UserRepository;
 import com.ssafy.dash.user.domain.exception.UserNotFoundException;
@@ -68,9 +69,11 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResult update(Long id, BoardUpdateCommand command) {
+    public BoardResult update(Long id, BoardUpdateCommand command, Long requestUserId) {
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new BoardNotFoundException(id));
+
+        validateOwnership(board, requestUserId);
 
         LocalDateTime now = LocalDateTime.now();
         board.applyUpdate(command.title(), command.content(), command.algorithmRecordId(), now);
@@ -83,11 +86,19 @@ public class BoardService {
     }
 
     @Transactional
-    public void delete(Long id) {
-        if (boardRepository.findById(id).isEmpty()) {
-            throw new BoardNotFoundException(id);
-        }
+    public void delete(Long id, Long requestUserId) {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new BoardNotFoundException(id));
+
+        validateOwnership(board, requestUserId);
+
         boardRepository.delete(id);
+    }
+
+    private void validateOwnership(Board board, Long requestUserId) {
+        if (!board.getUserId().equals(requestUserId)) {
+            throw new UnauthorizedAccessException("Board", board.getId(), requestUserId);
+        }
     }
 
     private BoardResult toResult(Board board, User user) {

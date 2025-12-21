@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +20,9 @@ import com.ssafy.dash.board.application.BoardService;
 import com.ssafy.dash.board.presentation.dto.request.BoardCreateRequest;
 import com.ssafy.dash.board.presentation.dto.request.BoardUpdateRequest;
 import com.ssafy.dash.board.presentation.dto.response.BoardResponse;
+import com.ssafy.dash.oauth.presentation.security.CustomOAuth2User;
+
+import io.swagger.v3.oas.annotations.Parameter;
 
 @RestController
 @RequestMapping("/api/boards")
@@ -53,17 +58,33 @@ public class BoardController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BoardResponse> update(@PathVariable Long id, @RequestBody BoardUpdateRequest request) {
-        BoardResponse response = BoardResponse.from(boardService.update(id, request.toCommand()));
+    public ResponseEntity<BoardResponse> update(
+            @PathVariable Long id,
+            @RequestBody BoardUpdateRequest request,
+            @Parameter(hidden = true) @AuthenticationPrincipal OAuth2User principal) {
+
+        Long userId = extractUserId(principal);
+        BoardResponse response = BoardResponse.from(boardService.update(id, request.toCommand(), userId));
 
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        boardService.delete(id);
-        
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @Parameter(hidden = true) @AuthenticationPrincipal OAuth2User principal) {
+
+        Long userId = extractUserId(principal);
+        boardService.delete(id, userId);
+
         return ResponseEntity.noContent().build();
+    }
+
+    private Long extractUserId(OAuth2User principal) {
+        if (principal instanceof CustomOAuth2User customUser) {
+            return customUser.getUserId();
+        }
+        return 1L; // Fallback for testing
     }
 
 }
