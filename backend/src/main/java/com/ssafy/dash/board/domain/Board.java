@@ -16,29 +16,51 @@ public class Board {
     private String title;
     private String content;
     private Long userId;
+    private Long algorithmRecordId; // 연결된 알고리즘 풀이 기록 ID (nullable)
+    private String boardType; // GENERAL | CODE_REVIEW
+    private Integer likeCount; // 추천 수 (캐시)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private Board(Long userId, String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    // 조인 필드
+    private String authorName;
+    private Integer commentCount;
+
+    private Board(Long userId, String title, String content, Long algorithmRecordId,
+            String boardType, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.userId = requirePositive(userId);
         this.title = requireText(title, "title");
         this.content = requireText(content, "content");
+        this.algorithmRecordId = algorithmRecordId;
+        this.boardType = boardType != null ? boardType : "GENERAL";
+        this.likeCount = 0;
         this.createdAt = requireTimestamp(createdAt, "createdAt");
         this.updatedAt = requireTimestamp(updatedAt, "updatedAt");
     }
 
-    public static Board create(Long userId, String title, String content, LocalDateTime createdAt) {
-        return new Board(userId, title, content, createdAt, createdAt);
+    public static Board create(Long userId, String title, String content,
+            Long algorithmRecordId, String boardType,
+            LocalDateTime createdAt) {
+        return new Board(userId, title, content, algorithmRecordId, boardType, createdAt, createdAt);
     }
 
-    public void applyUpdate(String title, String content, LocalDateTime updatedAt) {
+    public void applyUpdate(String title, String content, Long algorithmRecordId, LocalDateTime updatedAt) {
         if (title != null && !title.isBlank()) {
             this.title = title;
         }
         if (content != null && !content.isBlank()) {
             this.content = content;
         }
+        this.algorithmRecordId = algorithmRecordId;
         this.updatedAt = requireTimestamp(updatedAt, "updatedAt");
+    }
+
+    public void incrementLikeCount() {
+        this.likeCount = (this.likeCount == null ? 0 : this.likeCount) + 1;
+    }
+
+    public void decrementLikeCount() {
+        this.likeCount = Math.max(0, (this.likeCount == null ? 0 : this.likeCount) - 1);
     }
 
     private static Long requirePositive(Long value) {

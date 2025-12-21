@@ -10,12 +10,26 @@ public record BoardResult(
         String content,
         Long userId,
         String authorName,
+        Long algorithmRecordId,
+        String boardType,
+        Integer likeCount,
+        Integer commentCount,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
-) {
+        LocalDateTime updatedAt) {
 
     public static BoardResult from(Board board, String authorName) {
-        return new BoardResult(board.getId(), board.getTitle(), board.getContent(), board.getUserId(), authorName, board.getCreatedAt(), board.getUpdatedAt());
+        return new BoardResult(
+                board.getId(),
+                board.getTitle(),
+                board.getContent(),
+                board.getUserId(),
+                authorName,
+                board.getAlgorithmRecordId(),
+                board.getBoardType(),
+                board.getLikeCount() != null ? board.getLikeCount() : 0,
+                board.getCommentCount() != null ? board.getCommentCount() : 0,
+                board.getCreatedAt(),
+                board.getUpdatedAt());
     }
 
 }
