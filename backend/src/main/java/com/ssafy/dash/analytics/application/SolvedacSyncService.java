@@ -143,6 +143,9 @@ public class SolvedacSyncService {
                     null,
                     LocalDateTime.now());
 
+            // Set record type to distinguish from user solutions
+            record.setRecordType("TOP100_PROBLEM");
+
             recordRepository.save(record);
             count++;
         }
