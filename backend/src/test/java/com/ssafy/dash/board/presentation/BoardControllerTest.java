@@ -28,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
@@ -132,7 +133,7 @@ class BoardControllerTest {
         BoardResult updatedResult = new BoardResult(TestFixtures.TEST_BOARD_ID, req.getTitle(), req.getContent(),
                 user.getId(), user.getUsername(), null, "GENERAL", 0, 0, FixtureTime.now(), FixtureTime.now());
 
-        given(boardService.update(eq(TestFixtures.TEST_BOARD_ID), any(BoardUpdateCommand.class)))
+        given(boardService.update(eq(TestFixtures.TEST_BOARD_ID), any(BoardUpdateCommand.class), anyLong()))
                 .willReturn(updatedResult);
 
         mockMvc.perform(put("/api/boards/" + TestFixtures.TEST_BOARD_ID)
@@ -141,14 +142,14 @@ class BoardControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value(req.getTitle()));
 
-        verify(boardService).update(eq(TestFixtures.TEST_BOARD_ID), any(BoardUpdateCommand.class));
+        verify(boardService).update(eq(TestFixtures.TEST_BOARD_ID), any(BoardUpdateCommand.class), anyLong());
     }
 
     @Test
     @DisplayName("없는 게시글을 수정하면 404를 반환한다")
     void updateBoard_Failure_NotFound() throws Exception {
         BoardUpdateRequest req = TestFixtures.createBoardUpdateRequest();
-        given(boardService.update(eq(TestFixtures.TEST_BOARD_ID), any(BoardUpdateCommand.class)))
+        given(boardService.update(eq(TestFixtures.TEST_BOARD_ID), any(BoardUpdateCommand.class), anyLong()))
                 .willThrow(new BoardNotFoundException(TestFixtures.TEST_BOARD_ID));
 
         mockMvc.perform(put("/api/boards/" + TestFixtures.TEST_BOARD_ID)
@@ -156,7 +157,7 @@ class BoardControllerTest {
                 .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isNotFound());
 
-        verify(boardService).update(eq(TestFixtures.TEST_BOARD_ID), any(BoardUpdateCommand.class));
+        verify(boardService).update(eq(TestFixtures.TEST_BOARD_ID), any(BoardUpdateCommand.class), anyLong());
     }
 
     @Test
@@ -165,19 +166,19 @@ class BoardControllerTest {
         mockMvc.perform(delete("/api/boards/" + TestFixtures.TEST_BOARD_ID))
                 .andExpect(status().isNoContent());
 
-        verify(boardService).delete(TestFixtures.TEST_BOARD_ID);
+        verify(boardService).delete(eq(TestFixtures.TEST_BOARD_ID), anyLong());
     }
 
     @Test
     @DisplayName("삭제 대상이 없으면 404를 반환한다")
     void deleteBoard_Failure_NotFound() throws Exception {
         willThrow(new BoardNotFoundException(TestFixtures.TEST_BOARD_ID))
-                .given(boardService).delete(TestFixtures.TEST_BOARD_ID);
+                .given(boardService).delete(eq(TestFixtures.TEST_BOARD_ID), anyLong());
 
         mockMvc.perform(delete("/api/boards/" + TestFixtures.TEST_BOARD_ID))
                 .andExpect(status().isNotFound());
 
-        verify(boardService).delete(TestFixtures.TEST_BOARD_ID);
+        verify(boardService).delete(eq(TestFixtures.TEST_BOARD_ID), anyLong());
     }
 
 }
