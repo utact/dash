@@ -30,6 +30,7 @@ public class AlgorithmRecord {
     private LocalDateTime committedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String recordType; // USER_SOLUTION or TOP100_PROBLEM
 
     // Joined fields
     private String username;
@@ -48,6 +49,7 @@ public class AlgorithmRecord {
         this.language = requireText(language, "language");
         this.code = code == null ? "" : code;
         this.platform = "UNKNOWN";
+        this.recordType = "USER_SOLUTION"; // Default type
         this.createdAt = requireTimestamp(createdAt, "createdAt");
         this.updatedAt = requireTimestamp(updatedAt, "updatedAt");
     }

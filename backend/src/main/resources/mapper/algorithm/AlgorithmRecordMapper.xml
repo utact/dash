@@ -6,11 +6,11 @@
     INSERT INTO algorithm_records (
       user_id, study_id, problem_number, title, code, language, platform, difficulty,
       runtime_ms, memory_kb, repository_name, file_path, commit_sha, commit_message,
-      committed_at, created_at, updated_at
+      committed_at, created_at, updated_at, record_type
     ) VALUES (
       #{userId}, #{studyId}, #{problemNumber}, #{title}, #{code}, #{language}, #{platform}, #{difficulty},
       #{runtimeMs}, #{memoryKb}, #{repositoryName}, #{filePath}, #{commitSha}, #{commitMessage},
-      #{committedAt}, #{createdAt}, #{updatedAt}
+      #{committedAt}, #{createdAt}, #{updatedAt}, #{recordType}
     )
   </insert>
 
@@ -33,7 +33,7 @@
     FROM algorithm_records r
     LEFT JOIN users u ON r.user_id = u.id
     LEFT JOIN code_analysis_results car ON r.id = car.algorithm_record_id
-    WHERE r.user_id = #{userId} 
+    WHERE r.user_id = #{userId} AND r.record_type = 'USER_SOLUTION'
     ORDER BY r.id DESC
   </select>
 
