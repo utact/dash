@@ -1,3 +1,28 @@
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS comment_likes;
+DROP TABLE IF EXISTS board_likes;
+DROP TABLE IF EXISTS comments;
+DROP TABLE IF EXISTS boards;
+DROP TABLE IF EXISTS code_analysis_results;
+DROP TABLE IF EXISTS algorithm_records;
+DROP TABLE IF EXISTS user_class_stats;
+DROP TABLE IF EXISTS user_tag_stats;
+DROP TABLE IF EXISTS user_tag_stats_history;
+DROP TABLE IF EXISTS user_stats_snapshots;
+DROP TABLE IF EXISTS problem_tags;
+DROP TABLE IF EXISTS tags;
+DROP TABLE IF EXISTS tag_families;
+DROP TABLE IF EXISTS problems;
+DROP TABLE IF EXISTS github_push_event;
+DROP TABLE IF EXISTS user_oauth_tokens;
+DROP TABLE IF EXISTS user_repositories;
+DROP TABLE IF EXISTS acorn_log;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS studies;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
 CREATE TABLE IF NOT EXISTS studies (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -52,22 +77,6 @@ CREATE TABLE IF NOT EXISTS acorn_log (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-CREATE TABLE IF NOT EXISTS boards (
-
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    user_id BIGINT NOT NULL,
-    algorithm_record_id BIGINT NULL,
-    board_type VARCHAR(20) NOT NULL DEFAULT 'GENERAL',
-    like_count INT NOT NULL DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (algorithm_record_id) REFERENCES algorithm_records(id) ON DELETE SET NULL
-
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 CREATE TABLE IF NOT EXISTS algorithm_records (
     
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -88,7 +97,25 @@ CREATE TABLE IF NOT EXISTS algorithm_records (
     committed_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    record_type VARCHAR(20) NOT NULL DEFAULT 'USER_SOLUTION' COMMENT 'USER_SOLUTION: 사용자 풀이, TOP100_PROBLEM: 탑100 문제',
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    INDEX idx_algorithm_records_record_type (record_type)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS boards (
+
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    user_id BIGINT NOT NULL,
+    algorithm_record_id BIGINT NULL,
+    board_type VARCHAR(20) NOT NULL DEFAULT 'GENERAL',
+    like_count INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (algorithm_record_id) REFERENCES algorithm_records(id) ON DELETE SET NULL
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
