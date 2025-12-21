@@ -15,9 +15,10 @@ public class BoardUpdateRequest {
 
     private String title;
     private String content;
+    private Long algorithmRecordId; // nullable
 
     public BoardUpdateCommand toCommand() {
-        return new BoardUpdateCommand(title, content);
+        return new BoardUpdateCommand(title, content, algorithmRecordId);
     }
-    
+
 }

@@ -33,7 +33,13 @@ public class BoardService {
                 .orElseThrow(() -> new UserNotFoundException(command.userId()));
 
         LocalDateTime now = LocalDateTime.now();
-        Board board = Board.create(command.userId(), command.title(), command.content(), now);
+        Board board = Board.create(
+                command.userId(),
+                command.title(),
+                command.content(),
+                command.algorithmRecordId(),
+                command.boardType(),
+                now);
 
         boardRepository.save(board);
 
@@ -67,7 +73,7 @@ public class BoardService {
                 .orElseThrow(() -> new BoardNotFoundException(id));
 
         LocalDateTime now = LocalDateTime.now();
-        board.applyUpdate(command.title(), command.content(), now);
+        board.applyUpdate(command.title(), command.content(), command.algorithmRecordId(), now);
 
         boardRepository.update(board);
 

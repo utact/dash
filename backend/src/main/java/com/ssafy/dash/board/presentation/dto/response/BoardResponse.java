@@ -10,12 +10,26 @@ public record BoardResponse(
         String content,
         Long userId,
         String authorName,
+        Long algorithmRecordId,
+        String boardType,
+        Integer likeCount,
+        Integer commentCount,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
-) {
+        LocalDateTime updatedAt) {
 
     public static BoardResponse from(BoardResult result) {
-        return new BoardResponse(result.id(), result.title(), result.content(), result.userId(), result.authorName(), result.createdAt(), result.updatedAt());
+        return new BoardResponse(
+                result.id(),
+                result.title(),
+                result.content(),
+                result.userId(),
+                result.authorName(),
+                result.algorithmRecordId(),
+                result.boardType(),
+                result.likeCount(),
+                result.commentCount(),
+                result.createdAt(),
+                result.updatedAt());
     }
 
 }

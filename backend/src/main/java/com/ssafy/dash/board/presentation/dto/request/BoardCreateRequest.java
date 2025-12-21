@@ -16,9 +16,11 @@ public class BoardCreateRequest {
     private String title;
     private String content;
     private Long userId;
+    private Long algorithmRecordId; // nullable
+    private String boardType; // GENERAL | CODE_REVIEW
 
     public BoardCreateCommand toCommand() {
-        return new BoardCreateCommand(title, content, userId);
+        return new BoardCreateCommand(title, content, userId, algorithmRecordId, boardType);
     }
-    
+
 }

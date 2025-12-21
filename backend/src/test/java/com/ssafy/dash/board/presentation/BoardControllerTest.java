@@ -80,8 +80,8 @@ class BoardControllerTest {
         given(boardService.create(any(BoardCreateCommand.class))).willReturn(boardResult);
 
         mockMvc.perform(post("/api/boards")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(TestFixtures.TEST_BOARD_ID))
                 .andExpect(jsonPath("$.title").value(TestFixtures.TEST_BOARD_TITLE));
@@ -130,13 +130,14 @@ class BoardControllerTest {
     void updateBoard_Success() throws Exception {
         BoardUpdateRequest req = TestFixtures.createBoardUpdateRequest();
         BoardResult updatedResult = new BoardResult(TestFixtures.TEST_BOARD_ID, req.getTitle(), req.getContent(),
-                user.getId(), user.getUsername(), FixtureTime.now(), FixtureTime.now());
+                user.getId(), user.getUsername(), null, "GENERAL", 0, 0, FixtureTime.now(), FixtureTime.now());
 
-        given(boardService.update(eq(TestFixtures.TEST_BOARD_ID), any(BoardUpdateCommand.class))).willReturn(updatedResult);
+        given(boardService.update(eq(TestFixtures.TEST_BOARD_ID), any(BoardUpdateCommand.class)))
+                .willReturn(updatedResult);
 
         mockMvc.perform(put("/api/boards/" + TestFixtures.TEST_BOARD_ID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value(req.getTitle()));
 
@@ -151,8 +152,8 @@ class BoardControllerTest {
                 .willThrow(new BoardNotFoundException(TestFixtures.TEST_BOARD_ID));
 
         mockMvc.perform(put("/api/boards/" + TestFixtures.TEST_BOARD_ID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isNotFound());
 
         verify(boardService).update(eq(TestFixtures.TEST_BOARD_ID), any(BoardUpdateCommand.class));
