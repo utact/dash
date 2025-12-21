@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.dash.like.infrastructure.mapper.LikeMapper">
+
+  <!-- BoardLike -->
+  <insert id="insertBoardLike" parameterType="BoardLike">
+    INSERT INTO board_likes (board_id, user_id, created_at)
+    VALUES (#{boardId}, #{userId}, #{createdAt})
+  </insert>
+
+  <select id="selectBoardLike" resultType="BoardLike">
+    SELECT id, board_id, user_id, created_at
+    FROM board_likes
+    WHERE board_id = #{boardId} AND user_id = #{userId}
+  </select>
+
+  <delete id="deleteBoardLike">
+    DELETE FROM board_likes WHERE board_id = #{boardId} AND user_id = #{userId}
+  </delete>
+
+  <!-- CommentLike -->
+  <insert id="insertCommentLike" parameterType="CommentLike">
+    INSERT INTO comment_likes (comment_id, user_id, created_at)
+    VALUES (#{commentId}, #{userId}, #{createdAt})
+  </insert>
+
+  <select id="selectCommentLike" resultType="CommentLike">
+    SELECT id, comment_id, user_id, created_at
+    FROM comment_likes
+    WHERE comment_id = #{commentId} AND user_id = #{userId}
+  </select>
+
+  <delete id="deleteCommentLike">
+    DELETE FROM comment_likes WHERE comment_id = #{commentId} AND user_id = #{userId}
+  </delete>
+
+</mapper>
