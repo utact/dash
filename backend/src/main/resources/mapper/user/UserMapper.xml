@@ -46,4 +46,8 @@
     WHERE id = #{id} AND deleted_at IS NULL
   </update>
 
+  <select id="selectByStudyId" resultType="User" parameterType="long">
+    SELECT * FROM users WHERE study_id = #{studyId} AND deleted_at IS NULL ORDER BY id
+  </select>
+
 </mapper>

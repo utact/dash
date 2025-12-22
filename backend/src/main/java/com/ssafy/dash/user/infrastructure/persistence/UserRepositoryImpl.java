@@ -46,5 +46,10 @@ public class UserRepositoryImpl implements UserRepository {
     public boolean delete(Long id) {
         return userMapper.delete(id) > 0;
     }
-    
+
+    @Override
+    public List<User> findByStudyId(Long studyId) {
+        return userMapper.selectByStudyId(studyId);
+    }
+
 }

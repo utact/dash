@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.dash.study.infrastructure.mapper.StudyMissionSubmissionMapper">
+
+  <insert id="insert" parameterType="StudyMissionSubmission" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO study_mission_submissions (mission_id, user_id, problem_id, completed, completed_at)
+    VALUES (#{missionId}, #{userId}, #{problemId}, #{completed}, #{completedAt})
+  </insert>
+
+  <select id="selectByMissionId" resultType="StudyMissionSubmission" parameterType="long">
+    SELECT * FROM study_mission_submissions WHERE mission_id = #{missionId}
+  </select>
+
+  <select id="selectByMissionIdAndUserIdAndProblemId" resultType="StudyMissionSubmission">
+    SELECT * FROM study_mission_submissions 
+    WHERE mission_id = #{missionId} AND user_id = #{userId} AND problem_id = #{problemId}
+  </select>
+
+  <update id="markCompleted">
+    UPDATE study_mission_submissions 
+    SET completed = true, completed_at = CURRENT_TIMESTAMP
+    WHERE mission_id = #{missionId} AND user_id = #{userId} AND problem_id = #{problemId}
+  </update>
+
+  <select id="countCompletedByMissionIdAndUserId" resultType="int">
+    SELECT COUNT(*) FROM study_mission_submissions 
+    WHERE mission_id = #{missionId} AND user_id = #{userId} AND completed = true
+  </select>
+
+</mapper>

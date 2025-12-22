@@ -207,7 +207,7 @@
               </div>
             </div>
             
-            <div class="overflow-x-auto pb-2 custom-scrollbar">
+            <div ref="heatmapScrollRef" class="overflow-x-auto pb-2 custom-scrollbar">
               <div class="min-w-max">
                 <!-- Heatmap (Grass) -->
                 <div class="flex gap-[3px]">
@@ -505,6 +505,7 @@ const studyData = ref(null);
 const acornLogs = ref([]);
 const loading = ref(true);
 const heatmapWeeks = ref([]);
+const heatmapScrollRef = ref(null);
 const tagStats = ref([]);
 const topTagName = computed(() => tagStats.value.length > 0 ? tagStats.value[0].tagKey : '');
 const totalSolvedCount = computed(() => tagStats.value.reduce((acc, curr) => acc + (curr.solved || 0), 0));
@@ -611,6 +612,12 @@ onMounted(async () => {
   try {
     const heatmapRes = await dashboardApi.getHeatmap();
     processHeatmap(heatmapRes.data || []);
+    // 최신 날짜(우측)로 스크롤
+    setTimeout(() => {
+      if (heatmapScrollRef.value) {
+        heatmapScrollRef.value.scrollLeft = heatmapScrollRef.value.scrollWidth;
+      }
+    }, 100);
   } catch(e) {
     console.error('Heatmap error:', e);
     processHeatmap([]);
