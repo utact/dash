@@ -6,48 +6,10 @@
     <!-- Overlay UI -->
     <div class="ui-overlay">
       <!-- Back Button -->
-      <button @click="$router.push('/map')" class="nav-back-btn">
+      <button @click="$router.push('/')" class="nav-back-btn">
         <span class="icon">⬅️</span>
-        <span class="text">월드 맵으로</span>
+        <span class="text">대시보드로</span>
       </button>
-
-      <!-- Stats Card -->
-      <div class="stats-glass-panel">
-        <h2 class="storage-title">도토리 창고</h2>
-        <div class="total-count">
-          <span class="label">보유 도토리</span>
-          <span class="number">{{ currentTotalSolved }}</span>
-        </div>
-        
-        <div class="tier-breakdown">
-          <div class="tier-item bronze">
-            <span class="dot"></span>
-            <span class="name">Bronze</span>
-            <span class="count">{{ spawnBronze }}</span>
-          </div>
-          <div class="tier-item silver">
-            <span class="dot"></span>
-            <span class="name">Silver</span>
-            <span class="count">{{ spawnSilver }}</span>
-          </div>
-          <div class="tier-item gold">
-            <span class="dot"></span>
-            <span class="name">Gold</span>
-            <span class="count">{{ spawnGold }}</span>
-          </div>
-          <div class="tier-item platinum">
-            <span class="dot"></span>
-            <span class="name">Platinum</span>
-            <span class="count">{{ spawnPlatinum }}</span>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button @click="spawnInit" class="refresh-btn">
-            🔄 새로고침
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -70,19 +32,30 @@ const fetchAndSpawn = async () => {
   if (!user.value || !user.value.studyId) return;
   
   try {
-    const res = await studyApi.getStats(user.value.studyId);
-    const stats = res.data; 
-    if (stats) {
-      spawnBronze.value = stats.bronze;
-      spawnSilver.value = stats.silver;
-      spawnGold.value = stats.gold;
-      spawnPlatinum.value = stats.platinum;
+    const studyRes = await studyApi.get(user.value.studyId);
+    const study = studyRes.data;
+    if (study) {
+      const acornCount = study.acornCount || 0;
+      currentTotalSolved.value = acornCount;
       
-      const total = stats.bronze + stats.silver + stats.gold + stats.platinum;
-      // We update currentTotalSolved after spawning to sync with visual physics if needed,
-      // but for the UI counter, we can set it immediately or accumulate.
-      // Let's set it to total for the UI display.
-      currentTotalSolved.value = total;
+      // 도토리 티어 계산: Platinum(10000000), Gold(100000), Silver(1000), Bronze(10)
+      let remaining = acornCount;
+      
+      const platinum = Math.floor(remaining / 10_000_000);
+      remaining %= 10_000_000;
+      
+      const gold = Math.floor(remaining / 100_000);
+      remaining %= 100_000;
+      
+      const silver = Math.floor(remaining / 1_000);
+      remaining %= 1_000;
+      
+      const bronze = Math.floor(remaining / 10);
+      
+      spawnPlatinum.value = platinum;
+      spawnGold.value = gold;
+      spawnSilver.value = silver;
+      spawnBronze.value = bronze;
 
       // Physics Spawn
       setTimeout(() => {
@@ -90,7 +63,7 @@ const fetchAndSpawn = async () => {
       }, 500);
     }
   } catch (e) {
-    console.error("Failed to fetch study stats:", e);
+    console.error("Failed to fetch study info:", e);
   }
 };
 
@@ -144,6 +117,7 @@ const spawnInit = async () => {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 100;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

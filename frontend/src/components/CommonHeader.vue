@@ -53,12 +53,12 @@
           class="hidden sm:flex items-center gap-6 pointer-events-auto"
         >
           <router-link
-            to="/map"
+            to="/defense"
             class="flex items-center text-slate-500 hover:text-indigo-600 transition-colors"
             active-class="text-indigo-600"
-            title="월드 맵"
+            title="랜덤 디펜스"
           >
-            <Map :size="24" />
+            <Shield :size="24" />
           </router-link>
           <router-link
             to="/training"
@@ -143,7 +143,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
-import { Github, Map, LayoutGrid, MessageSquare, School } from "lucide-vue-next";
+import { Github, Shield, LayoutGrid, MessageSquare, School } from "lucide-vue-next";
 
 import { useAuth } from "../composables/useAuth";
 import { authApi } from "../api/auth";

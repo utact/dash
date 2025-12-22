@@ -97,7 +97,7 @@
               <!-- Stat 1: Acorns -->
               <div 
                 class="bg-white rounded-xl p-4 border border-slate-100 hover:border-amber-200 hover:shadow-sm transition-all cursor-pointer group"
-                @click="openAcornHistory"
+                @click="goToPlayground"
               >
                 <div class="flex items-center justify-between mb-2">
                   <span class="text-2xl">🌰</span>
@@ -466,6 +466,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { dashboardApi } from '../api/dashboard';
 import { studyApi } from '../api/study';
 import { useAuth } from '../composables/useAuth';
@@ -618,19 +619,10 @@ onMounted(async () => {
   loading.value = false;
 });
 
-const openAcornHistory = async () => {
-    openModal('acorn', '도토리 활동 내역');
-    modalLoading.value = true;
-    try {
-        if (user.value?.studyId) {
-            const res = await studyApi.getAcornLogs(user.value.studyId);
-            modalData.value = res.data;
-        }
-    } catch (e) {
-        modalData.value = [];
-    } finally {
-        modalLoading.value = false;
-    }
+const router = useRouter();
+
+const goToPlayground = () => {
+    router.push('/playground');
 };
 
 const processHeatmap = (data) => {

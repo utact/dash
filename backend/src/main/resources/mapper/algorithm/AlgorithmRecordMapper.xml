@@ -68,7 +68,7 @@
       COALESCE(SUM(CASE WHEN r.difficulty LIKE '%Platinum%' OR (r.difficulty REGEXP '^(1[6-9]|20)$') THEN 1 ELSE 0 END), 0) as platinum
     FROM algorithm_records r
     INNER JOIN users u ON r.user_id = u.id
-    WHERE u.study_id = #{studyId} AND u.deleted_at IS NULL
+    WHERE u.study_id = #{studyId} AND u.deleted_at IS NULL AND r.record_type = 'USER_SOLUTION'
   </select>
 
   <select id="countSuccessfulSubmissionByUserIdAndProblemNumber" resultType="int">
