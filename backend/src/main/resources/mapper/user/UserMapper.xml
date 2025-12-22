@@ -33,7 +33,11 @@
         silver_streak = #{silverStreak},
         gold_streak = #{goldStreak},
         max_silver_streak = #{maxSilverStreak},
-        max_gold_streak = #{maxGoldStreak}
+        max_gold_streak = #{maxGoldStreak},
+        exam_type = #{examType},
+        exam_problems = #{examProblems},
+        exam_start_time = #{examStartTime},
+        exam_solved_count = #{examSolvedCount}
     WHERE id = #{id} AND deleted_at IS NULL
   </update>
 

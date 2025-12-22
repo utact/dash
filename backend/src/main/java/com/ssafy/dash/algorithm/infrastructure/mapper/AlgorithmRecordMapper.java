@@ -30,4 +30,6 @@ public interface AlgorithmRecordMapper {
 
     int countSuccessfulSubmissionByUserIdAndProblemNumber(Long userId, String problemNumber);
 
+    List<String> selectSolvedProblemNumbersByUserId(Long userId);
+
 }
