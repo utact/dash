@@ -37,4 +37,28 @@ class GitHubSubmissionMetadataExtractorTest {
         assertThat(metadata.language()).isEqualTo("KOTLIN");
     }
 
+    @Test
+    void extractHandlesTitleWithNumbers() {
+        String message = "chore: update";
+        String path = "백준/Gold/12865.평범한배낭2/Main.java";
+
+        GitHubSubmissionMetadataExtractor.SubmissionMetadata metadata = extractor.extract(message, path);
+
+        assertThat(metadata.platform()).isEqualTo("BAEKJOON");
+        assertThat(metadata.problemNumber()).isEqualTo("12865");
+        assertThat(metadata.title()).isEqualTo("평범한배낭2");
+        assertThat(metadata.language()).isEqualTo("JAVA");
+    }
+
+    @Test
+    void extractHandles2xnTiling() {
+        String message = "solved";
+        String path = "백준/Silver/11726.2×n타일링/Main.java";
+
+        GitHubSubmissionMetadataExtractor.SubmissionMetadata metadata = extractor.extract(message, path);
+
+        assertThat(metadata.problemNumber()).isEqualTo("11726");
+        assertThat(metadata.title()).isEqualTo("2×n타일링");
+    }
+
 }

@@ -22,6 +22,9 @@ public class GitHubSubmissionMetadataExtractor {
             "\\[(?<difficulty>[^]]+)]\\s*Title\\s*:\\s*(?<title>[^,]+),\\s*Time\\s*:\\s*(?<time>\\d+)\\s*ms,\\s*Memory\\s*:\\s*(?<memory>\\d+)\\s*KB",
             Pattern.CASE_INSENSITIVE);
 
+    // Pattern for "문제번호.문제이름" format (e.g., "12865.평범한배낭" or "1000.A+B")
+    private static final Pattern PROBLEM_NUMBER_TITLE_PATTERN = Pattern.compile("^(\\d+)\\.(.+)$");
+
     private static final Map<String, String> LANGUAGE_MAP = Map.ofEntries(
             Map.entry("java", "JAVA"),
             Map.entry("kt", "KOTLIN"),
@@ -37,8 +40,7 @@ public class GitHubSubmissionMetadataExtractor {
             Map.entry("rs", "RUST"),
             Map.entry("php", "PHP"),
             Map.entry("scala", "SCALA"),
-            Map.entry("dart", "DART")
-    );
+            Map.entry("dart", "DART"));
 
     public SubmissionMetadata extract(String commitMessage, String filePath) {
         String message = commitMessage == null ? "" : commitMessage.trim();
@@ -80,8 +82,7 @@ public class GitHubSubmissionMetadataExtractor {
                 derivedTitle,
                 runtime,
                 memory,
-                language
-            );
+                language);
     }
 
     public LocalDateTime parseCommittedAt(String committedAt) {
@@ -133,19 +134,35 @@ public class GitHubSubmissionMetadataExtractor {
             return null;
         }
         String[] segments = filePath.split("/");
-        String fileName = segments[segments.length - 1];
-        String base = stripExtension(fileName);
-        String digits = digitsFrom(base);
-        if (StringUtils.hasText(digits)) {
-            return digits;
-        }
-        for (int i = segments.length - 2; i >= 0; i--) {
-            digits = digitsFrom(segments[i]);
-            if (StringUtils.hasText(digits)) {
-                return digits;
+
+        // Search from the end for a segment matching "문제번호.문제이름" pattern
+        for (int i = segments.length - 1; i >= 0; i--) {
+            String segment = segments[i];
+            // Strip extension for file names
+            if (i == segments.length - 1) {
+                segment = stripExtension(segment);
+            }
+
+            // Try to match "12865.평범한배낭" pattern
+            Matcher matcher = PROBLEM_NUMBER_TITLE_PATTERN.matcher(segment);
+            if (matcher.matches()) {
+                return matcher.group(1); // Return only the number part
             }
         }
-        return base;
+
+        // Fallback: look for leading digits in segments
+        for (int i = segments.length - 1; i >= 0; i--) {
+            String segment = segments[i];
+            if (i == segments.length - 1) {
+                segment = stripExtension(segment);
+            }
+            String leadingDigits = extractLeadingDigits(segment);
+            if (StringUtils.hasText(leadingDigits)) {
+                return leadingDigits;
+            }
+        }
+
+        return stripExtension(segments[segments.length - 1]);
     }
 
     private String deriveTitleFromPath(String filePath) {
@@ -169,12 +186,19 @@ public class GitHubSubmissionMetadataExtractor {
         return fileName.contains(".") ? fileName.substring(0, fileName.indexOf('.')) : fileName;
     }
 
-    private String digitsFrom(String value) {
+    private String extractLeadingDigits(String value) {
         if (!StringUtils.hasText(value)) {
             return null;
         }
-        String digits = value.replaceAll("[^0-9]", "");
-        return StringUtils.hasText(digits) ? digits : null;
+        StringBuilder digits = new StringBuilder();
+        for (char c : value.toCharArray()) {
+            if (Character.isDigit(c)) {
+                digits.append(c);
+            } else {
+                break; // Stop at first non-digit
+            }
+        }
+        return digits.length() > 0 ? digits.toString() : null;
     }
 
     private boolean isGenericName(String value) {
@@ -192,7 +216,6 @@ public class GitHubSubmissionMetadataExtractor {
             String title,
             Integer runtimeMs,
             Integer memoryKb,
-            String language
-    ) {
+            String language) {
     }
 }
