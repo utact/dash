@@ -81,7 +81,7 @@ class BoardServiceTest {
         given(boardRepository.findById(board.getId())).willReturn(Optional.of(board));
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
 
-        BoardResult response = boardService.findById(board.getId());
+        BoardResult response = boardService.findById(board.getId(), user.getId());
 
         assertThat(response.id()).isEqualTo(board.getId());
         assertThat(response.authorName()).isEqualTo(user.getUsername());
@@ -92,7 +92,7 @@ class BoardServiceTest {
     void findById_NotFound_Throws() {
         given(boardRepository.findById(board.getId())).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> boardService.findById(board.getId()))
+        assertThatThrownBy(() -> boardService.findById(board.getId(), user.getId()))
                 .isInstanceOf(BoardNotFoundException.class);
     }
 
@@ -102,7 +102,7 @@ class BoardServiceTest {
         given(boardRepository.findAll()).willReturn(List.of(board));
         given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
 
-        List<BoardResult> responses = boardService.findAll();
+        List<BoardResult> responses = boardService.findAll(user.getId());
 
         assertThat(responses).hasSize(1);
         assertThat(responses.get(0).authorName()).isEqualTo(user.getUsername());
