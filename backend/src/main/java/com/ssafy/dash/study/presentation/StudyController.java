@@ -1,9 +1,12 @@
 package com.ssafy.dash.study.presentation;
 
 import com.ssafy.dash.oauth.presentation.security.CustomOAuth2User;
+import com.ssafy.dash.study.application.StudyAnalysisService;
+import com.ssafy.dash.study.application.StudyMissionService;
 import com.ssafy.dash.study.application.StudyService;
 import com.ssafy.dash.study.domain.Study;
 import com.ssafy.dash.study.presentation.dto.CreateStudyRequest;
+import com.ssafy.dash.study.presentation.dto.response.StudyListResponse;
 import com.ssafy.dash.study.presentation.dto.response.StudyStatsResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,12 +28,17 @@ import java.util.List;
 public class StudyController {
 
     private final StudyService studyService;
+    private final StudyAnalysisService studyAnalysisService;
+    private final StudyMissionService studyMissionService;
     private final com.ssafy.dash.acorn.application.AcornService acornService;
 
-    @Operation(summary = "스터디 목록 조회", description = "참여 가능한 스터디 목록을 조회합니다.")
+    @Operation(summary = "스터디 목록 조회", description = "참여 가능한 스터디 목록을 조회합니다. 평균 티어, 멤버 수, 총 풀이 수 포함.")
     @GetMapping
-    public ResponseEntity<List<Study>> getStudies() {
-        return ResponseEntity.ok(studyService.findAll());
+    public ResponseEntity<List<StudyListResponse>> getStudies() {
+        List<StudyListResponse> response = studyService.findAll().stream()
+                .map(StudyListResponse::from)
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "스터디 상세 조회", description = "특정 스터디의 정보를 조회합니다.")
@@ -50,7 +58,7 @@ public class StudyController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
-    
+
     @Operation(summary = "스터디 가입", description = "기존 스터디에 가입합니다.")
     @PostMapping("/{studyId}/join")
     public ResponseEntity<Void> joinStudy(
@@ -75,5 +83,50 @@ public class StudyController {
     public ResponseEntity<List<com.ssafy.dash.acorn.domain.AcornLog>> getAcornLogs(
             @PathVariable Long studyId) {
         return ResponseEntity.ok(acornService.getLogs(studyId));
+    }
+
+    @Operation(summary = "스터디 팀 분석", description = "멤버별 태그 통계와 팀 평균을 조회합니다. 육각차트 표시용.")
+    @GetMapping("/{studyId}/analysis")
+    public ResponseEntity<StudyAnalysisService.StudyAnalysisResult> getStudyAnalysis(
+            @PathVariable Long studyId) {
+        return ResponseEntity.ok(studyAnalysisService.analyzeStudy(studyId));
+    }
+
+    // === 주차별 미션 API ===
+
+    @Operation(summary = "미션 목록 조회", description = "스터디의 주차별 미션 목록을 조회합니다.")
+    @GetMapping("/{studyId}/missions")
+    public ResponseEntity<List<StudyMissionService.MissionWithProgress>> getMissions(
+            @Parameter(hidden = true) @AuthenticationPrincipal OAuth2User principal,
+            @PathVariable Long studyId) {
+        if (principal instanceof CustomOAuth2User customUser) {
+            return ResponseEntity.ok(studyMissionService.getMissions(studyId, customUser.getUserId()));
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    @Operation(summary = "미션 생성 (직접 입력)", description = "문제 번호를 직접 입력하여 미션을 생성합니다.")
+    @PostMapping("/{studyId}/missions")
+    public ResponseEntity<Void> createMission(
+            @PathVariable Long studyId,
+            @RequestBody CreateMissionRequest request) {
+        studyMissionService.createMissionManual(
+                studyId, request.week(), request.title(), request.problemIds(), request.deadline());
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "미션 진행 현황", description = "미션별 멤버들의 제출 현황을 조회합니다.")
+    @GetMapping("/{studyId}/missions/{missionId}/progress")
+    public ResponseEntity<List<StudyMissionService.MemberProgress>> getMissionProgress(
+            @PathVariable Long studyId,
+            @PathVariable Long missionId) {
+        return ResponseEntity.ok(studyMissionService.getMissionProgress(missionId));
+    }
+
+    public record CreateMissionRequest(
+            Integer week,
+            String title,
+            List<Integer> problemIds,
+            java.time.LocalDate deadline) {
     }
 }

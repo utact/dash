@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.dash.study.infrastructure.mapper.StudyMissionMapper">
+
+  <insert id="insert" parameterType="StudyMission" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO study_missions (study_id, week, title, problem_ids, source_type, deadline, created_at)
+    VALUES (#{studyId}, #{week}, #{title}, #{problemIds}, #{sourceType}, #{deadline}, #{createdAt})
+  </insert>
+
+  <select id="selectById" resultType="StudyMission" parameterType="long">
+    SELECT * FROM study_missions WHERE id = #{id}
+  </select>
+
+  <select id="selectByStudyId" resultType="StudyMission" parameterType="long">
+    SELECT * FROM study_missions WHERE study_id = #{studyId} ORDER BY week
+  </select>
+
+  <select id="selectByStudyIdOrderByWeekDesc" resultType="StudyMission" parameterType="long">
+    SELECT * FROM study_missions WHERE study_id = #{studyId} ORDER BY week DESC
+  </select>
+
+  <delete id="delete" parameterType="long">
+    DELETE FROM study_missions WHERE id = #{id}
+  </delete>
+
+</mapper>

@@ -47,74 +47,64 @@
         </nav>
 
         <!-- 로그인 시 앱 네비게이션 -->
-        <!-- 로그인 시 앱 네비게이션 -->
         <nav
           v-else-if="authChecked && user"
           class="hidden sm:flex items-center gap-6 pointer-events-auto"
         >
           <router-link
             to="/training"
-            class="flex items-center text-slate-500 hover:text-indigo-600 transition-colors"
+            class="nav-tooltip flex items-center text-slate-500 hover:text-indigo-600 transition-colors"
             active-class="text-indigo-600"
-            title="트레이닝 센터"
+            data-tooltip="트레이닝"
           >
             <School :size="24" />
           </router-link>
           <router-link
             to="/mockexam"
-            class="flex items-center text-slate-500 hover:text-amber-600 transition-colors"
+            class="nav-tooltip flex items-center text-slate-500 hover:text-amber-600 transition-colors"
             active-class="text-amber-600"
-            title="모의고사 / 코딩테스트"
+            data-tooltip="모의고사"
           >
             <FileText :size="24" />
           </router-link>
           <router-link
             to="/defense"
-            class="flex items-center text-slate-500 hover:text-rose-600 transition-colors"
+            class="nav-tooltip flex items-center text-slate-500 hover:text-rose-600 transition-colors"
             active-class="text-rose-600"
-            title="랜덤 디펜스"
+            data-tooltip="랜덤 디펜스"
           >
             <Shield :size="24" />
           </router-link>
           <router-link
             to="/boards"
-            class="flex items-center text-slate-500 hover:text-indigo-600 transition-colors"
+            class="nav-tooltip flex items-center text-slate-500 hover:text-indigo-600 transition-colors"
             active-class="text-indigo-600"
-            title="게시판"
+            data-tooltip="게시판"
           >
             <MessageSquare :size="24" />
           </router-link>
-          <!-- SimCity 임시 비활성화
-          <router-link
-            to="/simcity"
-            class="flex items-center text-slate-500 hover:text-green-600 transition-colors"
-            active-class="text-green-600"
-            title="심시티"
-          >
-            <LayoutGrid :size="24" />
-          </router-link>
-          -->
+          <!-- SimCity 임시 비활성화 -->
           <router-link
             to="/study/analysis"
-            class="flex items-center text-slate-500 hover:text-teal-600 transition-colors"
+            class="nav-tooltip flex items-center text-slate-500 hover:text-teal-600 transition-colors"
             active-class="text-teal-600"
-            title="팀 분석"
+            data-tooltip="팀 분석"
           >
             <PieChart :size="24" />
           </router-link>
           <router-link
             to="/study/missions"
-            class="flex items-center text-slate-500 hover:text-emerald-600 transition-colors"
+            class="nav-tooltip flex items-center text-slate-500 hover:text-emerald-600 transition-colors"
             active-class="text-emerald-600"
-            title="주차별 미션"
+            data-tooltip="주차별 미션"
           >
             <Target :size="24" />
           </router-link>
           <router-link
             to="/study/ranking"
-            class="flex items-center text-slate-500 hover:text-amber-500 transition-colors"
+            class="nav-tooltip flex items-center text-slate-500 hover:text-amber-500 transition-colors"
             active-class="text-amber-500"
-            title="스터디 랭킹"
+            data-tooltip="스터디 랭킹"
           >
             <Trophy :size="24" />
           </router-link>
@@ -129,7 +119,7 @@
               class="flex items-center gap-3 min-w-0 relative"
               ref="profileRef"
             >
-              <!-- Profile Avatar Only -->
+              <!-- 프로필 아바타 -->
               <div 
                 class="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm cursor-pointer hover:ring-2 hover:ring-indigo-100 transition-all"
                 @click.stop="toggleProfileMenu"
@@ -228,7 +218,7 @@ const handleLogout = async () => {
   } catch (e) {
     console.error("Logout API failed, forcing local logout:", e);
   } finally {
-    // Force a full reload to clear any in-memory state
+    // 인메모리 상태를 초기화하고 랜딩 페이지로 이동
     window.location.href = "/";
   }
 };
@@ -255,5 +245,50 @@ onBeforeUnmount(() => {
 .slide-down-enter-active,
 .slide-down-leave-active {
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 네비게이션 커스텀 툴팁 */
+.nav-tooltip {
+  position: relative;
+}
+.nav-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  padding: 6px 12px;
+  background: #1e293b;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 8px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  z-index: 50;
+}
+.nav-tooltip::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom-color: #1e293b;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+}
+.nav-tooltip:hover::after,
+.nav-tooltip:hover::before {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(8px);
+}
+.nav-tooltip:hover::before {
+  transform: translateX(-50%) translateY(4px);
 }
 </style>

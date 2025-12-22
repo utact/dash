@@ -16,6 +16,9 @@ public class Study {
     private LocalDateTime createdAt;
     private Integer memberCount; // 회원수 (조회용)
     private Integer acornCount;
+    private Double averageTier; // 평균 티어 (조회용)
+    private Integer totalSolved; // 총 문제 풀이 수 (조회용)
+    private String mvpUsername; // MVP 사용자명 (조회용)
 
     public Study(Long id, String name, LocalDateTime createdAt, Integer acornCount) {
         this.id = id;
@@ -29,12 +32,14 @@ public class Study {
     }
 
     public void addAcorns(int amount) {
-        if (this.acornCount == null) this.acornCount = 0;
+        if (this.acornCount == null)
+            this.acornCount = 0;
         this.acornCount += amount;
     }
 
     public void useAcorns(int amount) {
-        if (this.acornCount == null) this.acornCount = 0;
+        if (this.acornCount == null)
+            this.acornCount = 0;
         if (this.acornCount < amount) {
             throw new IllegalArgumentException("Not enough acorns");
         }

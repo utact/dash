@@ -16,5 +16,7 @@ public interface UserRepository {
     void update(User user);
 
     boolean delete(Long id);
-    
+
+    List<User> findByStudyId(Long studyId);
+
 }

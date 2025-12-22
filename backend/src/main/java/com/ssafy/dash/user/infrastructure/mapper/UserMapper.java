@@ -12,13 +12,15 @@ public interface UserMapper {
     int insert(User user);
 
     User selectById(Long id);
-    
+
     List<User> selectAll();
-    
+
     User selectByProviderAndProviderId(String provider, String providerId);
-    
+
     int update(User user);
-    
+
     int delete(Long id);
+
+    List<User> selectByStudyId(Long studyId);
 
 }

@@ -328,3 +328,33 @@ CREATE TABLE IF NOT EXISTS learning_path_cache (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_learning_path_cache_user_date (user_id, generated_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- 스터디 주차별 미션
+CREATE TABLE IF NOT EXISTS study_missions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    study_id BIGINT NOT NULL,
+    week INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    problem_ids TEXT NOT NULL COMMENT 'JSON array of problem IDs',
+    source_type VARCHAR(20) NOT NULL COMMENT 'AI_RECOMMENDED or MANUAL',
+    deadline DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (study_id) REFERENCES studies(id) ON DELETE CASCADE,
+    INDEX idx_study_missions_study_week (study_id, week)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- 미션 제출 현황 (멤버별 문제 완료 여부)
+CREATE TABLE IF NOT EXISTS study_mission_submissions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    mission_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    problem_id INT NOT NULL,
+    completed BOOLEAN DEFAULT FALSE,
+    completed_at TIMESTAMP NULL,
+    FOREIGN KEY (mission_id) REFERENCES study_missions(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_mission_user_problem (mission_id, user_id, problem_id),
+    INDEX idx_mission_submissions_user (mission_id, user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
