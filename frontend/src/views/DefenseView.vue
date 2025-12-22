@@ -7,8 +7,6 @@
        <div class="absolute bottom-1/3 right-1/4 w-80 h-80 bg-rose-200/40 rounded-full blur-3xl animate-pulse delay-1000 mix-blend-multiply"></div>
     </div>
 
-    <CommonHeader />
-
     <div class="relative z-10 flex flex-col items-center justify-center h-full px-4">
       
       <!-- Loading State -->
@@ -113,8 +111,8 @@
             </div>
         </div>
 
-        <button @click="$router.push('/map')" class="mt-12 text-slate-400 hover:text-slate-900 transition-colors flex items-center justify-center w-full gap-2">
-            <span>⬅ 월드맵으로 돌아가기</span>
+        <button @click="$router.push('/')" class="mt-12 text-slate-400 hover:text-slate-900 transition-colors flex items-center justify-center w-full gap-2">
+            <span>⬅ 대시보드로 돌아가기</span>
         </button>
       </div>
 
@@ -144,8 +142,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 // Assuming axios is globally configured or imported from a helper. 
 // If not, I'll try to import from axios directly, assuming user has it.
-import axios from 'axios'; 
-import CommonHeader from '../components/CommonHeader.vue';
+import axios from 'axios';
 
 const router = useRouter();
 const loading = ref(true);

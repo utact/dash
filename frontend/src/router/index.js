@@ -28,7 +28,6 @@ const routes = [
   { path: "/profile", name: "Profile", component: Profile },
   { path: "/youtube", name: "YouTubeSearch", component: YouTubeSearch },
   { path: "/simcity", name: "StudySimCity", component: StudySimCity },
-  { path: "/map", name: "WorldMap", component: () => import("../components/WorldMap.vue") },
   { path: "/training", name: "TrainingView", component: () => import("../views/TrainingView.vue") },
   { path: "/defense", name: "DefenseView", component: () => import("../views/DefenseView.vue") },
 ];
