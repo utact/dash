@@ -53,14 +53,6 @@
           class="hidden sm:flex items-center gap-6 pointer-events-auto"
         >
           <router-link
-            to="/defense"
-            class="flex items-center text-slate-500 hover:text-indigo-600 transition-colors"
-            active-class="text-indigo-600"
-            title="랜덤 디펜스"
-          >
-            <Shield :size="24" />
-          </router-link>
-          <router-link
             to="/training"
             class="flex items-center text-slate-500 hover:text-indigo-600 transition-colors"
             active-class="text-indigo-600"
@@ -69,12 +61,20 @@
             <School :size="24" />
           </router-link>
           <router-link
-            to="/simcity"
-            class="flex items-center text-slate-500 hover:text-indigo-600 transition-colors"
-            active-class="text-indigo-600"
-            title="심시티"
+            to="/mockexam"
+            class="flex items-center text-slate-500 hover:text-amber-600 transition-colors"
+            active-class="text-amber-600"
+            title="모의고사 / 코딩테스트"
           >
-            <LayoutGrid :size="24" />
+            <FileText :size="24" />
+          </router-link>
+          <router-link
+            to="/defense"
+            class="flex items-center text-slate-500 hover:text-rose-600 transition-colors"
+            active-class="text-rose-600"
+            title="랜덤 디펜스"
+          >
+            <Shield :size="24" />
           </router-link>
           <router-link
             to="/boards"
@@ -83,6 +83,14 @@
             title="게시판"
           >
             <MessageSquare :size="24" />
+          </router-link>
+          <router-link
+            to="/simcity"
+            class="flex items-center text-slate-500 hover:text-green-600 transition-colors"
+            active-class="text-green-600"
+            title="심시티"
+          >
+            <LayoutGrid :size="24" />
           </router-link>
         </nav>
       </div>
@@ -143,7 +151,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
-import { Github, Shield, LayoutGrid, MessageSquare, School } from "lucide-vue-next";
+import { Github, Shield, LayoutGrid, MessageSquare, School, FileText } from "lucide-vue-next";
 
 import { useAuth } from "../composables/useAuth";
 import { authApi } from "../api/auth";

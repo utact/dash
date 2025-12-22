@@ -1,7 +1,9 @@
 package com.ssafy.dash.algorithm.infrastructure.persistence;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.stereotype.Repository;
 
@@ -62,6 +64,12 @@ public class AlgorithmRecordRepositoryImpl implements AlgorithmRecordRepository 
     @Override
     public boolean existsSuccessfulSubmission(Long userId, String problemNumber) {
         return mapper.countSuccessfulSubmissionByUserIdAndProblemNumber(userId, problemNumber) > 0;
+    }
+
+    @Override
+    public Set<String> findSolvedProblemNumbers(Long userId) {
+        List<String> problems = mapper.selectSolvedProblemNumbersByUserId(userId);
+        return new HashSet<>(problems);
     }
 
 }

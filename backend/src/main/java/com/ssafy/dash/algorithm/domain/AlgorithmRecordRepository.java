@@ -2,6 +2,7 @@ package com.ssafy.dash.algorithm.domain;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface AlgorithmRecordRepository {
 
@@ -22,5 +23,7 @@ public interface AlgorithmRecordRepository {
     StudyStats countsByStudyId(Long studyId);
 
     boolean existsSuccessfulSubmission(Long userId, String problemNumber);
+
+    Set<String> findSolvedProblemNumbers(Long userId);
 
 }

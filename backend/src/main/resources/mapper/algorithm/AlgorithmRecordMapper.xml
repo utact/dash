@@ -80,5 +80,13 @@
       AND memory_kb IS NOT NULL
   </select>
 
+  <select id="selectSolvedProblemNumbersByUserId" resultType="string" parameterType="long">
+    SELECT DISTINCT problem_number
+    FROM algorithm_records
+    WHERE user_id = #{userId}
+      AND runtime_ms IS NOT NULL
+      AND memory_kb IS NOT NULL
+  </select>
+
 
 </mapper>

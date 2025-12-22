@@ -1,5 +1,3 @@
-
-
 CREATE TABLE IF NOT EXISTS studies (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -8,9 +6,7 @@ CREATE TABLE IF NOT EXISTS studies (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-
 CREATE TABLE IF NOT EXISTS users (
-
 	id BIGINT AUTO_INCREMENT PRIMARY KEY,
 	username VARCHAR(100) NOT NULL,
 	email VARCHAR(255) NOT NULL,
@@ -29,6 +25,12 @@ CREATE TABLE IF NOT EXISTS users (
     max_silver_streak INT DEFAULT 0,
     max_gold_streak INT DEFAULT 0,
 
+    -- Mock Exam / Coding Test
+    exam_type VARCHAR(20),
+    exam_problems TEXT,
+    exam_start_time TIMESTAMP NULL DEFAULT NULL,
+    exam_solved_count INT DEFAULT 0,
+
 	created_at TIMESTAMP,
 	
     provider VARCHAR(50),
@@ -37,9 +39,7 @@ CREATE TABLE IF NOT EXISTS users (
     study_id BIGINT,
     deleted_at TIMESTAMP NULL DEFAULT NULL,
     FOREIGN KEY (study_id) REFERENCES studies(id)
-    
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 
 CREATE TABLE IF NOT EXISTS acorn_log (
@@ -55,7 +55,6 @@ CREATE TABLE IF NOT EXISTS acorn_log (
 
 
 CREATE TABLE IF NOT EXISTS algorithm_records (
-    
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     study_id BIGINT,
@@ -77,11 +76,10 @@ CREATE TABLE IF NOT EXISTS algorithm_records (
     record_type VARCHAR(20) NOT NULL DEFAULT 'USER_SOLUTION' COMMENT 'USER_SOLUTION: 사용자 풀이, TOP100_PROBLEM: 탑100 문제',
     FOREIGN KEY (user_id) REFERENCES users(id),
     INDEX idx_algorithm_records_record_type (record_type)
-
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS boards (
 
+CREATE TABLE IF NOT EXISTS boards (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
@@ -93,11 +91,10 @@ CREATE TABLE IF NOT EXISTS boards (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (algorithm_record_id) REFERENCES algorithm_records(id) ON DELETE SET NULL
-
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS user_repositories (
 
+CREATE TABLE IF NOT EXISTS user_repositories (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     repository_name VARCHAR(255) NOT NULL,
@@ -105,11 +102,10 @@ CREATE TABLE IF NOT EXISTS user_repositories (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
-
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS user_oauth_tokens (
 
+CREATE TABLE IF NOT EXISTS user_oauth_tokens (
     user_id BIGINT PRIMARY KEY,
     access_token TEXT NOT NULL,
     token_type VARCHAR(50),
@@ -119,11 +115,10 @@ CREATE TABLE IF NOT EXISTS user_oauth_tokens (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
-
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS github_push_event (
 
+CREATE TABLE IF NOT EXISTS github_push_event (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     delivery_id VARCHAR(100) NOT NULL,
     repository_name VARCHAR(255) NOT NULL,
@@ -139,8 +134,8 @@ CREATE TABLE IF NOT EXISTS github_push_event (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY uk_github_push_event_delivery (delivery_id)
-
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE IF NOT EXISTS tag_families (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -148,6 +143,7 @@ CREATE TABLE IF NOT EXISTS tag_families (
     name VARCHAR(100) NOT NULL,
     order_index INT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE IF NOT EXISTS tags (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -162,6 +158,7 @@ CREATE TABLE IF NOT EXISTS tags (
     FOREIGN KEY (family_id) REFERENCES tag_families(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
 CREATE TABLE IF NOT EXISTS problems (
     problem_number VARCHAR(50) PRIMARY KEY,
     title VARCHAR(255),
@@ -171,6 +168,7 @@ CREATE TABLE IF NOT EXISTS problems (
     sprout BOOLEAN DEFAULT FALSE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
 CREATE TABLE IF NOT EXISTS problem_tags (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     problem_number VARCHAR(50) NOT NULL,
@@ -179,6 +177,7 @@ CREATE TABLE IF NOT EXISTS problem_tags (
     FOREIGN KEY (tag_key) REFERENCES tags(tag_key),
     UNIQUE KEY uk_problem_tag (problem_number, tag_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- Solved.ac User Statistics Tables
 CREATE TABLE IF NOT EXISTS user_class_stats (
@@ -193,11 +192,10 @@ CREATE TABLE IF NOT EXISTS user_class_stats (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE    INDEX idx_user_class (user_id, class_number)
-
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Phase 3: 성장 추세 분석용 테이블
 
+-- Phase 3: 성장 추세 분석용 테이블
 CREATE TABLE IF NOT EXISTS user_stats_snapshots (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
@@ -212,6 +210,7 @@ CREATE TABLE IF NOT EXISTS user_stats_snapshots (
     INDEX idx_user_snapshots (user_id, snapshot_date DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
 CREATE TABLE IF NOT EXISTS user_tag_stats_history (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     snapshot_id BIGINT NOT NULL,
@@ -223,6 +222,7 @@ CREATE TABLE IF NOT EXISTS user_tag_stats_history (
     INDEX idx_snapshot_tag (snapshot_id, tag_key),
     INDEX idx_user_tag_history (user_id, tag_key, created_at DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE IF NOT EXISTS user_tag_stats (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -237,6 +237,7 @@ CREATE TABLE IF NOT EXISTS user_tag_stats (
     FOREIGN KEY (tag_key) REFERENCES tags(tag_key),
     UNIQUE KEY uk_user_tag (user_id, tag_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- AI 코드 분석 결과 테이블
 CREATE TABLE IF NOT EXISTS code_analysis_results (
@@ -258,7 +259,6 @@ CREATE TABLE IF NOT EXISTS code_analysis_results (
     analyzed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- index will be created by MySQL if it doesn't exist (handled by table def)
 
 -- 게시판 댓글 테이블
 CREATE TABLE IF NOT EXISTS comments (
@@ -278,6 +278,7 @@ CREATE TABLE IF NOT EXISTS comments (
     INDEX idx_comments_board_line (board_id, line_number)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
 -- 게시글 추천 테이블
 CREATE TABLE IF NOT EXISTS board_likes (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -289,6 +290,7 @@ CREATE TABLE IF NOT EXISTS board_likes (
     UNIQUE KEY uk_board_like (board_id, user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
 -- 댓글 추천 테이블
 CREATE TABLE IF NOT EXISTS comment_likes (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -299,6 +301,7 @@ CREATE TABLE IF NOT EXISTS comment_likes (
     FOREIGN KEY (user_id) REFERENCES users(id),
     UNIQUE KEY uk_comment_like (comment_id, user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- AI Tutor Conversation Table
 CREATE TABLE IF NOT EXISTS tutor_conversation (
@@ -312,6 +315,7 @@ CREATE TABLE IF NOT EXISTS tutor_conversation (
     FOREIGN KEY (user_id) REFERENCES users(id),
     INDEX idx_tutor_session (user_id, session_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- AI Learning Path Cache Table (Daily Singleton)
 CREATE TABLE IF NOT EXISTS learning_path_cache (

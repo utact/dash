@@ -30,6 +30,7 @@ const routes = [
   { path: "/simcity", name: "StudySimCity", component: StudySimCity },
   { path: "/training", name: "TrainingView", component: () => import("../views/TrainingView.vue") },
   { path: "/defense", name: "DefenseView", component: () => import("../views/DefenseView.vue") },
+  { path: "/mockexam", name: "MockExamView", component: () => import("../views/MockExamView.vue") },
 ];
 
 const router = createRouter({
