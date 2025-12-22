@@ -105,7 +105,7 @@ public class TagService {
 
     private TagMetadata analyzeTag(String key) {
         // TIER S - Implementation
-        if (isOneOf(key, "implementation", "simulation", "bruteforcing", "ad_hoc"))
+        if (isOneOf(key, "implementation", "simulation", "bruteforcing", "ad_hoc", "recursion"))
             return new TagMetadata("IMPLEMENTATION", "S", 3.0, null);
 
         // TIER S - Math
@@ -133,7 +133,7 @@ public class TagService {
             return new TagMetadata("DATA_STRUCTURE", "S", 3.0, null);
 
         // TIER A - Implementation
-        if (isOneOf(key, "geometry", "case_work", "constructive", "sorting"))
+        if (isOneOf(key, "case_work", "constructive", "sorting"))
             return new TagMetadata("IMPLEMENTATION", "A", 2.0, null);
 
         // TIER A - Math
@@ -159,6 +159,14 @@ public class TagService {
         // TIER B - Advanced
         if (isOneOf(key, "divide_and_conquer", "two_pointer", "prefix_sum", "sweeping", "backtracking",
                 "bitmask", "sliding_window", "offline_queries", "parametric_search"))
+            return new TagMetadata("ADVANCED", "B", 1.0, null);
+
+        // TIER A - Graph (추가) - 정말 중요한 그래프 알고리즘
+        if (isOneOf(key, "bellman_ford", "lca", "scc"))
+            return new TagMetadata("GRAPH", "A", 2.0, null);
+
+        // TIER B - 핵심만 (최소한)
+        if (isOneOf(key, "flood_fill", "dp_digit", "bipartite_matching", "flow", "geometry"))
             return new TagMetadata("ADVANCED", "B", 1.0, null);
 
         // Default to Tier C / Advanced
