@@ -31,7 +31,7 @@
                 </div>
 
                 <!-- EMPTY STATE (except for hint type) -->
-                <div v-else-if="!data && type !== 'hint'" class="flex flex-col items-center justify-center h-full text-slate-500">
+                <div v-else-if="!data && type !== 'tutor'" class="flex flex-col items-center justify-center h-full text-slate-500">
                     데이터가 없습니다. 다시 시도해주세요.
                 </div>
 
@@ -99,7 +99,7 @@
                 </div>
 
                 <!-- CONTENT: HINT (Chat-based) -->
-                <div v-else-if="type === 'hint'" class="space-y-6 animate-fade-in">
+                <div v-else-if="type === 'tutor'" class="space-y-6 animate-fade-in">
                     
                     <!-- Header -->
                     <div class="flex items-center gap-3 mb-4">
@@ -343,7 +343,7 @@ hljs.registerLanguage('java', java);
 
 const props = defineProps({
   isVisible: Boolean,
-  type: String, // 'counter_example', 'review', 'hint'
+  type: String, // 'counter_example', 'review', 'tutor'
   title: String,
   loading: Boolean,
   data: Object,
@@ -421,7 +421,7 @@ const getHeaderIcon = (type) => {
     switch(type) {
         case 'review': return Bot;
         case 'counter_example': return Bug;
-        case 'hint': return Lightbulb;
+        case 'tutor': return Lightbulb;
         default: return Bot;
     }
 };
@@ -430,7 +430,7 @@ const getHeaderIconClass = (type) => {
     switch(type) {
         case 'review': return 'bg-indigo-100 text-indigo-600';
         case 'counter_example': return 'bg-rose-100 text-rose-600';
-        case 'hint': return 'bg-amber-100 text-amber-600';
+        case 'tutor': return 'bg-amber-100 text-amber-600';
         default: return 'bg-slate-100 text-slate-600';
     }
 };

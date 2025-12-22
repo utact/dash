@@ -5,8 +5,7 @@ export const aiApi = {
   analyzeCode: (request) => http.post('/ai/review', request),
   getAnalysisResult: (recordId) => http.get(`/ai/review/${recordId}`),
 
-  // 힌트 생성 (레벨별 - deprecated)
-  getHint: (request) => http.post('/ai/hint', request),
+
 
   // AI 튜터 대화
   tutorChat: (request) => http.post('/ai/tutor/chat', request),
