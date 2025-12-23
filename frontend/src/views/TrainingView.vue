@@ -71,56 +71,167 @@
           </div>
         </div>
 
-        <!-- 핵심 인사이트 (간결화) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-            <div class="flex items-center gap-2 text-emerald-600 text-sm font-bold mb-2">💪 강점</div>
-            <p class="text-slate-700 text-sm font-medium line-clamp-2">{{ learningPath?.aiAnalysis?.keyStrength || '분석 중...' }}</p>
-          </div>
-          <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
-            <div class="flex items-center gap-2 text-amber-600 text-sm font-bold mb-2">🎯 집중 영역</div>
-            <p class="text-slate-700 text-sm font-medium line-clamp-2">{{ learningPath?.aiAnalysis?.primaryWeakness || '분석 중...' }}</p>
-          </div>
-          <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
-            <div class="flex items-center gap-2 text-indigo-600 text-sm font-bold mb-2">💡 조언</div>
-            <p class="text-slate-700 text-sm font-medium line-clamp-2">{{ learningPath?.aiAnalysis?.personalizedAdvice || '분석 중...' }}</p>
-          </div>
-        </div>
-
-        <!-- 차트 + 로드맵 -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <!-- 레이더 차트 -->
-          <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-            <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-              <LayoutGrid :size="16" class="text-indigo-500" />
-              역량 분석
-            </h3>
-            <div class="w-full max-w-[220px] mx-auto aspect-square">
-              <AlgorithmRadarChart :stats="allTagStats" :max-tags="6" />
-            </div>
-          </div>
-
-          <!-- 학습 단계 (간결화) -->
-          <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-            <h3 class="text-sm font-bold text-slate-800 mb-4">📚 학습 로드맵</h3>
-            <div class="space-y-4">
-              <div v-for="(phase, idx) in learningPath?.aiAnalysis?.phases?.slice(0, 3) || []" :key="idx" class="flex gap-4">
-                <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 font-bold flex items-center justify-center text-sm shrink-0">
-                  {{ idx + 1 }}
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="font-bold text-slate-800">{{ phase.title }}</span>
-                    <span class="text-xs px-2 py-0.5 bg-slate-100 text-slate-500 rounded">{{ phase.duration }}</span>
+        <!-- 현재 실력 분석 (OnboardingAnalysis Style) -->
+        <section class="mb-8">
+          <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2 pl-2 border-l-4 border-indigo-500">
+            현재 실력 분석
+          </h2>
+          
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            
+            <!-- Left Column: Tier + Radar + Strength/Weakness (5 cols) -->
+            <div class="lg:col-span-5 flex flex-col gap-4">
+              
+              <!-- Tier Card (Compact) -->
+              <div class="bg-white/80 backdrop-blur-xl border border-slate-200 rounded-2xl p-4 shadow-sm relative overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="relative z-10 flex items-center gap-4">
+                  <div class="relative flex-shrink-0">
+                    <div class="absolute inset-0 bg-indigo-500/20 blur-xl rounded-full"></div>
+                    <img 
+                      v-if="userTier"
+                      :src="`https://static.solved.ac/tier_small/${userTier}.svg`" 
+                      class="w-14 h-14 relative drop-shadow-lg"
+                      alt="Tier Badge"
+                    />
                   </div>
-                  <p class="text-sm text-slate-500 line-clamp-1">{{ phase.focus }}</p>
+                  <div>
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                      <Zap :size="12" />
+                      현재 티어
+                    </div>
+                    <div class="text-xl font-black text-indigo-900">{{ userTierName || 'Unranked' }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Radar Chart Card -->
+              <div class="bg-white/80 backdrop-blur-xl border border-slate-200 rounded-2xl p-4 shadow-sm flex-1">
+                <h3 class="text-sm font-bold text-slate-600 mb-3 flex items-center gap-2">
+                   <LayoutGrid :size="14" class="text-indigo-500" />
+                   알고리즘 역량
+                </h3>
+                <div class="flex items-center justify-center">
+                   <div class="w-full aspect-square max-w-[240px]">
+                      <AlgorithmRadarChart :stats="allTagStats" :max-tags="8" />
+                   </div>
+                </div>
+              </div>
+
+              <!-- Strength & Weakness Cards -->
+              <div class="grid grid-cols-2 gap-3">
+                <!-- Strength Card -->
+                <div class="bg-emerald-50/80 border border-emerald-200 rounded-xl p-3">
+                  <div class="flex items-center gap-2 mb-1.5">
+                    <div class="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600">
+                      <Zap :size="12" />
+                    </div>
+                    <span class="text-xs font-bold text-emerald-700 uppercase">강점</span>
+                  </div>
+                  <div class="text-slate-700 text-xs font-medium leading-relaxed line-clamp-2">
+                    {{ learningPath?.aiAnalysis?.keyStrength || '-' }}
+                  </div>
+                </div>
+
+                <!-- Weakness Card -->
+                <div class="bg-rose-50/80 border border-rose-200 rounded-xl p-3">
+                  <div class="flex items-center gap-2 mb-1.5">
+                     <div class="w-6 h-6 rounded-lg bg-rose-100 flex items-center justify-center text-rose-500">
+                        <AlertTriangle :size="12" />
+                     </div>
+                    <span class="text-xs font-bold text-rose-600 uppercase">약점</span>
+                  </div>
+                  <div class="text-slate-700 text-xs font-medium leading-relaxed line-clamp-2">
+                    {{ learningPath?.aiAnalysis?.primaryWeakness || '-' }}
+                  </div>
                 </div>
               </div>
             </div>
+
+            <!-- Right Column: Learning Roadmap (7 cols) -->
+            <div class="lg:col-span-7 bg-white/80 backdrop-blur-xl border border-slate-200 rounded-2xl p-5 shadow-sm">
+              <h3 class="text-sm font-bold text-slate-600 mb-4 flex items-center gap-2">
+                 <MapIcon :size="14" class="text-indigo-500" />
+                 맞춤형 학습 로드맵
+              </h3>
+              <LearningRoadmap :phases="learningPath?.aiAnalysis?.phases || []" class="w-full" />
+            </div>
           </div>
-        </div>
+        </section>
+
+        <!-- AI 종합 분석 리포트 -->
+        <section class="mb-8">
+          <h2 class="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2 pl-2 border-l-4 border-indigo-500">
+            AI 종합 분석 리포트
+          </h2>
+          
+          <div class="space-y-4">
+            <!-- Analysis Summary Banner -->
+            <div class="relative overflow-hidden rounded-2xl bg-indigo-900 shadow-lg text-white p-6">
+               <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+               <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2"></div>
+               
+               <div class="relative z-10 flex gap-4 items-start">
+                 <div class="hidden md:flex p-2.5 bg-indigo-500/30 rounded-xl backdrop-blur-md border border-indigo-400/30 flex-shrink-0">
+                    <FileText :size="20" class="text-indigo-200" />
+                 </div>
+                 <div class="flex-1">
+                   <h3 class="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-2">Analysis Summary</h3>
+                   <p class="text-base text-indigo-50 leading-relaxed font-medium">
+                     {{ learningPath?.aiAnalysis?.analysisSummary || 'AI가 학습 데이터를 분석하고 있습니다...' }}
+                   </p>
+                 </div>
+               </div>
+            </div>
+
+            <!-- 3-Column Insights -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+               <!-- Growth Prediction -->
+               <div class="bg-white/80 border border-slate-200 rounded-xl p-4 min-h-[120px]">
+                 <div class="flex items-center gap-2 mb-2">
+                   <div class="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-violet-600">
+                     <TrendingUp :size="16" />
+                   </div>
+                   <h4 class="font-bold text-slate-700 text-sm">성장 예측</h4>
+                 </div>
+                 <p class="text-slate-600 text-xs leading-relaxed">
+                   {{ learningPath?.aiAnalysis?.growthPrediction || '데이터 분석 중...' }}
+                 </p>
+               </div>
+
+               <!-- Strategic Advice -->
+               <div class="bg-indigo-50/80 border border-indigo-200 rounded-xl p-4 min-h-[120px]">
+                 <div class="flex items-center gap-2 mb-2">
+                   <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                     <Target :size="16" />
+                   </div>
+                   <h4 class="font-bold text-indigo-900 text-sm">전략적 조언</h4>
+                 </div>
+                 <p class="text-indigo-800 text-xs leading-relaxed">
+                   {{ learningPath?.aiAnalysis?.strategicAdvice || '전략 수립 중...' }}
+                 </p>
+               </div>
+
+               <!-- Efficiency Analysis -->
+               <div class="bg-white/80 border border-slate-200 rounded-xl p-4 min-h-[120px]">
+                 <div class="flex items-center gap-2 mb-2">
+                   <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                     <Activity :size="16" />
+                   </div>
+                   <h4 class="font-bold text-slate-700 text-sm">효율성 분석</h4>
+                 </div>
+                 <p class="text-slate-600 text-xs leading-relaxed">
+                   {{ learningPath?.aiAnalysis?.efficiencyAnalysis || '효율성 분석 중...' }}
+                 </p>
+               </div>
+            </div>
+          </div>
+        </section>
         
-        <!-- 스킬 트리 -->
+      </div>
+
+      <!-- 2. 스킬 트리 -->
+      <div v-if="currentTab === 'skilltree'" class="animate-fade-in-up">
         <SkillTreeView />
       </div>
 
@@ -185,12 +296,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import { 
     RefreshCw, Trophy, Swords, Play,
-    Search, Loader2, Send, RotateCcw, LayoutGrid
+    Search, Loader2, Send, RotateCcw, LayoutGrid,
+    Map as MapIcon, FileText, TrendingUp, Target, Activity, AlertTriangle, Zap
 } from 'lucide-vue-next';
 import AlgorithmRadarChart from '../components/charts/AlgorithmRadarChart.vue';
+import LearningRoadmap from '../components/LearningRoadmap.vue';
 import SkillTreeView from '../components/SkillTreeView.vue';
 import { useAuth } from '../composables/useAuth';
 import { aiApi } from '../api/ai';
@@ -205,6 +318,7 @@ const isLoadingVideos = ref(false);
 
 const tabs = [
     { id: 'roadmap', label: '⛳️ 로드맵' },
+    { id: 'skilltree', label: '🌳 스킬 트리' },
     { id: 'videos', label: '📺 강의실' }
 ];
 
@@ -212,6 +326,24 @@ const tabs = [
 const learningPath = ref(null);
 const dailyReview = ref(null);
 const allTagStats = ref([]);
+
+// User Tier (from auth or learning path)
+const TIER_NAMES = [
+  "Unrated",
+  "Bronze V", "Bronze IV", "Bronze III", "Bronze II", "Bronze I",
+  "Silver V", "Silver IV", "Silver III", "Silver II", "Silver I",
+  "Gold V", "Gold IV", "Gold III", "Gold II", "Gold I",
+  "Platinum V", "Platinum IV", "Platinum III", "Platinum II", "Platinum I",
+  "Diamond V", "Diamond IV", "Diamond III", "Diamond II", "Diamond I",
+  "Ruby V", "Ruby IV", "Ruby III", "Ruby II", "Ruby I",
+  "Master"
+];
+
+const userTier = computed(() => user.value?.solvedacTier || 0);
+const userTierName = computed(() => {
+  const tier = userTier.value;
+  return tier >= 0 && tier < TIER_NAMES.length ? TIER_NAMES[tier] : 'Unrated';
+});
 
 // 2. Videos Data
 const searchKeyword = ref('');
@@ -244,10 +376,21 @@ const loadLearningPath = async () => {
             const worstTag = res.data.weaknessTags[0];
             const winRate = worstTag.total > 0 ? Math.round((worstTag.solved / worstTag.total) * 100) : 0;
             
+            // Build tier range: userTier ~ userTier+4 (capped at 30)
+            const tierStart = userTier.value || 1;
+            const tierEnd = Math.min(tierStart + 4, 30);
+            const tierRange = Array.from({ length: tierEnd - tierStart + 1 }, (_, i) => tierStart + i).join('%2C');
+            
+            // Build 백준 problemset URL with tier filtering
+            const bojTagId = worstTag.bojTagId;
+            const link = bojTagId 
+                ? `https://www.acmicpc.net/problemset?sort=ac_desc&submit=pac%2Cfa%2Cus&tier=${tierRange}&algo=${bojTagId}&algo_if=and`
+                : `https://solved.ac/problems/tags/${worstTag.tagKey}`;
+            
             dailyReview.value = {
                 title: `${worstTag.tagName} 집중 공략`,
                 problemNumber: '', 
-                link: `https://www.acmicpc.net/search#q=%23${worstTag.tagKey}&c=Problems`,
+                link,
                 reason: `정답률 ${winRate}%로 가장 낮습니다.`
             };
         } else if (res.data.classStats?.length > 0) {
