@@ -11,30 +11,57 @@
     <!-- 스킬 트리 -->
     <div v-else class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       
-      <!-- 헤더 -->
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+      <!-- 헤더 (그래프 모드일 때는 숨김) -->
+      <div v-if="viewMode === 'card'" class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
         <div class="flex items-center gap-3">
           <span class="text-2xl">⚔️</span>
           <h3 class="text-lg font-bold text-slate-800">알고리즘 스킬트리</h3>
         </div>
         <div class="flex gap-4 text-xs">
           <span class="flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            <span class="text-slate-600">마스터 {{ skillTree?.masteredTags || 0 }}</span>
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+            <span class="text-slate-600">전문가+ {{ expertPlusTags }}</span>
           </span>
           <span class="flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-            <span class="text-slate-600">학습중 {{ skillTree?.learningTags || 0 }}</span>
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <span class="text-slate-600">숙련 {{ advancedTags }}</span>
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
+            <span class="text-slate-600">학습중 {{ learningTags }}</span>
           </span>
           <span class="flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
-            <span class="text-slate-500">미개방 {{ skillTree?.lockedTags || 0 }}</span>
+            <span class="text-slate-500">미진행 {{ lockedTags }}</span>
           </span>
         </div>
       </div>
       
-      <!-- 스킬 그리드 -->
-      <div class="p-6">
+      <!-- 그래프 뷰 (전체화면 오버레이) -->
+      <div v-if="viewMode === 'graph'" class="fixed inset-0 top-[64px] z-50 bg-slate-50 flex flex-col">
+        <div class="flex-1 w-full h-full relative">
+            <SkillTreeGraphView />
+
+            <!-- 닫기 버튼 (Floating) -->
+            <button 
+                @click="viewMode = 'card'"
+                class="absolute bottom-8 left-1/2 -translate-x-1/2 w-14 h-14 bg-white rounded-full shadow-lg border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:scale-110 transition-all z-50"
+            >
+                <X :size="32" stroke-width="2.5" />
+            </button>
+        </div>
+      </div>
+      
+      <!-- 카드 뷰 (기존 스킬 그리드) -->
+      <div v-else class="p-6 relative min-h-[600px]">
+        <!-- 그래프 모드 진입 버튼 (Floating) -->
+        <button 
+            @click="viewMode = 'graph'"
+            class="fixed bottom-8 left-1/2 -translate-x-1/2 w-14 h-14 bg-indigo-600 rounded-full shadow-lg hover:shadow-xl shadow-indigo-500/30 flex items-center justify-center text-white hover:bg-indigo-700 hover:scale-110 transition-all z-40"
+        >
+            <Network :size="32" stroke-width="2.5" />
+        </button>
+
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div 
             v-for="family in sortedFamilies" 
@@ -51,35 +78,29 @@
                 getCompletionClass(family.progressPercent)
               ]"
             >
-              <!-- 아이콘 + 진행도 -->
+              <!-- 아이콘 + 별 표시 -->
               <div class="flex items-center justify-between mb-3">
                 <span class="text-3xl">{{ getFamilyIcon(family.key) }}</span>
-                <div class="flex flex-col items-end">
-                  <span class="text-xl font-bold" :class="getProgressColor(family.progressPercent)">
-                    {{ Math.round(family.progressPercent || 0) }}%
-                  </span>
+                <div class="flex gap-0.5">
+                  <span v-for="i in 5" :key="i" class="text-base" :class="i <= getFilledStars(family.masteryLevel) ? 'text-amber-400' : 'text-slate-300'">★</span>
                 </div>
               </div>
               
               <!-- 이름 -->
               <div class="text-sm font-bold text-slate-800 mb-2">{{ family.name }}</div>
               
-              <!-- 진행 바 -->
-              <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                <div 
-                  class="h-full rounded-full transition-all"
-                  :class="getProgressBarColor(family.progressPercent)"
-                  :style="{ width: (family.progressPercent || 0) + '%' }"
-                ></div>
+              <!-- 마스터리 레벨 텍스트 -->
+              <div class="text-xs text-slate-500 mb-2">
+                {{ getFamilyMasteryLabel(family.masteryLevel) }}
               </div>
               
               <!-- 하위 태그 수 -->
-              <div class="mt-2 text-xs text-slate-400">
-                {{ family.children?.length || 0 }}개 스킬
+              <div class="text-xs text-slate-400">
+                {{ family.children?.length || 0 }}개 스킬 · {{ family.solved || 0 }}문제
               </div>
               
               <!-- 마스터 뱃지 -->
-              <div v-if="family.progressPercent >= 80" class="absolute -top-2 -right-2 text-lg">🏆</div>
+              <div v-if="getFilledStars(family.masteryLevel) >= 4" class="absolute -top-2 -right-2 text-lg">🏆</div>
             </div>
           </div>
         </div>
@@ -97,8 +118,8 @@
               <button @click.stop="selectedFamily = null" class="text-slate-400 hover:text-slate-600 text-xl">✕</button>
             </div>
             
-            <!-- 하위 태그 그리드 -->
-            <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
+            <!-- 하위 태그 그리드 (크기 증가) -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div 
                 v-for="tag in sortedTags" 
                 :key="tag.key"
@@ -106,25 +127,28 @@
                 @click="onTagClick(tag)"
               >
                 <div 
-                  class="relative p-3 rounded-xl border-2 text-center transition-all hover:shadow-md"
-                  :class="getSubNodeClass(tag)"
+                  class="relative p-5 rounded-xl border-2 text-center transition-all hover:shadow-lg"
+                  :class="getEnhancedSubNodeClass(tag)"
                 >
-                  <!-- 숫자 -->
-                  <div class="text-lg font-bold text-slate-700 mb-1">{{ tag.solved || 0 }}</div>
+                  <!-- 추천 뱃지 (더 크게 + 글로우) -->
+                  <div v-if="isRecommendedTag(tag)" class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg animate-bounce">
+                    🎯 추천
+                  </div>
                   
-                  <!-- 티어 뱃지 -->
-                  <span 
-                    class="inline-block text-[10px] font-bold px-1.5 py-0.5 rounded"
-                    :class="getTierBadge(tag.tier)"
-                  >
-                    {{ tag.tier }}
-                  </span>
+                  <!-- 마스터 뱃지 (4개 이상) - 왼쪽 상단 -->
+                  <div v-if="getFilledStars(tag.masteryLevel) >= 4" class="absolute -top-2 -left-2 text-xl drop-shadow-md">🏆</div>
+                  
+                  <!-- 별 표시 (크기 증가) -->
+                  <div class="flex justify-center gap-1 text-xl">
+                    <span 
+                      v-for="i in getMaxStars(tag.tier)" 
+                      :key="i" 
+                      :class="getStarClass(tag.tier, i, getFilledStars(tag.masteryLevel))"
+                    >★</span>
+                  </div>
                   
                   <!-- 이름 -->
-                  <div class="mt-2 text-[10px] text-slate-500 truncate">{{ tag.name }}</div>
-                  
-                  <!-- 마스터 뱃지 -->
-                  <div v-if="tag.masteryLevel === 'MASTER'" class="absolute -top-1 -right-1 text-sm">🏆</div>
+                  <div class="mt-3 text-sm font-medium truncate" :class="getFilledStars(tag.masteryLevel) >= 4 ? 'text-amber-700' : 'text-slate-600'">{{ tag.name }}</div>
                 </div>
               </div>
             </div>
@@ -139,11 +163,14 @@
 import { ref, computed, onMounted } from 'vue';
 import { tagApi } from '@/api/tags';
 import { useAuth } from '@/composables/useAuth';
+import SkillTreeGraphView from '@/components/SkillTreeGraphView.vue';
+import { X, Network } from 'lucide-vue-next';
 
 const { user } = useAuth();
 const loading = ref(true);
 const skillTree = ref(null);
 const selectedFamily = ref(null);
+const viewMode = ref('card'); // 'card' or 'graph'
 
 // Family 아이콘
 const familyIcons = {
@@ -156,6 +183,57 @@ const familyIcons = {
   'DATA_STRUCTURE': '📦',
   'ADVANCED': '🚀'
 };
+
+// 사용자 티어
+const userTier = computed(() => user.value?.solvedacTier || 1);
+
+// 추천 태그 (선택된 Family 내에서 가장 낮은 진행률, 동률시 S > A > B > C 우선)
+const TIER_PRIORITY = { 'S': 0, 'A': 1, 'B': 2, 'C': 3 };
+
+const recommendedTagKey = computed(() => {
+  if (!selectedFamily.value?.children?.length) return null;
+  const learningTags = selectedFamily.value.children.filter(
+    t => t.solved > 0 && t.masteryLevel !== 'MASTER'
+  );
+  if (learningTags.length === 0) {
+    // 아직 안 푼 태그 중 S티어 우선으로 첫 번째 권장
+    const unstarted = selectedFamily.value.children
+      .filter(t => t.solved === 0)
+      .sort((a, b) => (TIER_PRIORITY[a.tier] ?? 4) - (TIER_PRIORITY[b.tier] ?? 4));
+    return unstarted.length > 0 ? unstarted[0].key : null;
+  }
+  // 가장 낮은 진행률 + S티어 우선
+  const sorted = [...learningTags].sort((a, b) => {
+    const progressDiff = (a.progressPercent || 0) - (b.progressPercent || 0);
+    if (progressDiff !== 0) return progressDiff;
+    return (TIER_PRIORITY[a.tier] ?? 4) - (TIER_PRIORITY[b.tier] ?? 4);
+  });
+  return sorted[0].key;
+});
+
+const isRecommendedTag = (tag) => tag.key === recommendedTagKey.value;
+
+// 헤더 통계 (전체 하위 태그 기준)
+const allChildTags = computed(() => {
+  if (!skillTree.value?.families) return [];
+  return skillTree.value.families.flatMap(f => f.children || []);
+});
+
+const expertPlusTags = computed(() => 
+  allChildTags.value.filter(t => ['MASTER', 'EXPERT'].includes(t.masteryLevel)).length
+);
+
+const advancedTags = computed(() => 
+  allChildTags.value.filter(t => ['ADVANCED', 'INTERMEDIATE'].includes(t.masteryLevel)).length
+);
+
+const learningTags = computed(() => 
+  allChildTags.value.filter(t => t.masteryLevel === 'BEGINNER').length
+);
+
+const lockedTags = computed(() => 
+  allChildTags.value.filter(t => !t.masteryLevel || t.masteryLevel === 'NONE').length
+);
 
 // orderIndex 순서대로 정렬
 const sortedFamilies = computed(() => {
@@ -200,6 +278,33 @@ const getSubNodeClass = (tag) => {
   return 'bg-slate-50 border-slate-200';
 };
 
+// 강화된 태그 카드 스타일 (별 4개 이상시 특별 효과)
+const getEnhancedSubNodeClass = (tag) => {
+  const filled = getFilledStars(tag.masteryLevel);
+  
+  // 4개 이상 채움: 골드 그라데이션 + 글로우
+  if (filled >= 4) {
+    return 'bg-gradient-to-br from-amber-50 to-yellow-100 border-amber-400 shadow-lg shadow-amber-200/50 ring-2 ring-amber-300/30';
+  }
+  
+  // 기본 스타일 - 뉴트럴 색상
+  return 'bg-white border-slate-200 hover:border-slate-300';
+};
+
+// 티어 뱃지 클래스
+const getTierBadgeClass = (tier) => {
+  if (tier === 'S') return 'bg-gradient-to-br from-amber-400 to-orange-500 text-white';
+  if (tier === 'A') return 'bg-gradient-to-br from-purple-400 to-violet-500 text-white';
+  if (tier === 'B') return 'bg-gradient-to-br from-sky-400 to-blue-500 text-white';
+  return 'bg-slate-400 text-white';
+};
+
+// 별 색상 (통일 골드 색상)
+const getStarClass = (tier, starIndex, filledCount) => {
+  if (starIndex > filledCount) return 'text-slate-300';
+  return 'text-amber-400 drop-shadow-sm';
+};
+
 const getTierBadge = (tier) => {
   if (tier === 'S') return 'bg-amber-400 text-slate-900';
   if (tier === 'A') return 'bg-purple-400 text-white';
@@ -208,13 +313,47 @@ const getTierBadge = (tier) => {
   return 'bg-slate-600 text-slate-300';
 };
 
+// 별 표시 함수들
+const getMaxStars = (tier) => {
+  if (tier === 'S') return 5;
+  if (tier === 'A') return 4;
+  if (tier === 'B') return 3;
+  return 2; // C 또는 기타
+};
+
+const getFilledStars = (masteryLevel) => {
+  const levels = { 'NONE': 0, 'BEGINNER': 1, 'INTERMEDIATE': 2, 'ADVANCED': 3, 'EXPERT': 4, 'MASTER': 5 };
+  return levels[masteryLevel] || 0;
+};
+
+const getFamilyMasteryLabel = (masteryLevel) => {
+  const labels = {
+    'NONE': '시작 전',
+    'BEGINNER': '입문',
+    'INTERMEDIATE': '학습중',
+    'ADVANCED': '숙련',
+    'EXPERT': '전문가',
+    'MASTER': '마스터'
+  };
+  return labels[masteryLevel] || '시작 전';
+};
+
 const selectFamily = (family) => {
   selectedFamily.value = selectedFamily.value?.key === family.key ? null : family;
 };
 
 const onTagClick = (tag) => {
-  console.log('Skill:', tag);
-  // TODO: 상세 모달 또는 문제 추천
+  // 백준 problemset URL 생성 (티어 필터링 + 미해결 문제만)
+  if (tag.bojTagId) {
+    const tierStart = userTier.value || 1;
+    const tierEnd = Math.min(tierStart + 4, 30);
+    const tierRange = Array.from({ length: tierEnd - tierStart + 1 }, (_, i) => tierStart + i).join('%2C');
+    const url = `https://www.acmicpc.net/problemset?sort=ac_desc&submit=pac%2Cfa%2Cus&tier=${tierRange}&algo=${tag.bojTagId}&algo_if=and`;
+    window.open(url, '_blank');
+  } else {
+    // bojTagId가 없으면 solved.ac로 fallback
+    window.open(`https://solved.ac/problems/tags/${tag.key}`, '_blank');
+  }
 };
 
 const fetchSkillTree = async () => {
