@@ -1,19 +1,9 @@
 <template>
-  <div class="study-list-container relative w-full min-h-screen bg-slate-50 font-[Pretendard]">
-    <!-- 배경 효과 -->
-    <div class="absolute inset-0 bg-gradient-to-br from-amber-50 via-white to-indigo-50"></div>
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-amber-200/30 rounded-full blur-3xl animate-pulse mix-blend-multiply"></div>
-      <div class="absolute bottom-1/3 right-1/4 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl animate-pulse delay-1000 mix-blend-multiply"></div>
-    </div>
+  <div class="min-h-screen bg-white text-slate-800">
 
-    <div class="relative z-10 p-6 md:p-10 max-w-6xl mx-auto">
+    <div class="relative z-10 p-6 md:p-10 max-w-4xl mx-auto">
       
-      <!-- 헤더 -->
-      <div class="text-center mb-12">
-        <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-2">전국 스터디 랭킹</h1>
-        <p class="text-slate-500 text-lg">문제 풀이 수 기준 상위 스터디</p>
-      </div>
+
 
       <!-- 로딩 -->
       <div v-if="loading" class="text-center py-20 text-slate-500 animate-pulse text-xl">
@@ -29,7 +19,7 @@
             <div class="bg-white/90 backdrop-blur-xl border border-slate-200 rounded-t-2xl p-4 text-center shadow-lg min-w-[140px] h-24 flex flex-col justify-center">
               <p class="text-base font-bold text-slate-800 truncate">{{ studies[1].name }}</p>
               <p class="text-xs text-slate-400 mt-1">MVP</p>
-              <p class="text-sm font-bold text-indigo-600 truncate">{{ studies[1].mvpUsername || '-' }}</p>
+              <p class="text-sm font-bold text-brand-600 truncate">{{ studies[1].mvpUsername || '-' }}</p>
             </div>
           </div>
           
@@ -83,13 +73,13 @@
             
             <!-- 통계 -->
             <div class="text-right">
-              <p class="text-xl font-bold text-indigo-600">{{ study.totalSolved }}</p>
+              <p class="text-xl font-bold text-brand-600">{{ study.totalSolved }}</p>
               <p class="text-xs text-slate-400">문제 풀이</p>
             </div>
             
             <!-- 가입 버튼 -->
             <button @click="joinStudy(study.id)"
-                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors">
+                    class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-sm font-medium rounded-lg transition-colors">
               가입
             </button>
           </div>
