@@ -73,13 +73,13 @@
   </select>
 
     <update id="updateApplicationStatus">
-        UPDATE study_application
+        UPDATE study_applications
         SET status = #{status}
         WHERE id = #{id}
     </update>
 
     <delete id="deleteApplication">
-        DELETE FROM study_application
+        DELETE FROM study_applications
         WHERE id = #{id}
     </delete>
 
