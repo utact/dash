@@ -12,7 +12,7 @@
         <div class="mb-6">
           <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">분석 중인 문제</div>
           <div class="flex items-center gap-2 mb-3">
-            <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg">#{{ currentDrawerRecord.problemId }}</span>
+            <span class="px-2 py-1 bg-brand-100 text-brand-700 text-xs font-bold rounded-lg">#{{ currentDrawerRecord.problemId }}</span>
             <span class="px-2 py-1 bg-slate-200 text-slate-600 text-xs font-bold rounded-lg">{{ currentDrawerRecord.language }}</span>
             <span v-if="currentDrawerRecord.result === 'FAIL'" class="px-2 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-lg">FAILED</span>
             <span v-else class="px-2 py-1 bg-emerald-100 text-emerald-600 text-xs font-bold rounded-lg">PASSED</span>
@@ -33,7 +33,7 @@
           </div>
           <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm text-center">
             <div class="text-xs font-bold text-slate-400 uppercase mb-1">시간 복잡도</div>
-            <div class="text-lg font-black text-indigo-600">{{ currentDrawerRecord.timeComplexity || '-' }}</div>
+            <div class="text-lg font-black text-brand-600">{{ currentDrawerRecord.timeComplexity || '-' }}</div>
           </div>
           <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm text-center">
             <div class="text-xs font-bold text-slate-400 uppercase mb-1">점수</div>
@@ -71,37 +71,37 @@
       v-else
       class="w-full overflow-y-auto"
     >
-      <div class="min-h-screen bg-slate-50 text-slate-800">
+      <div class="min-h-screen bg-white text-slate-800">
         <!-- Navbar / Header Area -->
 
-        <main class="container mx-auto px-6 py-8 pb-32">
+        <main class="container mx-auto px-6 py-8 pb-32 xl:mx-[370px] xl:max-w-[calc(100%-740px)] 2xl:mx-[410px] 2xl:max-w-[calc(100%-820px)]">
           <!-- Header Section with Clean Metrics -->
           <div class="mb-8 animate-fade-in-down">
             <!-- Weekly Mission Section -->
             <div class="mb-6">
               <div v-if="targetMission" 
-                   class="rounded-2xl p-5 shadow-lg text-white relative overflow-hidden transition-all duration-500"
+                   class="rounded-3xl p-6 shadow-none relative overflow-hidden transition-all duration-500"
                    :class="getMissionThemeClass(targetMission)">
                 
-                <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+                <!-- Decoration removed for clean look -->
                 
                 <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
                     <div class="flex items-center gap-2 mb-2">
-                       <span class="px-2 py-0.5 bg-white/20 rounded-lg text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
+                       <span class="px-2 py-0.5 bg-white rounded-lg text-xs font-bold uppercase tracking-wider text-slate-400">
                          #{{ targetMission.week }}
                        </span>
-                       <span class="flex items-center gap-1 text-xs font-medium text-white/90">
+                       <span class="flex items-center gap-1 text-xs font-bold text-slate-500">
                          <Calendar :size="12" />
                          ~ {{ formatMissionDate(targetMission.deadline) }}
                        </span>
-                       <span v-if="isMissionUrgent(targetMission) && !isMissionCompleted(targetMission)" class="px-2 py-0.5 bg-red-500/20 text-red-100 rounded text-xs font-bold animate-pulse">
+                       <span v-if="isMissionUrgent(targetMission) && !isMissionCompleted(targetMission)" class="px-2 py-0.5 bg-rose-100 text-rose-600 rounded text-xs font-bold animate-pulse">
                          마감 임박
                        </span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <h2 class="text-xl font-black mb-1">{{ targetMission.title }}</h2>
-                        <span v-if="isMissionCompleted(targetMission)" class="bg-white/20 px-2 py-0.5 rounded text-xs font-bold flex items-center gap-1">
+                        <h2 class="text-2xl font-black text-slate-800 mb-1 tracking-tight">{{ targetMission.title }}</h2>
+                        <span v-if="isMissionCompleted(targetMission)" class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-lg text-xs font-bold flex items-center gap-1">
                             <Check :size="12" /> 해결 완료!
                         </span>
                     </div>
@@ -113,10 +113,10 @@
                       :key="problemId"
                       :href="getProblemLink(problemId)" 
                       target="_blank"
-                      class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-sm group"
+                      class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-none group"
                       :class="isProblemSolved(problemId) 
-                        ? 'bg-white/20 text-white hover:bg-white/30' 
-                        : 'bg-white text-indigo-600 hover:bg-indigo-50 hover:scale-105'"
+                        ? 'bg-emerald-500 text-white hover:bg-emerald-600' 
+                        : 'bg-white text-brand-600 hover:bg-brand-50 hover:scale-105'"
                     >
                       <span class="flex items-center gap-1">
                           {{ problemId }}번
@@ -128,7 +128,7 @@
                 </div>
 
                 <!-- Member Progress Section -->
-                <div v-if="targetMission.memberProgressList?.length > 0" class="mt-4 pt-3 border-t border-white/10 flex flex-wrap items-center gap-4">
+                <div v-if="targetMission.memberProgressList?.length > 0" class="mt-4 pt-3 border-t border-black/5 flex flex-wrap items-center gap-4">
                   <div v-for="member in sortMembers(targetMission.memberProgressList)" :key="member.userId" 
                        class="flex flex-col items-center gap-1 group relative cursor-help">
                     
@@ -147,7 +147,7 @@
                              ? 'border-emerald-400 ring-2 ring-emerald-400/30' + (member.allCompleted ? ' shadow-[0_0_12px_rgba(52,211,153,0.6)]' : '')
                              : member.allCompleted 
                                ? 'border-orange-400 shadow-[0_0_12px_rgba(251,146,60,0.5)]' 
-                               : 'border-white/20 opacity-80 grayscale-[0.0]'
+                               : 'border-slate-200 opacity-80 grayscale-[0.0]'
                          ]" />
                     
                     <!-- Status -->
@@ -155,7 +155,7 @@
                        <Flame :size="13" 
                               class="transition-all"
                               :class="member.allCompleted ? 'fill-orange-400 text-orange-400 animate-pulse' : 'text-slate-300/40'" />
-                       <span v-if="!member.allCompleted" class="text-[11px] font-bold text-white/50">
+                       <span v-if="!member.allCompleted" class="text-[11px] font-bold text-slate-400">
                          {{ member.completedCount }}
                        </span>
                     </div>
@@ -163,51 +163,43 @@
                 </div>
               </div>
               
-              <div v-if="!targetMission" class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex items-center justify-center gap-3 text-slate-400">
+              <div v-if="!targetMission" class="bg-white rounded-3xl p-6 shadow-sm flex items-center justify-center gap-3 text-slate-400">
                  <Map :size="20" />
                  <span class="font-medium">진행 중인 미션이 없어요!</span>
               </div>
             </div>
 
             <!-- Clean Stats Row -->
-            <div class="grid grid-cols-4 gap-3">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <!-- Stat 1: Acorns -->
               <div 
-                class="bg-white rounded-xl p-4 border border-slate-100 hover:border-amber-200 hover:shadow-sm transition-all cursor-pointer group"
+                class="flex flex-col items-center justify-center p-4 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer group"
                 @click="goToPlayground"
               >
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-2xl">🌰</span>
-                  <span class="text-xs font-medium text-slate-400 uppercase">Acorns</span>
-                </div>
-                <div class="text-2xl font-bold text-slate-800">{{ studyData?.acornCount || 0 }}</div>
+                <IconAcorn class="text-fox w-10 h-10 mb-2" stroke-width="2.5" />
+                <div class="text-2xl font-black text-slate-800">{{ studyData?.acornCount || 0 }}</div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Acorns</span>
               </div>
 
               <!-- Stat 2: Solutions -->
-              <div class="bg-white rounded-xl p-4 border border-slate-100 hover:border-indigo-200 hover:shadow-sm transition-all">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-2xl">📊</span>
-                  <span class="text-xs font-medium text-slate-400 uppercase">Solutions</span>
-                </div>
-                <div class="text-2xl font-bold text-slate-800">{{ records.length }}</div>
+              <div class="flex flex-col items-center justify-center p-4 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer group">
+                <BarChart2 class="text-brand-500 w-10 h-10 mb-2" stroke-width="2.5" />
+                <div class="text-2xl font-black text-slate-800">{{ records.length }}</div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Solutions</span>
               </div>
 
               <!-- Stat 3: Streak -->
-              <div class="bg-white rounded-xl p-4 border border-slate-100 hover:border-rose-200 hover:shadow-sm transition-all">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-2xl">🔥</span>
-                  <span class="text-xs font-medium text-slate-400 uppercase">Streak</span>
-                </div>
-                <div class="text-2xl font-bold text-slate-800">{{ currentStreak }}<span class="text-sm font-normal text-slate-400 ml-1">일</span></div>
+              <div class="flex flex-col items-center justify-center p-4 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer group">
+                <Flame class="text-rose w-10 h-10 mb-2" stroke-width="2.5" />
+                <div class="text-2xl font-black text-slate-800">{{ currentStreak }}<span class="text-sm font-bold text-slate-400 ml-1">일</span></div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Streak</span>
               </div>
 
               <!-- Stat 4: Members -->
-              <div class="bg-white rounded-xl p-4 border border-slate-100 hover:border-emerald-200 hover:shadow-sm transition-all">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-2xl">👥</span>
-                  <span class="text-xs font-medium text-slate-400 uppercase">Members</span>
-                </div>
-                <div class="text-2xl font-bold text-slate-800">{{ studyData?.memberCount || 1 }}<span class="text-sm font-normal text-slate-400 ml-1">명</span></div>
+              <div class="flex flex-col items-center justify-center p-4 rounded-2xl hover:bg-slate-50 transition-colors cursor-pointer group">
+                <Users class="text-leaf w-10 h-10 mb-2" stroke-width="2.5" />
+                <div class="text-2xl font-black text-slate-800">{{ studyData?.memberCount || 1 }}<span class="text-sm font-bold text-slate-400 ml-1">명</span></div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Members</span>
               </div>
             </div>
           </div>
@@ -219,21 +211,21 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
           
           <!-- Heatmap Card (Full Width) -->
-          <div class="lg:col-span-12 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+          <div class="lg:col-span-12 bg-white rounded-3xl p-6 shadow-sm">
             <div class="flex items-center justify-between mb-5">
               <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                <TrendingUp class="text-indigo-500 w-5 h-5" />
+                <TrendingUp class="text-brand-500 w-5 h-5" />
                 스터디 활동 로그
               </h2>
               <!-- Legend -->
               <div class="flex items-center gap-2 text-xs font-medium text-slate-400">
                 <span>Less</span>
                 <div class="flex gap-1">
-                  <div class="w-3 h-3 rounded-sm bg-slate-100"></div>
-                  <div class="w-3 h-3 rounded-sm bg-indigo-200"></div>
-                  <div class="w-3 h-3 rounded-sm bg-indigo-400"></div>
-                  <div class="w-3 h-3 rounded-sm bg-indigo-600"></div>
-                  <div class="w-3 h-3 rounded-sm bg-indigo-800"></div>
+                  <div class="w-3 h-3 rounded-sm bg-brand-50"></div>
+                  <div class="w-3 h-3 rounded-sm bg-brand-200"></div>
+                  <div class="w-3 h-3 rounded-sm bg-brand-400"></div>
+                  <div class="w-3 h-3 rounded-sm bg-brand-600"></div>
+                  <div class="w-3 h-3 rounded-sm bg-brand-800"></div>
                 </div>
                 <span>More</span>
               </div>
@@ -247,7 +239,7 @@
                     <div 
                       v-for="(day, dIdx) in week" 
                       :key="dIdx"
-                      class="w-3 h-3 rounded-[2px] transition-all relative cursor-pointer hover:ring-2 hover:ring-indigo-300 hover:z-10"
+                      class="w-3 h-3 rounded-[2px] transition-all relative cursor-pointer hover:ring-2 hover:ring-brand-300 hover:z-10"
                       :class="day.colorClass"
                       @mouseenter="showTooltip($event, day)"
                       @mouseleave="hideTooltip"
@@ -270,7 +262,7 @@
                       <span class="font-bold text-slate-200">{{ tooltipData.dateFormatted }}</span>
                       <span class="font-bold">{{ tooltipData.count }} solutions</span>
                       <div v-if="tooltipData.count > 0" class="flex flex-wrap gap-1 max-w-[150px] justify-center mt-1 border-t border-slate-700 pt-1">
-                          <span v-for="name in tooltipData.contributors" :key="name" class="text-[10px] bg-slate-700 px-1.5 py-0.5 rounded text-indigo-300">
+                          <span v-for="name in tooltipData.contributors" :key="name" class="text-[10px] bg-slate-700 px-1.5 py-0.5 rounded text-brand-300">
                               {{ name }}
                           </span>
                       </div>
@@ -282,16 +274,16 @@
       
       <div class="mb-6 flex items-center justify-between">
           <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-              <Activity :size="20" class="text-indigo-500"/>
+              <Activity :size="20" class="text-brand-500"/>
               Timeline
           </h2>
           <!-- Filter Tabs -->
-          <div class="flex p-1 bg-slate-200 rounded-xl">
+          <div class="flex p-1 bg-slate-200 rounded-2xl">
               <button 
                   v-for="filter in ['ALL', 'MISSION', 'MOCK_EXAM', 'DEFENSE', 'GENERAL']" 
                   :key="filter"
                   @click="selectedFilter = filter"
-                  class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all"
+                  class="px-4 py-2 rounded-xl text-xs font-bold transition-all"
                   :class="selectedFilter === filter ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
               >
                   {{ filter === 'ALL' ? '전체' : filter === 'MOCK_EXAM' ? '모의고사' : filter === 'MISSION' ? '과제' : filter === 'DEFENSE' ? '디펜스' : '일반' }}
@@ -302,8 +294,8 @@
       
 
       <div v-if="filteredRecords.length === 0 && !loading" class="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-dashed border-slate-300">
-        <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mb-6">
-          <Code2 :size="40" class="text-indigo-400" />
+        <div class="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center mb-6">
+          <Code2 :size="40" class="text-brand-400" />
         </div>
         <h3 class="text-xl font-bold text-slate-800 mb-2">기록된 모험이 없습니다</h3>
         <p class="text-slate-500 mb-6 font-medium">
@@ -361,6 +353,7 @@ import http from '../api/http';
 import { aiApi } from '../api/ai';
 import AlgorithmRadarChart from '../components/charts/AlgorithmRadarChart.vue';
 import AiDrawer from '../components/AiDrawer.vue';
+import IconAcorn from '../components/icons/IconAcorn.vue';
 import { 
   Bot, 
   Lightbulb, 
@@ -385,7 +378,9 @@ import {
   Map as MapIcon,
   TrendingUp,
   School,
-  Flame
+  Flame,
+  Users,
+  BarChart2
 } from 'lucide-vue-next';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
@@ -500,12 +495,12 @@ const isMissionUrgent = (mission) => {
 // 미션별 테마 클래스
 const getMissionThemeClass = (mission) => {
     if (isMissionCompleted(mission)) {
-        return 'bg-gradient-to-r from-emerald-500 to-teal-600'; // Success Theme
+        return 'bg-emerald-50'; 
     }
     if (isMissionUrgent(mission)) {
-        return 'bg-gradient-to-r from-rose-500 to-orange-600'; // Urgent Theme
+        return 'bg-rose-50'; 
     }
-    return 'bg-gradient-to-r from-indigo-500 to-indigo-600'; // Default Theme
+    return 'bg-brand-50'; 
 };
 
 // 멤버 리스트 정렬: 본인 우선, 그 외 이름순
@@ -555,12 +550,12 @@ const processHeatmap = (data) => {
                  participationRate = activeCount / totalMembers;
              }
              
-             let colorClass = 'bg-slate-100';
-             if (participationRate > 0) colorClass = 'bg-indigo-200';
-             if (participationRate >= 0.25) colorClass = 'bg-indigo-300';
-             if (participationRate >= 0.50) colorClass = 'bg-indigo-500';
-             if (participationRate >= 0.75) colorClass = 'bg-indigo-700';
-             if (participationRate >= 1.0) colorClass = 'bg-indigo-900';
+             let colorClass = 'bg-brand-50/50';
+             if (participationRate > 0) colorClass = 'bg-brand-200';
+             if (participationRate >= 0.25) colorClass = 'bg-brand-400';
+             if (participationRate >= 0.50) colorClass = 'bg-brand-500';
+             if (participationRate >= 0.75) colorClass = 'bg-brand-700';
+             if (participationRate >= 1.0) colorClass = 'bg-brand-900';
              // --- Participation Logic End ---
 
              currentWeek.push({
@@ -898,7 +893,7 @@ const closeModal = () => {
 }
 
 .btn-primary-soft {
-  @apply flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-50 text-indigo-600 font-bold hover:bg-indigo-100 transition-colors;
+  @apply flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-50 text-brand-600 font-bold hover:bg-brand-100 transition-colors;
 }
 
 .btn-secondary-soft {
