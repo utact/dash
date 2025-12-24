@@ -72,9 +72,16 @@
     SELECT * FROM study_applications WHERE study_id = #{studyId} AND user_id = #{userId}
   </select>
 
-  <update id="updateApplicationStatus">
-    UPDATE study_applications SET status = #{status} WHERE id = #{id}
-</update>
+    <update id="updateApplicationStatus">
+        UPDATE study_application
+        SET status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteApplication">
+        DELETE FROM study_application
+        WHERE id = #{id}
+    </delete>
 
 <resultMap id="StudyApplicationResult" type="com.ssafy.dash.study.domain.StudyApplication">
     <id property="id" column="id" />

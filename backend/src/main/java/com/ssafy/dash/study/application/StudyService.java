@@ -41,7 +41,7 @@ public class StudyService {
         Study study = Study.create(name, userId);
         study.setDescription(description);
         study.setVisibility(visibility != null ? visibility : StudyVisibility.PUBLIC);
-        
+
         studyRepository.save(study);
 
         // Creator automatically joins
@@ -65,7 +65,7 @@ public class StudyService {
 
         // Check if already applied
         if (studyRepository.findApplicationByStudyIdAndUserId(studyId, userId).isPresent()) {
-             throw new IllegalStateException("Already applied to this study");
+            throw new IllegalStateException("Already applied to this study");
         }
 
         StudyApplication application = StudyApplication.create(studyId, userId, message);
@@ -76,11 +76,11 @@ public class StudyService {
     public List<StudyApplication> getPendingApplications(Long userId, Long studyId) {
         Study study = studyRepository.findById(studyId)
                 .orElseThrow(() -> new IllegalArgumentException("Study not found"));
-        
+
         if (!Objects.equals(study.getCreatorId(), userId)) {
             throw new SecurityException("Only creator can view applications");
         }
-        
+
         return studyRepository.findPendingApplicationsByStudyId(studyId);
     }
 
@@ -93,11 +93,11 @@ public class StudyService {
     public void cancelApplication(Long userId, Long applicationId) {
         StudyApplication application = studyRepository.findApplicationById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found"));
-        
+
         if (!Objects.equals(application.getUserId(), userId)) {
-             throw new SecurityException("Cannot cancel other's application");
+            throw new SecurityException("Cannot cancel other's application");
         }
-        
+
         application.reject();
         studyRepository.updateApplicationStatus(application);
     }
@@ -106,22 +106,38 @@ public class StudyService {
     public void approveApplication(Long adminId, Long applicationId) {
         StudyApplication application = studyRepository.findApplicationById(applicationId)
                 .orElseThrow(() -> new IllegalArgumentException("Application not found"));
-        
+
         Study study = studyRepository.findById(application.getStudyId())
                 .orElseThrow(() -> new IllegalArgumentException("Study not found"));
 
         if (!Objects.equals(study.getCreatorId(), adminId)) {
             throw new SecurityException("Only creator can approve applications");
         }
-        
+
         application.approve();
         studyRepository.updateApplicationStatus(application);
-        
+
         // Add user to study
         User user = userRepository.findById(application.getUserId())
-        		.orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
         user.updateStudy(study.getId());
         userRepository.update(user);
+    }
+
+    @Transactional
+    public void rejectApplication(Long leaderId, Long applicationId) {
+        StudyApplication application = studyRepository.findApplicationById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Application not found"));
+
+        Study study = studyRepository.findById(application.getStudyId())
+                .orElseThrow(() -> new IllegalArgumentException("Study not found"));
+
+        if (!Objects.equals(study.getCreatorId(), leaderId)) {
+            throw new SecurityException("Only creator can reject applications");
+        }
+
+        // DB에서 삭제하여 재가입 가능하도록 함
+        studyRepository.deleteApplication(applicationId);
     }
 
     @Transactional
@@ -132,12 +148,13 @@ public class StudyService {
         if (user.getStudyId() == null) {
             throw new IllegalStateException("User is not in a study");
         }
-        
+
         Study study = studyRepository.findById(user.getStudyId())
                 .orElseThrow(() -> new IllegalArgumentException("Study not found"));
 
         if (Objects.equals(study.getCreatorId(), userId)) {
-            // Policy: Creator cannot leave the study. They must delete it or transfer ownership (not yet implemented).
+            // Policy: Creator cannot leave the study. They must delete it or transfer
+            // ownership (not yet implemented).
             throw new IllegalStateException("스터디장은 탈퇴할 수 없습니다. 스터디를 해체하거나 권한을 위임해야 합니다.");
         }
 

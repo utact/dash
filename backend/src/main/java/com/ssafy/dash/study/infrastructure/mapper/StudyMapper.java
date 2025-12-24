@@ -25,10 +25,15 @@ public interface StudyMapper {
     void saveApplication(com.ssafy.dash.study.domain.StudyApplication application);
 
     com.ssafy.dash.study.domain.StudyApplication findApplicationById(Long id);
-    
-    com.ssafy.dash.study.domain.StudyApplication findApplicationByStudyIdAndUserId(@org.apache.ibatis.annotations.Param("studyId") Long studyId, @org.apache.ibatis.annotations.Param("userId") Long userId);
 
-    void updateApplicationStatus(@org.apache.ibatis.annotations.Param("id") Long id, @org.apache.ibatis.annotations.Param("status") com.ssafy.dash.study.domain.StudyApplication.ApplicationStatus status);
+    com.ssafy.dash.study.domain.StudyApplication findApplicationByStudyIdAndUserId(
+            @org.apache.ibatis.annotations.Param("studyId") Long studyId,
+            @org.apache.ibatis.annotations.Param("userId") Long userId);
+
+    void updateApplicationStatus(@org.apache.ibatis.annotations.Param("id") Long id,
+            @org.apache.ibatis.annotations.Param("status") com.ssafy.dash.study.domain.StudyApplication.ApplicationStatus status);
+
+    void deleteApplication(Long id);
 
     List<StudyApplication> findPendingApplicationsByStudyId(Long studyId);
 
