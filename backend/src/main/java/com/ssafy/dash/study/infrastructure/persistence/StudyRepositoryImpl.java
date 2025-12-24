@@ -64,12 +64,17 @@ public class StudyRepositoryImpl implements StudyRepository {
     }
 
     @Override
-    public java.util.List<StudyApplication> findPendingApplicationsByStudyId(Long studyId) {
+    public List<StudyApplication> findPendingApplicationsByStudyId(Long studyId) {
         return studyMapper.findPendingApplicationsByStudyId(studyId);
     }
 
     @Override
     public Optional<StudyApplication> findPendingApplicationByUserId(Long userId) {
         return Optional.ofNullable(studyMapper.findPendingApplicationByUserId(userId));
+    }
+
+    @Override
+    public void deleteApplication(Long id) {
+        studyMapper.deleteApplication(id);
     }
 }

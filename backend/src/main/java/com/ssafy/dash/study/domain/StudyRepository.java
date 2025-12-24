@@ -22,9 +22,10 @@ public interface StudyRepository {
     Optional<StudyApplication> findApplicationByStudyIdAndUserId(Long studyId, Long userId);
 
     void updateApplicationStatus(StudyApplication application);
-    
-    java.util.List<StudyApplication> findPendingApplicationsByStudyId(Long studyId);
+
+    List<StudyApplication> findPendingApplicationsByStudyId(Long studyId);
 
     Optional<StudyApplication> findPendingApplicationByUserId(Long userId);
 
+    void deleteApplication(Long id);
 }
