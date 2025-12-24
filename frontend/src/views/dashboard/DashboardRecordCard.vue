@@ -1,7 +1,7 @@
 <template>
   <div 
     class="group relative bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-300 border-2"
-    :class="{ 'hover:shadow-md hover:-translate-y-0.5': !expanded, 'shadow-xl': expanded, ...cardBorderClass }"
+    :class="{ 'hover:shadow-md hover:-translate-y-0.5': !isExpanded, 'shadow-xl': isExpanded, ...cardBorderClass }"
   >
     <!-- STATUS HEADER BAR -->
     <div :class="statusHeaderClass" class="px-4 py-2 flex items-center gap-2 text-sm font-bold">
@@ -64,7 +64,7 @@
                   </h3>
               </div>
                <div class="text-slate-400">
-                  <ChevronDown v-if="!expanded" :size="20" />
+                  <ChevronDown v-if="!isExpanded" :size="20" />
                   <ChevronUp v-else :size="20" class="text-indigo-500" />
                </div>
           </div>
@@ -72,7 +72,7 @@
     </div>
 
     <!-- Expanded View: Code Viewer Only (Side panels teleported) -->
-    <div v-if="expanded" class="border-t border-slate-100 animate-slide-down bg-slate-50 relative">
+    <div v-if="isExpanded" class="border-t border-slate-100 animate-slide-down bg-slate-50 relative">
         <div class="flex flex-col">
             
             <!-- CENTER PANEL: Code Viewer (Full Width) -->
@@ -100,7 +100,7 @@
 
             <!-- TELEPORTED LEFT PANEL: Context & KeyBlocks (Fixed to Left) -->
             <Teleport to="body">
-                <div v-if="expanded" class="hidden xl:flex flex-col fixed top-[6.5rem] left-8 w-[580px] h-[calc(100vh-8rem)] bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden z-50 animate-fade-in-left">
+                <div v-if="isExpanded" class="hidden xl:flex flex-col fixed top-[6.5rem] left-8 w-[580px] h-[calc(100vh-8rem)] bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden z-50 animate-fade-in-left">
                     <div class="p-3 bg-white border-b border-slate-200 font-bold text-xs text-slate-600 flex items-center gap-2 h-[48px] shrink-0 bg-slate-50">
                         <LayoutList :size="14" /> 구조 및 핵심
                     </div>
@@ -131,7 +131,7 @@
                             <div class="space-y-3">
                                 <div v-for="(block, idx) in parsedKeyBlocks" :key="idx" 
                                     class="bg-white border border-slate-200 rounded-lg p-3 shadow-sm hover:border-indigo-300 transition-colors cursor-pointer group"
-                                    @click="scrollToLine(block.startLine)"
+                                    @click="scrollToLine(block.startLine, block.endLine)"
                                 >
                                     <h5 v-if="block.role" class="text-xs font-bold text-slate-800 mb-1">{{ block.role }}</h5>
                                     <div v-else-if="block.startLine" class="text-[10px] text-slate-400 font-bold mb-1">
@@ -158,7 +158,7 @@
 
             <!-- TELEPORTED RIGHT PANEL: Tabbed Insights (Fixed to Right) -->
             <Teleport to="body">
-                <div v-if="expanded" class="hidden xl:flex flex-col fixed top-[6.5rem] right-8 w-[580px] h-[calc(100vh-8rem)] bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden z-50 animate-fade-in-right">
+                <div v-if="isExpanded" class="hidden xl:flex flex-col fixed top-[6.5rem] right-8 w-[580px] h-[calc(100vh-8rem)] bg-white rounded-xl border border-slate-200 shadow-xl overflow-hidden z-50 animate-fade-in-right">
                     <!-- Tabs Header -->
                     <div class="flex border-b border-slate-200 h-[48px] shrink-0 bg-slate-50">
                         <button 
@@ -184,7 +184,7 @@
                                     <h4 class="text-xs font-bold text-slate-800 mb-3 flex items-center gap-2">
                                         <BookOpen :size="14" class="text-indigo-500"/> 요약
                                     </h4>
-                                    <p class="text-sm text-slate-700 leading-relaxed">{{ parsedSummary }}</p>
+                                    <div class="text-sm text-slate-700 leading-relaxed" v-html="renderMarkdown(parsedSummary)"></div>
                                 </div>
 
                                 <!-- Core Idea (Intuition) -->
@@ -192,7 +192,7 @@
                                     <h4 class="text-xs font-bold text-slate-800 mb-3 flex items-center gap-2">
                                         <Lightbulb :size="14" class="text-amber-500"/> 핵심 아이디어
                                     </h4>
-                                    <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{{ parsedIntuition }}</p>
+                                    <div class="text-sm text-slate-700 leading-relaxed whitespace-pre-line" v-html="renderMarkdown(parsedIntuition)"></div>
                                 </div>
 
                                 <!-- Trace Example -->
@@ -204,8 +204,8 @@
                                         <ChevronDown :class="{ 'rotate-180': showTrace }" class="transition-transform duration-300 text-slate-400" :size="16"/>
                                     </button>
                                     <div v-if="showTrace" class="p-4 border-t border-slate-200 bg-white space-y-4 animate-slide-down">
-                                        <p v-if="parsedTraceExample.note" class="text-xs text-slate-500 italic bg-slate-50 p-2 rounded border border-slate-100">
-                                            💡 {{ parsedTraceExample.note }}
+                                        <p v-if="parsedTraceExample.note" class="text-xs text-slate-500 bg-slate-50 p-2 rounded border border-slate-100">
+                                            {{ parsedTraceExample.note }}
                                         </p>
                                         <div class="space-y-3">
                                             <div v-for="(step, idx) in parsedTraceExample.steps" :key="idx" class="flex gap-3">
@@ -394,6 +394,12 @@
                                     <div class="max-w-[85%] rounded-2xl p-3 text-xs shadow-sm leading-relaxed"
                                         :class="msg.role === 'user' ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-700 rounded-tl-none'">
                                         <span v-if="msg.role === 'user'">{{ msg.content }}</span>
+                                        <div v-else-if="msg.isLoading">
+                                            <div class="flex items-center gap-2 text-slate-400">
+                                                <Loader2 :size="14" class="animate-spin text-indigo-500"/>
+                                                <span class="text-[10px] font-bold animate-pulse">답변 생성 중...</span>
+                                            </div>
+                                        </div>
                                         <div v-else>
                                             <div v-html="renderMarkdown(msg.content)" class="prose prose-sm max-w-none prose-p:my-1 prose-strong:text-emerald-700"></div>
                                             
@@ -415,17 +421,11 @@
                                                     <span>💬</span> {{ q }}
                                                 </button>
                                             </div>
-                                    </div>
+                                       </div>
                                 </div>
                                 </div>
-                                </div>
-
-                                <div v-if="loadingTutorResponse" class="flex gap-3">
-                                    <div class="w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center text-emerald-600"><Bot :size="14"/></div>
-                                    <div class="bg-white border border-slate-200 px-4 py-2.5 rounded-2xl rounded-tl-none"><Loader2 :size="14" class="animate-spin text-slate-400"/></div>
-                                </div>
-
-
+                            </div>
+                                
                             <div class="p-3 bg-white border-t border-slate-200 sticky bottom-0">
                                 <div class="flex gap-2">
                                     <input v-model="tutorInput" @keypress.enter="sendTutorMessage" :disabled="loadingTutorResponse"
@@ -456,14 +456,15 @@ import { useAuth } from '../../composables/useAuth';
 import { marked } from 'marked';
 
 const props = defineProps({
-  record: { type: Object, required: true }
+  record: { type: Object, required: true },
+  isExpanded: { type: Boolean, default: false }
 });
 
-const emit = defineEmits(['find-counter-example', 'ask-tutor']);
+const emit = defineEmits(['find-counter-example', 'ask-tutor', 'toggle-expand']);
 
 const { user } = useAuth();
 
-const expanded = ref(false);
+// const expanded = ref(false); // Removed local state
 const loadingBoard = ref(false);
 const board = ref(null);
 const comments = ref([]);
@@ -503,9 +504,16 @@ const submitOverviewComment = async () => {
 };
 
 // Methods
-const toggleExpand = async () => {
-    expanded.value = !expanded.value;
+const toggleExpand = () => {
+    emit('toggle-expand', props.record.id);
 };
+
+// Watch for expansion to load data
+watch(() => props.isExpanded, async (newVal) => {
+    if (newVal && !board.value) {
+        await loadBoardAndComments();
+    }
+});
 
 const loadBoardAndComments = async () => {
     loadingBoard.value = true;
@@ -526,9 +534,10 @@ const loadBoardAndComments = async () => {
     }
 };
 
-const scrollToLine = (lineNumber) => {
+const scrollToLine = (lineNumber, endLine = null) => {
+    console.log("Dashboard: scrollToLine", lineNumber, endLine, "Ref:", !!codeViewerRef.value);
     if (codeViewerRef.value && lineNumber) {
-        codeViewerRef.value.scrollToLine(lineNumber);
+        codeViewerRef.value.scrollToLine(Number(lineNumber), endLine ? Number(endLine) : null);
     }
 };
 
@@ -596,8 +605,12 @@ const sendTutorMessage = async () => {
     // Auto-scroll
     nextTick(() => { if(chatContainer.value) chatContainer.value.scrollTop = chatContainer.value.scrollHeight; });
 
-    // History excludes the current message which is sent in 'message' field
-    const history = tutorMessages.value.slice(0, -1).map(m => ({ 
+    // Add Loading Placeholder
+    tutorMessages.value.push({ role: 'assistant', isLoading: true });
+    nextTick(() => { if(chatContainer.value) chatContainer.value.scrollTop = chatContainer.value.scrollHeight; });
+
+    // History excludes current & loading
+    const history = tutorMessages.value.slice(0, -2).map(m => ({ 
         role: m.role === 'user' ? 'user' : 'assistant', 
         content: m.content 
     }));
@@ -611,6 +624,10 @@ const sendTutorMessage = async () => {
              wrongReason: !isPassed.value ? '틀렸습니다' : null,
              history: history
         });
+        
+        // Remove loading placeholder
+        tutorMessages.value.pop();
+
         tutorMessages.value.push({ 
             role: 'assistant', 
             content: res.data.reply || res.data.answer || "답변을 생성할 수 없습니다.",
@@ -619,13 +636,15 @@ const sendTutorMessage = async () => {
             encouragement: res.data.encouragement
         });
     } catch (e) {
-        console.error(e);
-        tutorMessages.value.push({ role: 'assistant', content: "AI 서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요." });
+        tutorMessages.value.pop(); // Remove placeholder
+        console.error("Tutor chat failed", e);
+        tutorMessages.value.push({ role: 'assistant', content: "죄송합니다, 답변을 생성하는 중 오류가 발생했습니다." });
     } finally {
         loadingTutorResponse.value = false;
         nextTick(() => { if(chatContainer.value) chatContainer.value.scrollTop = chatContainer.value.scrollHeight; });
     }
 };
+
 
 const sendSuggestion = (q) => {
     tutorInput.value = q;
@@ -660,6 +679,8 @@ const parsedStructure = computed(() => {
         return Array.isArray(full.structure) ? full.structure : [];
     } catch { return []; }
 });
+
+
 
 const parsedFullResponse = computed(() => {
     if (!props.record.fullResponse) return null;
@@ -718,7 +739,7 @@ const statusHeaderClass = computed(() => {
 });
 
 const cardBorderClass = computed(() => {
-    if(!expanded.value) { // Default hover colors for collapsed state
+    if(!props.isExpanded) { // Default hover colors for collapsed state
         return { 'hover:border-indigo-300': props.record.tag === 'DEFENSE', 'hover:border-emerald-300': isPassed.value, 'hover:border-red-300': !isPassed.value };
     }
     // Expanded state borders
