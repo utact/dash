@@ -22,8 +22,6 @@
            class="absolute top-[5%] left-[10%] w-[350px] md:w-[450px] lg:w-[540px] opacity-40 select-none" />
       <img src="/land/001.png" alt="" 
            class="absolute top-[45%] right-[15%] w-[320px] md:w-[400px] lg:w-[480px] opacity-35 -scale-x-100 select-none" />
-      <img src="/land/003.png" alt="" 
-           class="absolute bottom-[8%] left-[5%] w-[220px] md:w-[280px] lg:w-[340px] opacity-40 select-none" />
       
       <!-- Grid Pattern -->
       <div
