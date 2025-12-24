@@ -231,7 +231,11 @@
                                     <div class="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-1">
                                         <div v-for="comment in comments" :key="comment.id" class="text-xs text-slate-600 bg-slate-50 p-2 rounded border border-slate-100">
                                             <div class="flex justify-between items-center mb-1">
-                                                <span class="font-bold text-slate-700">{{ comment.author || 'User' }}</span>
+                                                <div class="flex items-center gap-2">
+                                                    <span v-if="comment.lineNumber" class="px-1.5 py-0.5 bg-indigo-100 text-indigo-600 text-[9px] font-bold rounded">L{{ comment.lineNumber }}</span>
+                                                    <span v-else class="px-1.5 py-0.5 bg-slate-200 text-slate-500 text-[9px] font-bold rounded">일반</span>
+                                                    <span class="font-bold text-slate-700">{{ comment.authorName || 'User' }}</span>
+                                                </div>
                                                 <span class="text-[10px] text-slate-400">{{ formatDate(comment.createdAt) }}</span>
                                             </div>
                                             <p>{{ comment.content }}</p>

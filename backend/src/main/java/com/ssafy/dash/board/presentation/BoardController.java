@@ -35,7 +35,13 @@ public class BoardController {
     }
 
     @PostMapping
-    public ResponseEntity<BoardResponse> create(@RequestBody BoardCreateRequest request) {
+    public ResponseEntity<BoardResponse> create(
+            @RequestBody BoardCreateRequest request,
+            @Parameter(hidden = true) @AuthenticationPrincipal OAuth2User principal) {
+
+        Long userId = extractUserId(principal);
+        request.setUserId(userId);
+
         BoardResponse response = BoardResponse.from(boardService.create(request.toCommand()));
 
         return ResponseEntity.created(URI.create("/api/boards/" + response.id())).body(response);
