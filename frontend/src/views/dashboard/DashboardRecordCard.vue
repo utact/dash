@@ -228,7 +228,7 @@
                                     <h4 class="text-xs font-bold text-slate-800 mb-3 flex items-center gap-2">
                                         <MessageSquare :size="14" class="text-slate-400"/> 댓글 ({{ comments.length }})
                                     </h4>
-                                    <div class="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-1">
+                                    <div ref="commentsScrollContainer" class="space-y-2 max-h-[200px] overflow-y-auto custom-scrollbar pr-1">
                                         <div v-for="comment in comments" :key="comment.id" class="text-xs text-slate-600 bg-slate-50 p-2 rounded border border-slate-100">
                                             <div class="flex justify-between items-center mb-1">
                                                 <div class="flex items-center gap-2">
@@ -490,6 +490,7 @@ const tutorMessages = ref([]);
 const loadingTutorResponse = ref(false);
 const chatContainer = ref(null);
 const codeViewerRef = ref(null);
+const commentsScrollContainer = ref(null);
 
 // Overview Tab State
 const showTrace = ref(false);
@@ -518,6 +519,15 @@ watch(() => props.isExpanded, async (newVal) => {
         await loadBoardAndComments();
     }
 });
+
+// Auto-scroll comments when new comment added
+watch(comments, () => {
+    nextTick(() => {
+        if (commentsScrollContainer.value) {
+            commentsScrollContainer.value.scrollTop = commentsScrollContainer.value.scrollHeight;
+        }
+    });
+}, { deep: true });
 
 const loadBoardAndComments = async () => {
     loadingBoard.value = true;
