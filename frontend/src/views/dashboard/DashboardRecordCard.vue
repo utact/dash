@@ -390,11 +390,8 @@
                                             <div v-if="msg.concepts && msg.concepts.length > 0" class="mt-2 flex flex-wrap gap-1">
                                                 <span v-for="c in msg.concepts" :key="c" class="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-[10px]">#{{c}}</span>
                                             </div>
-                                        </div>
                                     </div>
                                 </div>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div v-if="loadingTutorResponse" class="flex gap-3">
                                     <div class="w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center text-emerald-600"><Bot :size="14"/></div>
