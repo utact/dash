@@ -20,13 +20,17 @@
             <!-- Code Line Row -->
             <tr 
               class="group transition-colors duration-200"
-              :class="{ 'hover:bg-slate-50': !highlightedLines.has(index + 1), 'bg-indigo-50/50': highlightedLines.has(index + 1) }"
+              :class="{ 
+                'hover:bg-slate-50': !effectiveHighlightedLines.has(index + 1),
+                'bg-yellow-100 text-slate-900': selectedHighlightLines.has(index + 1),
+                'bg-indigo-50/50': !selectedHighlightLines.has(index + 1) && hoverHighlightLines.has(index + 1) 
+              }"
               :data-line-number="index + 1"
             >
               <!-- Line Number -->
               <td 
                 class="w-12 text-right pr-4 py-0.5 text-slate-400 select-none font-mono text-sm border-r border-slate-100 bg-slate-50/50"
-                :class="{'text-slate-600 font-bold': selectedLine === index + 1, 'bg-indigo-100/50 text-indigo-600 font-bold': highlightedLines.has(index + 1)}"
+                :class="{'text-slate-600 font-bold': selectedLine === index + 1, 'bg-indigo-100/50 text-indigo-600 font-bold': effectiveHighlightedLines.has(index + 1)}"
               >
                 {{ index + 1 }}
               </td>
@@ -231,7 +235,21 @@ const keyBlocksByLine = computed(() => {
 
 const hoveredLine = ref(null);
 const tooltipPosition = ref({ x: 0, y: 0 });
-const highlightedLines = ref(new Set());
+const hoverHighlightLines = ref(new Set());
+const selectedHighlightLines = ref(new Set());
+
+const effectiveHighlightedLines = computed(() => {
+    try {
+        const selected = selectedHighlightLines.value || new Set();
+        const hover = hoverHighlightLines.value || new Set();
+        const combined = new Set(selected);
+        hover.forEach(line => combined.add(line));
+        return combined;
+    } catch (e) {
+        console.error("Error in effectiveHighlightedLines", e);
+        return new Set();
+    }
+});
 
 const highlightLine = (line) => {
   if (!line && line !== '') return '';
@@ -288,7 +306,7 @@ const handleLineHover = (lineNumber, event) => {
              }
         });
         
-        highlightedLines.value = relatedLines;
+        hoverHighlightLines.value = relatedLines;
 
         const rect = event.target.getBoundingClientRect();
         tooltipPosition.value = {
@@ -300,7 +318,7 @@ const handleLineHover = (lineNumber, event) => {
 
 const handleLineLeave = () => {
     hoveredLine.value = null;
-    highlightedLines.value = new Set();
+    hoverHighlightLines.value = new Set();
 };
 
 const copyCode = () => {
@@ -327,17 +345,27 @@ const submitLineComment = (lineNumber) => {
     newCommentContent.value = '';
     expandedLine.value = null; // Close after submit
 };
-const scrollToLine = (lineNumber) => {
+const scrollToLine = (lineNumber, endLine = null) => {
     // 1. Logic to expand/select the line visually
-    selectedLine.value = lineNumber;
-    expandedLine.value = lineNumber; // Optional: if you want to open the comment box
-    highlightedLines.value = new Set([lineNumber]);
+    const start = Number(lineNumber);
+    const end = endLine ? Number(endLine) : null;
+
+    selectedLine.value = start;
+    expandedLine.value = start; // Optional: if you want to open the comment box
+    
+    const linesToHighlight = new Set();
+    if (end && end >= start) {
+        for (let i = start; i <= end; i++) {
+            linesToHighlight.add(i);
+        }
+    } else {
+        linesToHighlight.add(start);
+    }
+    selectedHighlightLines.value = linesToHighlight;
 
     // 2. DOM Scroll
-    // We can find the element since we added data-line-number
-    // We use setTimeout to allow Vue to update DOM if needed (e.g. if code was just loaded)
     setTimeout(() => {
-        const lineEl = document.querySelector(`tr[data-line-number="${lineNumber}"]`);
+        const lineEl = document.querySelector(`tr[data-line-number="${start}"]`);
         if (lineEl) {
             lineEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }

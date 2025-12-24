@@ -369,6 +369,11 @@ const filteredRecords = computed(() => {
     return records.value.filter(r => r.tag === selectedFilter.value);
 });
 
+// Reset expansion when changing filters
+watch(selectedFilter, () => {
+    expandedRecordId.value = null;
+});
+
 const expandedRecordId = ref(null);
 const handleToggleExpand = (recordId) => {
     if (expandedRecordId.value === recordId) {
