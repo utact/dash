@@ -253,6 +253,15 @@ public class StudyController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "미션 삭제", description = "미션을 삭제합니다.")
+    @DeleteMapping("/{studyId}/missions/{missionId}")
+    public ResponseEntity<Void> deleteMission(
+            @PathVariable Long studyId,
+            @PathVariable Long missionId) {
+        studyMissionService.deleteMission(missionId);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "SOS 요청 토글", description = "특정 문제에 대한 SOS 상태를 토글합니다.")
     @PostMapping("/{studyId}/missions/{missionId}/problems/{problemId}/sos")
     public ResponseEntity<Void> toggleSos(

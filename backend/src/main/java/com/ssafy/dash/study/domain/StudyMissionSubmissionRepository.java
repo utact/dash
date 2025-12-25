@@ -21,6 +21,8 @@ public interface StudyMissionSubmissionRepository {
 
     void deleteByMissionIdAndProblemId(Long missionId, Integer problemId);
 
+    void deleteByMissionId(Long missionId);
+
     void updateSosStatus(Long missionId, Long userId, Integer problemId, boolean isSos);
 
     List<Integer> findSosProblemIds(Long missionId, Long userId);

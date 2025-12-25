@@ -38,7 +38,12 @@ public record AlgorithmRecordResult(
         Boolean refactorProvided,
         String refactorCode,
         String refactorExplanation,
-        String fullResponse) {
+        String fullResponse,
+        // Counter Example Fields
+        String counterExampleInput,
+        String counterExampleExpected,
+        String counterExamplePredicted,
+        String counterExampleReason) {
 
     public static AlgorithmRecordResult from(AlgorithmRecord record) {
         // NOTE: Analysis result is not directly on AlgorithmRecord entity yet (OneToOne
@@ -77,7 +82,11 @@ public record AlgorithmRecordResult(
                 record.getRefactorProvided(),
                 record.getRefactorCode(),
                 record.getRefactorExplanation(),
-                record.getFullResponse());
+                record.getFullResponse(),
+                record.getCounterExampleInput(),
+                record.getCounterExampleExpected(),
+                record.getCounterExamplePredicted(),
+                record.getCounterExampleReason());
     }
 
 }

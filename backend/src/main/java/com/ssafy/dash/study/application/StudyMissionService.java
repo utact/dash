@@ -144,6 +144,20 @@ public class StudyMissionService {
     }
 
     /**
+     * 미션 삭제
+     */
+    public void deleteMission(Long missionId) {
+        StudyMission mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new IllegalArgumentException("미션을 찾을 수 없습니다."));
+
+        // 1. 관련 Submissions 삭제
+        submissionRepository.deleteByMissionId(missionId);
+
+        // 2. 미션 삭제
+        missionRepository.delete(missionId);
+    }
+
+    /**
      * SOS 상태 토글
      */
     public void toggleSos(Long missionId, Integer problemId, Long userId) {

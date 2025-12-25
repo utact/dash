@@ -38,6 +38,11 @@
     WHERE mission_id = #{missionId} AND problem_id = #{problemId}
   </delete>
 
+  <delete id="deleteByMissionId">
+    DELETE FROM study_mission_submissions
+    WHERE mission_id = #{missionId}
+  </delete>
+
   <select id="selectCompletedProblemIds" resultType="int">
     SELECT problem_id FROM study_mission_submissions
     WHERE mission_id = #{missionId} AND user_id = #{userId} AND completed = true
