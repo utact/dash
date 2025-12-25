@@ -35,6 +35,8 @@ public interface StudyMissionSubmissionMapper {
                         @Param("missionId") Long missionId,
                         @Param("problemId") Integer problemId);
 
+        void deleteByMissionId(Long missionId);
+
         List<Integer> selectCompletedProblemIds(
                         @Param("missionId") Long missionId,
                         @Param("userId") Long userId);

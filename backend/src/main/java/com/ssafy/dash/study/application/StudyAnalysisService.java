@@ -296,6 +296,7 @@ public class StudyAnalysisService {
                     member.getId(),
                     member.getUsername(),
                     member.getSolvedacTier(),
+                    member.getAvatarUrl(),
                     tagRates,
                     tagSolved));
         }
@@ -322,6 +323,7 @@ public class StudyAnalysisService {
             Long userId,
             String username,
             Integer tier,
+            String avatarUrl,
             Map<String, Double> tagRates,
             Map<String, Integer> tagSolved) {
     }

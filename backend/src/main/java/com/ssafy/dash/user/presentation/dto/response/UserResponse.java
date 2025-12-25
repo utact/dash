@@ -15,6 +15,7 @@ public record UserResponse(
         Long studyId,
         String solvedacHandle,
         Integer solvedacTier,
+        Integer solvedCount,
         String repositoryName,
         Boolean webhookConfigured,
         Boolean isStudyLeader) {
@@ -31,6 +32,7 @@ public record UserResponse(
                 result.studyId(),
                 result.solvedacHandle(),
                 result.solvedacTier(),
+                result.solvedCount(),
                 result.repositoryName(),
                 result.webhookConfigured(),
                 result.isStudyLeader());

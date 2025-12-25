@@ -47,6 +47,11 @@ public class StudyMissionSubmissionRepositoryImpl implements StudyMissionSubmiss
     }
 
     @Override
+    public void deleteByMissionId(Long missionId) {
+        mapper.deleteByMissionId(missionId);
+    }
+
+    @Override
     public List<Integer> findCompletedProblemIds(Long missionId, Long userId) {
         return mapper.selectCompletedProblemIds(missionId, userId);
     }

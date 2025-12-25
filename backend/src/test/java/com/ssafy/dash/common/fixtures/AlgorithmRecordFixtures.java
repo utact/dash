@@ -89,6 +89,10 @@ public final class AlgorithmRecordFixtures {
                     null,
                     null,
                     null,
+                    null,
+                    null,
+                    null,
+                    null,
                     null);
         }
 

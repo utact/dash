@@ -27,7 +27,12 @@ public record AlgorithmRecordResponse(
         Integer score,
         String timeComplexity,
         String complexityExplanation,
-        String patterns) {
+        String patterns,
+        // Counter Example Fields
+        String counterExampleInput,
+        String counterExampleExpected,
+        String counterExamplePredicted,
+        String counterExampleReason) {
 
     public static AlgorithmRecordResponse from(AlgorithmRecordResult result) {
         return new AlgorithmRecordResponse(
@@ -52,7 +57,11 @@ public record AlgorithmRecordResponse(
                 result.score(),
                 result.timeComplexity(),
                 result.complexityExplanation(),
-                result.patterns());
+                result.patterns(),
+                result.counterExampleInput(),
+                result.counterExampleExpected(),
+                result.counterExamplePredicted(),
+                result.counterExampleReason());
     }
 
 }
