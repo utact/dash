@@ -1,122 +1,185 @@
 <template>
-  <div class="min-h-screen bg-white text-slate-800 overflow-hidden">
+  <div class="min-h-screen bg-white text-slate-800 pb-20">
+    
+    <!-- Active Defense Overlay (Fixed Fullscreen) -->
+    <div v-if="status.defenseProblemId && !loading" class="fixed inset-0 z-50 bg-slate-50 flex items-center justify-center p-4">
+      <div class="w-full max-w-3xl animate-fade-in-up">
+        <div class="bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-slate-200 text-center relative overflow-hidden">
+          <!-- Top Accent -->
+          <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-500 via-sky-500 to-brand-500"></div>
 
-    <div class="relative z-10 flex flex-col items-center justify-center h-full px-4">
-      
-      <!-- Loading State -->
-      <div v-if="loading" class="text-slate-900 text-2xl font-bold animate-pulse">
-        탐색 중...
-      </div>
+          <div class="inline-block px-4 py-1.5 rounded-full text-sm font-bold mb-6"
+               :class="status.defenseType === 'GOLD' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'">
+            {{ status.defenseType === 'GOLD' ? '🟡 골드 등급' : '⚪ 실버 등급' }} 디펜스
+          </div>
 
-      <!-- Active Defense View -->
-      <div v-else-if="status.defenseProblemId" class="w-full max-w-4xl animate-fade-in-up">
-        <div class="bg-white/80 backdrop-blur-xl border border-white/50 rounded-3xl p-8 md:p-12 shadow-2xl text-center relative overflow-hidden ring-1 ring-black/5">
-            <!-- Glow behind -->
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-brand-500 to-transparent shadow-[0_0_20px_rgba(99,102,241,0.5)]"></div>
+          <h1 class="text-3xl md:text-4xl font-black text-slate-800 mb-8">
+            ⚔️ 진행 중인 미션
+          </h1>
 
-            <div class="inline-block px-4 py-1 rounded-full bg-slate-100 text-brand-600 text-sm font-bold mb-6 border border-slate-200">
-                {{ status.defenseType === 'GOLD' ? '🟡 골드 등급' : '⚪ 실버 등급' }} 디펜스
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <!-- Timer Card -->
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col items-center justify-center">
+              <span class="text-slate-500 text-xs uppercase tracking-widest mb-2 font-bold">남은 시간</span>
+              <div class="text-4xl font-mono font-black text-slate-900 tabular-nums">
+                {{ formattedTimeLeft }}
+              </div>
             </div>
 
-            <h1 class="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 mb-8 drop-shadow-sm">
-                진행 중인 미션
-            </h1>
+            <!-- Problem Card -->
+            <a :href="`https://www.acmicpc.net/problem/${status.defenseProblemId}`" target="_blank" 
+               class="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col items-center justify-center group hover:bg-slate-100 transition-all hover:-translate-y-1 cursor-pointer">
+              <span class="text-slate-500 text-xs uppercase tracking-widest mb-2 font-bold">목표 문제</span>
+              <div class="text-4xl font-bold text-slate-900 group-hover:text-brand-600 transition-colors">
+                #{{ status.defenseProblemId }}
+              </div>
+              <span class="mt-2 text-xs text-slate-400 group-hover:text-slate-600">백준에서 풀기 ↗</span>
+            </a>
+          </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-                <!-- Timer Card -->
-                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col items-center justify-center group hover:bg-slate-100 transition-colors shadow-sm">
-                    <span class="text-slate-500 text-sm uppercase tracking-widest mb-2 font-semibold">남은 시간</span>
-                    <div class="text-5xl font-mono font-bold text-slate-900 tabular-nums tracking-tight group-hover:text-brand-600 transition-colors">
-                        {{ formattedTimeLeft }}
-                    </div>
-                </div>
-
-                <!-- Problem Card -->
-                <a :href="`https://www.acmicpc.net/problem/${status.defenseProblemId}`" target="_blank" class="bg-slate-50 p-6 rounded-2xl border border-slate-200 flex flex-col items-center justify-center group hover:bg-slate-100 transition-all hover:-translate-y-1 cursor-pointer shadow-sm">
-                    <span class="text-slate-500 text-sm uppercase tracking-widest mb-2 font-semibold">목표 문제</span>
-                    <div class="text-5xl font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">
-                        #{{ status.defenseProblemId }}
-                    </div>
-                    <span class="mt-2 text-xs text-slate-500 group-hover:text-slate-800">백준에서 풀기 ↗</span>
-                </a>
-            </div>
-
-            <div class="flex flex-col items-center gap-4">
-               <button @click="refreshStatus" 
-                class="px-8 py-4 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-bold text-lg shadow-lg shadow-brand-500/30 transition-all active:scale-95 flex items-center gap-2">
-                 <span>🔄 상태 확인</span>
-               </button>
-               <p class="text-slate-500 text-sm max-w-md leading-relaxed break-keep">
-                   문제를 해결하고 깃허브에 푸시하세요.<br/>
-                   시스템이 웹훅을 통해 자동으로 성공 여부를 확인합니다.
-               </p>
-            </div>
-        </div>
-      </div>
-
-      <!-- Selection View -->
-      <div v-else class="w-full max-w-4xl animate-fade-in">
-        <div class="text-center mb-12">
-            <h1 class="text-4xl md:text-6xl font-black text-slate-900 mb-4 tracking-tight drop-shadow-sm">
-                랜덤 디펜스
-            </h1>
-            <p class="text-slate-500 text-lg md:text-xl font-medium">
-                난이도를 선택해 도전하세요. 연승을 지켜내야 합니다.
+          <div class="flex flex-col items-center gap-4">
+            <button @click="refreshStatus" 
+              class="px-8 py-4 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-bold text-lg shadow-lg shadow-brand-500/30 transition-all active:scale-95 flex items-center gap-2">
+              <RefreshCw class="w-5 h-5" /> 상태 확인
+            </button>
+            <p class="text-slate-500 text-sm max-w-md leading-relaxed break-keep">
+              문제를 제출하고 상태 확인 버튼을 눌러주세요! <br/>
+              
             </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Layout Container (Selection View) -->
+    <div v-else class="flex justify-center p-4 md:p-8">
+      <div class="flex gap-8 max-w-screen-xl w-full items-start">
+      
+      <!-- Main Feed -->
+      <div class="flex-1 min-w-0 space-y-8">
+        
+        <!-- Header -->
+        <h1 class="text-2xl font-black text-slate-800 flex items-center gap-3">
+          <div class="w-10 h-10 bg-brand-100 rounded-xl flex items-center justify-center">
+            <Shield class="w-6 h-6 text-brand-600" fill="currentColor" />
+          </div>
+          랜덤 디펜스
+        </h1>
+
+        <!-- Loading -->
+        <div v-if="loading" class="flex flex-col items-center justify-center py-20">
+          <div class="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin mb-4"></div>
+          <p class="text-slate-400 font-medium">불러오는 중...</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 px-4">
-            <!-- Silver Card -->
-            <!-- Silver Card -->
-            <div @click="startDefense('SILVER')" class="group cursor-pointer flex flex-col items-center p-6 hover:bg-slate-50 rounded-[2rem] transition-all active:scale-95">
-                <div class="relative mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3">
-                    <img src="/defense/silver-def.png" alt="Silver Defense" class="w-48 h-48 object-contain drop-shadow-2xl" />
+        <template v-else>
+          <!-- Defense Cards -->
+          <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+            <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+              <Sword class="w-5 h-5 text-slate-500" fill="currentColor" />
+              등급 선택
+            </h2>
+            <div class="grid grid-cols-2 gap-6">
+              <!-- Silver Card -->
+              <div @click="startDefense('SILVER')" class="group cursor-pointer flex flex-col items-center p-6 rounded-2xl hover:bg-slate-50 transition-all active:scale-95 border border-transparent hover:border-slate-200">
+                <div class="relative mb-4 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3">
+                  <img src="/defense/silver-def.png" alt="Silver Defense" class="w-32 h-32 object-contain drop-shadow-lg" />
                 </div>
-                <h2 class="text-3xl font-black text-slate-800 mb-2 font-[Outfit]">실버 등급</h2>
-                <p class="text-slate-400 mb-6 text-center text-sm font-bold break-keep">기본적인 알고리즘 역량 테스트</p>
-                <div class="mt-auto flex items-center gap-3 bg-slate-100 px-6 py-2 rounded-full">
-                    <span class="text-slate-500 text-xs font-black uppercase">연승</span>
-                    <span class="text-xl font-black text-slate-800">{{ status.silverStreak }}</span>
+                <h3 class="text-xl font-black text-slate-800 mb-1">실버 등급</h3>
+                <p class="text-slate-400 text-sm font-bold mb-3">기본 알고리즘 역량</p>
+                <div class="flex items-center gap-2 bg-slate-100 px-4 py-1.5 rounded-full">
+                  <span class="text-lg font-black text-slate-800">{{ status.silverStreak }}</span>
+                  <span class="text-slate-500 text-xs font-bold uppercase">연승중</span>
                 </div>
-            </div>
+              </div>
 
-            <!-- Gold Card -->
-            <!-- Gold Card -->
-            <div @click="startDefense('GOLD')" class="group cursor-pointer flex flex-col items-center p-6 hover:bg-slate-50 rounded-[2rem] transition-all active:scale-95">
-                <div class="relative mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                    <img src="/defense/gold-def.png" alt="Gold Defense" class="w-48 h-48 object-contain drop-shadow-2xl" />
+              <!-- Gold Card -->
+              <div @click="startDefense('GOLD')" class="group cursor-pointer flex flex-col items-center p-6 rounded-2xl hover:bg-amber-50 transition-all active:scale-95 border border-transparent hover:border-amber-200">
+                <div class="relative mb-4 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                  <img src="/defense/gold-def.png" alt="Gold Defense" class="w-32 h-32 object-contain drop-shadow-lg" />
                 </div>
-                <h2 class="text-3xl font-black text-amber-900 mb-2 font-[Outfit]">골드 등급</h2>
-                <p class="text-amber-800/60 mb-6 text-center text-sm font-bold break-keep">심화 알고리즘 문제해결 능력</p>
-                <div class="mt-auto flex items-center gap-3 bg-amber-50 px-6 py-2 rounded-full">
-                     <span class="text-amber-700 text-xs font-black uppercase">연승</span>
-                    <span class="text-xl font-black text-amber-900">{{ status.goldStreak }}</span>
+                <h3 class="text-xl font-black text-amber-800 mb-1">골드 등급</h3>
+                <p class="text-amber-700/60 text-sm font-bold mb-3">심화 알고리즘 역량</p>
+                <div class="flex items-center gap-2 bg-amber-100 px-4 py-1.5 rounded-full">
+                  <span class="text-lg font-black text-amber-900">{{ status.goldStreak }}</span>
+                  <span class="text-amber-700 text-xs font-bold uppercase">연승중</span>
                 </div>
+              </div>
             </div>
-        </div>
-
-        <button @click="$router.push('/')" class="mt-12 text-slate-400 hover:text-slate-900 transition-colors flex items-center justify-center w-full gap-2">
-            <span>⬅ 대시보드로 돌아가기</span>
-        </button>
+          </div>
+        </template>
       </div>
 
+      <!-- Sidebar -->
+      <aside class="w-[380px] hidden xl:flex flex-col sticky top-8 h-fit space-y-6">
+        
+        <!-- 연승 기록 -->
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+          <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
+            <Flame class="w-5 h-5 text-orange-500" fill="currentColor" />
+            최고 연승 기록
+          </h3>
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-slate-600 font-medium">실버</span>
+              <span class="font-black text-slate-800">{{ status.maxSilverStreak || 0 }}연승</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-amber-700 font-medium">골드</span>
+              <span class="font-black text-amber-800">{{ status.maxGoldStreak || 0 }}연승</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 규칙 안내 -->
+        <div class="bg-gradient-to-br from-brand-50 to-sky-50 rounded-3xl p-6 border border-brand-100">
+          <h3 class="font-bold text-brand-800 text-sm mb-4 flex items-center gap-2">
+            <div class="w-5 h-5 bg-brand-500 rounded-md flex items-center justify-center">
+              <ClipboardList class="w-3 h-3 text-white" />
+            </div>
+            디펜스 규칙
+          </h3>
+          <div class="space-y-3 text-sm text-slate-600">
+            <div class="flex items-start gap-3">
+              <div class="w-5 h-5 bg-brand-500 rounded-md flex items-center justify-center shrink-0 mt-0.5">
+                <Target class="w-3 h-3 text-white" />
+              </div>
+              <span>랜덤 문제가 1개 출제됩니다.</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-5 h-5 bg-brand-500 rounded-md flex items-center justify-center shrink-0 mt-0.5">
+                <Clock class="w-3 h-3 text-white" />
+              </div>
+              <span>제한 시간 내에 풀어야 합니다.</span>
+            </div>
+            <div class="flex items-start gap-3">
+              <div class="w-5 h-5 bg-brand-500 rounded-md flex items-center justify-center shrink-0 mt-0.5">
+                <Zap class="w-3 h-3 text-white" />
+              </div>
+              <span>성공하면 연승, 실패하면 초기화!</span>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+    </div>
     </div>
 
     <!-- Success Modal -->
-    <div v-if="showSuccessModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in">
-        <div class="bg-white border border-slate-200 p-10 rounded-3xl max-w-md text-center shadow-2xl animate-bounce-in">
-            <div class="text-6xl mb-6 animate-pulse">🎉</div>
-            <h2 class="text-4xl font-black text-slate-900 mb-2">디펜스 성공!</h2>
-            <p class="text-slate-500 mb-8 break-keep">연승 기록을 갱신하고 있습니다. 계속 도전하세요!</p>
-            <div class="flex justify-center gap-4">
-                <button @click="showSuccessModal = false" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold transition-all">
-                    닫기
-                </button>
-                <button @click="resetAndPlayAgain" class="px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-bold shadow-lg shadow-brand-500/30 transition-all">
-                    다음 도전 ➡
-                </button>
-            </div>
+    <div v-if="showSuccessModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in">
+      <div class="bg-white border border-slate-200 p-10 rounded-3xl max-w-md text-center shadow-2xl animate-bounce-in">
+        <div class="text-6xl mb-6">🎉</div>
+        <h2 class="text-3xl font-black text-slate-900 mb-2">디펜스 성공!</h2>
+        <p class="text-slate-500 mb-8 break-keep">연승 기록을 갱신했습니다. 계속 도전하세요!</p>
+        <div class="flex justify-center gap-4">
+          <button @click="showSuccessModal = false" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold transition-all">
+            닫기
+          </button>
+          <button @click="resetAndPlayAgain" class="px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-bold shadow-lg shadow-brand-500/30 transition-all">
+            다음 도전 ➡
+          </button>
         </div>
+      </div>
     </div>
   </div>
 </template>
@@ -124,9 +187,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-// Assuming axios is globally configured or imported from a helper. 
-// If not, I'll try to import from axios directly, assuming user has it.
 import axios from 'axios';
+import { Shield, Sword, Flame, RefreshCw, ClipboardList, Target, Clock, Zap } from 'lucide-vue-next';
 
 const router = useRouter();
 const loading = ref(true);
