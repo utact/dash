@@ -189,6 +189,8 @@ const getTierBadgeClass = (tier) => {
   return 'bg-purple-400/30 text-purple-700'; // Master
 };
 
+const emit = defineEmits(['next']);
+
 const submitHandle = async () => {
   if (!handle.value || !confirmed.value) return;
   
@@ -209,7 +211,7 @@ const submitHandle = async () => {
     
     // profileImage가 null이면 백엔드에서 기존(GitHub) 아바타를 유지함
     await onboardingApi.registerSolvedac(handle.value, profileImage);
-    router.push('/onboarding/analysis');
+    emit('next');
   } catch (error) {
     console.error(error);
     alert('아이디 연동에 실패했습니다. 올바른 아이디인지 확인해주세요.');

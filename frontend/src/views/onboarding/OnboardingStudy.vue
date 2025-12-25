@@ -1,22 +1,53 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-// import { studyApi } from '../../api/study'; // Assuming this exists or using axios
 import axios from 'axios';
 import { studyApi } from '../../api/study';
+import { useAuth } from '../../composables/useAuth';
+import StudyExplorer from '../../components/StudyExplorer.vue';
 
 const router = useRouter();
+const { user, refresh } = useAuth();
 const newStudyName = ref('');
 const newBenefit = ref('');
 const creating = ref(false);
 const pendingApplication = ref(null);
 const loading = ref(true);
+const isExploring = ref(false);
+let pollingInterval = null;
+
+const emit = defineEmits(['next']);
+
+const checkApprovalStatus = async () => {
+  await refresh();
+  if (user.value?.studyId) {
+    // Approved! Clear polling and emit next
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      pollingInterval = null;
+    }
+    emit('next');
+  }
+};
+
+const startPolling = () => {
+  if (pollingInterval) return;
+  pollingInterval = setInterval(checkApprovalStatus, 5000);
+};
+
+const stopPolling = () => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+    pollingInterval = null;
+  }
+};
 
 onMounted(async () => {
   try {
     const res = await studyApi.getMyApplication();
     if (res.status === 200 && res.data) {
       pendingApplication.value = res.data;
+      startPolling();
     }
   } catch (e) {
     // console.log("No pending application");
@@ -25,8 +56,34 @@ onMounted(async () => {
   }
 });
 
+onUnmounted(() => {
+  stopPolling();
+});
+
+// Start/stop polling based on pendingApplication state
+watch(pendingApplication, (newVal) => {
+  if (newVal) {
+    startPolling();
+  } else {
+    stopPolling();
+  }
+});
+
 const goExplore = () => {
-  router.push('/study/ranking');
+    isExploring.value = true;
+};
+
+const handleApplySuccess = () => {
+    isExploring.value = false;
+    loading.value = true;
+    // Reload application status
+    studyApi.getMyApplication().then(res => {
+        if (res.status === 200 && res.data) {
+            pendingApplication.value = res.data;
+        }
+    }).finally(() => {
+        loading.value = false;
+    });
 };
 
 const cancelApp = async () => {
@@ -47,12 +104,16 @@ const createStudy = async () => {
   try {
     const res = await axios.post('/api/studies', { name: newStudyName.value, description: newBenefit.value });
     // Success -> Navigate
-    router.push('/onboarding/repo');
+    emit('next');
   } catch (error) {
     alert('스터디 생성 실패: ' + (error.response?.status === 401 ? '로그인이 필요합니다' : '오류가 발생했습니다'));
   } finally {
     creating.value = false;
   }
+};
+
+const backToSelection = () => {
+    isExploring.value = false;
 };
 </script>
 
@@ -83,16 +144,26 @@ const createStudy = async () => {
          </div>
 
          <div class="flex flex-col gap-3">
-            <button @click="goExplore" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all">
-               다른 스터디 둘러보기
-            </button>
+            <p class="text-sm text-slate-400 mb-2">다른 스터디를 찾아보시겠어요?</p>
             <button @click="cancelApp" class="w-full py-3.5 bg-white border border-slate-200 hover:bg-red-50 hover:text-red-500 text-slate-500 font-bold rounded-xl transition-all">
                신청 취소하기
             </button>
          </div>
       </div>
 
-      <!-- Normal State -->
+      <!-- Study Explorer State -->
+      <div v-else-if="isExploring" class="bg-white/90 backdrop-blur rounded-3xl p-8 shadow-2xl border border-white/60 max-h-[85vh] overflow-y-auto custom-scrollbar">
+          <div class="flex items-center justify-between mb-6">
+              <button @click="backToSelection" class="flex items-center gap-1 text-slate-500 hover:text-indigo-600 font-bold transition-colors">
+                  ← 뒤로가기
+              </button>
+              <h2 class="text-xl font-bold text-slate-800">스터디 탐색</h2>
+              <div class="w-16"></div> <!-- Spacer -->
+          </div>
+          <StudyExplorer :is-onboarding="true" @apply-success="handleApplySuccess" />
+      </div>
+
+      <!-- Normal State (Selection) -->
       <div v-else>
           <!-- Header -->
           <div class="text-center mb-12">

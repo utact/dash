@@ -207,9 +207,11 @@ onMounted(() => {
   window.dispatchEvent(new CustomEvent('baekjoonhub-dash-request'));
 });
 
+const emit = defineEmits(['finish']);
+
 const scheduleRedirect = () => {
   setTimeout(() => {
-    window.location.href = "/dashboard";
+    emit('finish');
   }, 1500);
 };
 

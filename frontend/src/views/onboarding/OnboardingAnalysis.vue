@@ -189,8 +189,10 @@ onMounted(async () => {
   }
 });
 
+const emit = defineEmits(['next']);
+
 const nextStep = () => {
-  router.push('/onboarding/study');
+  emit('next');
 };
 </script>
 
