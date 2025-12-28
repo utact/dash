@@ -302,7 +302,7 @@
                                 </div>
                             </div>
                             <div v-else>
-                                <div v-html="renderMarkdown(msg.content)" class="prose prose-sm max-w-none prose-p:my-1 prose-strong:text-emerald-700"></div>
+                                <div v-html="renderMarkdown(msg.content)" class="prose prose-sm max-w-none prose-p:my-1 prose-code:before:content-none prose-code:after:content-none"></div>
                                 
                                 <div v-if="msg.encouragement" class="mt-3 p-2 bg-emerald-50 rounded text-emerald-700 italic border border-emerald-100 flex gap-2 items-start">
                                     <Lightbulb :size="12" class="mt-0.5 shrink-0"/>
@@ -348,6 +348,12 @@ import { useAuth } from '../../composables/useAuth';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
+
+// Configure marked for proper inline code parsing
+marked.setOptions({
+    breaks: true,
+    gfm: true
+});
 
 const props = defineProps({
   record: { type: Object, default: null }
@@ -457,7 +463,25 @@ const viewCodeLine = (name) => {
 };
 
 // AI & UTILS
-const renderMarkdown = (text) => text ? marked.parse(text) : '';
+const renderMarkdown = (text) => {
+    if (!text) return '';
+    
+    return text
+        // Escape HTML first
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        // Handle code blocks (triple backticks)
+        .replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+        // Handle inline code (single backticks)
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        // Handle bold
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        // Handle italic
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+        // Handle line breaks
+        .replace(/\n/g, '<br>');
+};
 const copyToClipboard = async (text) => {
     if (!text) return;
     try { await navigator.clipboard.writeText(text); } catch (err) { console.error('Failed to copy', err); }
