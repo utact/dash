@@ -1,16 +1,16 @@
 import { createRouter, createWebHistory } from "vue-router";
 import LandingView from "../views/LandingView.vue";
 
-const OauthRedirect = () => import("../views/OauthRedirect.vue");
-const Playground = () => import("../components/Playground.vue");
+const OauthRedirect = () => import("../views/auth/OauthRedirect.vue");
+const Playground = () => import("../components/playground/Playground.vue");
 
 const Dashboard = () => import("../views/Dashboard.vue");
-const BoardList = () => import("../views/BoardList.vue");
-const BoardForm = () => import("../views/BoardForm.vue");
-const BoardDetail = () => import("../views/BoardDetail.vue");
+const BoardList = () => import("../views/board/BoardList.vue");
+const BoardForm = () => import("../views/board/BoardForm.vue");
+const BoardDetail = () => import("../views/board/BoardDetail.vue");
 const Profile = () => import("../views/Profile.vue");
-const YouTubeSearch = () => import("../views/YouTubeSearch.vue");
-const StudySimCity = () => import("../views/StudySimCity.vue");
+const YouTubeSearch = () => import("../views/utils/YouTubeSearch.vue");
+const StudySimCity = () => import("../views/study/StudySimCity.vue");
 
 const routes = [
   { path: "/", name: "Landing", component: LandingView },
@@ -24,15 +24,14 @@ const routes = [
   { path: "/boards/edit/:id", name: "BoardEdit", component: BoardForm },
   { path: "/profile", name: "Profile", component: Profile },
   { path: "/youtube", name: "YouTubeSearch", component: YouTubeSearch },
-  // { path: "/simcity", name: "StudySimCity", component: StudySimCity }, // 임시 비활성화
   { path: "/training", redirect: "/training/roadmap" },
   { path: "/training/roadmap", name: "TrainingRoadmapView", component: () => import("../views/training/TrainingRoadmapView.vue") },
   { path: "/training/skilltree", name: "TrainingSkillTreeView", component: () => import("../views/training/TrainingSkillTreeView.vue") },
   { path: "/defense", name: "DefenseView", component: () => import("../views/DefenseView.vue") },
   { path: "/mockexam", name: "MockExamView", component: () => import("../views/MockExamView.vue") },
-  { path: "/study/analysis", name: "StudyAnalysisView", component: () => import("../views/StudyAnalysisView.vue") },
-  { path: "/study/missions", name: "StudyMissionView", component: () => import("../views/StudyMissionView.vue") },
-  { path: "/study/ranking", name: "StudyListView", component: () => import("../views/StudyListView.vue") },
+  { path: "/study/analysis", name: "StudyAnalysisView", component: () => import("../views/study/StudyAnalysisView.vue") },
+  { path: "/study/missions", name: "StudyMissionView", component: () => import("../views/study/StudyMissionView.vue") },
+  { path: "/study/ranking", name: "StudyListView", component: () => import("../views/study/StudyListView.vue") },
 ];
 
 const router = createRouter({

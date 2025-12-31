@@ -1,19 +1,19 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-slate-50 relative overflow-hidden">
-    <!-- Decorative Background Elements -->
+    <!-- 장식용 배경 요소 -->
     <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-brand-200/30 blur-3xl animate-pulse-slow"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-purple-200/30 blur-3xl animate-pulse-slow animation-delay-1000"></div>
 
     <div class="relative z-10 w-full max-w-md p-8">
       
-      <!-- Loading State -->
+      <!-- 로딩 상태 -->
       <div v-if="!error" class="flex flex-col items-center text-center space-y-8 animate-fade-in-up">
         <div class="relative w-24 h-24">
-           <!-- Outer Ring -->
+           <!-- 바깥쪽 고리 -->
            <div class="absolute inset-0 rounded-full border-4 border-slate-100"></div>
-           <!-- Spinning Segment -->
+           <!-- 회전하는 세그먼트 -->
            <div class="absolute inset-0 rounded-full border-4 border-brand-500 border-t-transparent animate-spin"></div>
-           <!-- Inner Icon -->
+           <!-- 내부 아이콘 -->
            <div class="absolute inset-0 flex items-center justify-center text-brand-500">
              <Compass :size="40" class="animate-pulse" />
            </div>
@@ -28,7 +28,7 @@
         </div>
       </div>
 
-      <!-- Error State -->
+      <!-- 에러 상태 -->
       <div v-else class="bg-white rounded-3xl p-8 shadow-xl border border-red-100 text-center animate-shake">
         <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 text-red-500">
             <Ghost :size="32" />
@@ -74,7 +74,7 @@ onMounted(async () => {
         } else {
             window.location.href = "/";
         }
-    }, 1500); // Slightly longer delay to show off the animation
+    }, 1500); // 애니메이션을 보여주기 위해 약간 더 지연
     
   } catch (err) {
     error.value = err.message || "로그인 처리 중 오류가 발생했습니다.";

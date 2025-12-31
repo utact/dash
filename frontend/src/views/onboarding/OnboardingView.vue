@@ -32,7 +32,7 @@ const { user, refresh } = useAuth();
 const loading = ref(true);
 const steps = ['welcome', 'analysis', 'study', 'repo'];
 const currentStepIndex = ref(0);
-const hasNavigatedManually = ref(false); // Track if user has clicked 'next'
+const hasNavigatedManually = ref(false); // 사용자가 '다음'을 클릭했는지 추적
 
 const currentStepComponent = computed(() => {
   switch (steps[currentStepIndex.value]) {
@@ -44,32 +44,32 @@ const currentStepComponent = computed(() => {
   }
 });
 
-// Only called on initial mount to restore state from backend
+// 초기 마운트 시에만 호출되어 백엔드 상태 복원
 const determineInitialStep = () => {
   if (!user.value) {
     currentStepIndex.value = 0; // welcome
     return;
   }
 
-  // If user has everything -> redirect to dashboard
+  // 사용자가 모든 단계를 완료한 경우 -> 대시보드로 리다이렉트
   if (user.value.solvedacId && user.value.studyId && user.value.repositoryName) {
     router.replace('/dashboard');
     return;
   }
 
-  // No solvedacId -> Welcome step
+  // solvedacId 없음 -> 환영 단계
   if (!user.value.solvedacId) {
     currentStepIndex.value = 0; // welcome
     return;
   }
 
-  // Has solvedacId but no studyId -> Study step (skip analysis on refresh)
+  // solvedacId 있음, studyId 없음 -> 스터디 단계 (새로고침 시 분석 생략)
   if (!user.value.studyId) {
     currentStepIndex.value = 2; // study
     return;
   }
 
-  // Has studyId but no repositoryName -> Repository step
+  // studyId 있음, repositoryName 없음 -> 저장소 단계
   if (!user.value.repositoryName) {
     currentStepIndex.value = 3; // repo
     return;
@@ -82,11 +82,11 @@ onMounted(async () => {
   loading.value = false;
 });
 
-// Watch for user changes ONLY to detect approval (studyId update)
-// This should only ADVANCE, never RESET
+// 오직 승인(studyId 업데이트) 감지를 위해서만 사용자 변경 감시
+// 이는 RESET이 아니라 ADVANCE(진행)만 해야 함
 watch(() => user.value?.studyId, (newStudyId, oldStudyId) => {
   if (!loading.value && !oldStudyId && newStudyId) {
-    // User just got approved for a study -> advance to repo step
+    // 사용자가 스터디 승인을 받음 -> 저장소 단계로 진행
     currentStepIndex.value = 3;
   }
 });

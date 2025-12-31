@@ -134,8 +134,8 @@ const computedEdges = computed(() => {
   
   // 전체 노드 관계 맵 생성 (재귀 탐색용)
   const edgeMap = {
-    parents: {}, // dependent -> [prerequisites]
-    children: {} // prerequisite -> [dependents]
+    parents: {}, // 의존 -> [선수]
+    children: {} // 선수 -> [의존]
   };
   
   graphData.value.edges.forEach(edge => {
@@ -199,7 +199,7 @@ const findAllRelated = (startNodeId, direction) => {
   // 엣지 맵핑
   const map = {};
   graphData.value.edges.forEach(edge => {
-    const key = direction === 'prereq' ? edge.target : edge.source; // prereq 찾으려면 target이 key
+    const key = direction === 'prereq' ? edge.target : edge.source; // 선수를 찾으려면 target이 key
     const val = direction === 'prereq' ? edge.source : edge.target;
     
     if (!map[key]) map[key] = [];

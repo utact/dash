@@ -157,10 +157,10 @@ const newMission = ref({
   title: '',
   deadline: ''
 });
-// const problemIdsInput = ref(''); // Legacy
-const problemInputs = ref([{ value: '' }]); // Dynamic inputs
+// const problemIdsInput = ref(''); // 구버전
+const problemInputs = ref([{ value: '' }]); // 동적 입력
 
-// Computed
+// 계산된 속성
 const activeMissions = computed(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -171,14 +171,14 @@ const activeMissions = computed(() => {
     }).sort((a, b) => b.week - a.week); // 최신순
 });
 
-// Watchers
+// 감시자
 watch(() => props.isOpen, (val) => {
   if (val) {
     initializeForm();
   }
 });
 
-// Methods
+// 메서드
 const formatDate = (dateStr) => {
   if (!dateStr) return '-';
   // 시간대 영향 없이 YYYY-MM-DD 값 그대로 표시

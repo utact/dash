@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-6">
-    <!-- Header (Optional for Onboarding) -->
+    <!-- 헤더 (온보딩 여부에 따라 표시) -->
     <div v-if="!isOnboarding" class="mb-8">
       <h1 class="text-2xl font-black text-slate-800 flex items-center gap-3 mb-2">
         <div class="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center">
@@ -191,7 +191,7 @@
         </button>
       </div>
 
-       <!-- 가입 신청 모달 (Fixed existing position) -->
+       <!-- 가입 신청 모달 (기존 위치 고정) -->
       <Teleport to="body">
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" @click="closeModal"></div>
@@ -304,7 +304,7 @@ const submitApplication = async () => {
     });
     
     closeModal();
-    // Emit success event instead of alert if in Onboarding or just alert
+    // 온보딩 중이면 alert 대신 success 이벤트 발생
     if (props.isOnboarding) {
         emit('apply-success');
     } else {

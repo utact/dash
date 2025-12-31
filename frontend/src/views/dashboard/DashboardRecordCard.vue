@@ -4,7 +4,7 @@
     :class="{ 'hover:shadow-md hover:-translate-y-0.5': !isExpanded, 'shadow-md': isExpanded, ...cardBorderClass }"
     @click.stop
   >
-    <!-- STATUS HEADER BAR -->
+    <!-- 상태 헤더 바 -->
     <div :class="statusHeaderClass" class="px-5 py-3 flex items-center gap-2 text-sm font-bold rounded-t-3xl cursor-pointer" @click="toggleExpand">
       <span v-if="record.tag === 'DEFENSE'">
         <Shield v-if="isPassed" :size="16" class="inline" />
@@ -20,23 +20,23 @@
 
       <span v-if="taskTypeLabel" class="ml-1 opacity-70 font-medium text-[10px]">[{{ taskTypeLabel }}]</span>
 
-      <!-- Defense Streak Badge -->
+      <!-- 디펜스 연속 성공 뱃지 -->
       <div v-if="record.tag === 'DEFENSE' && defenseStreak > 0" 
            class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white shadow-sm shadow-orange-200 border border-orange-400/50 mx-1">
           <Flame class="w-3 h-3 animate-pulse" fill="currentColor" />
           <span class="text-[9px] font-black tracking-wider">{{ defenseStreak }} 연승!</span>
       </div>
 
-      <!-- Elapsed Time Badge (for Defense/Mock Exam) -->
+      <!-- 소요 시간 뱃지 (디펜스/모의고사용) -->
       <div v-if="record.elapsedTimeSeconds && (record.tag === 'DEFENSE' || record.tag === 'MOCK_EXAM')" 
            class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200">
           <Clock :size="10" />
           <span class="text-[9px] font-bold">{{ formatElapsedTime(record.elapsedTimeSeconds) }}</span>
       </div>
       
-      <!-- Right Side: Name/Date Only -->
+      <!-- 오른쪽: 이름/날짜 -->
       <div class="ml-auto flex items-center gap-3">
-          <!-- Submitter Name & Date -->
+          <!-- 제출자 이름 & 날짜 -->
           <div class="flex items-center gap-2 text-xs opacity-50">
               <span class="font-bold border-r border-slate-400/30 pr-2">{{ record.username || 'Unknown' }}</span>
               <span>{{ formatDate(record.committedAt) }}</span>
@@ -44,13 +44,13 @@
       </div>
     </div>
 
-    <!-- Header / Collapsed View -->
+    <!-- 헤더 / 접힌 뷰 -->
     <div class="flex flex-col xl:flex-row gap-6 p-6 cursor-pointer" @click="toggleExpand">
-      <!-- Main Content Section -->
+      <!-- 메인 콘텐츠 섹션 -->
       <div class="flex-1 min-w-0">
           <div class="flex items-start justify-between gap-4 mb-2">
               <div class="flex flex-col">
-                  <!-- Badges -->
+                  <!-- 뱃지 -->
                   <div class="flex flex-wrap items-center gap-2 mb-2">
                     <span 
                         class="px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider bg-slate-50 border-2 border-slate-100 text-slate-500"
@@ -63,13 +63,13 @@
                     >
                         {{ record.language }}
                     </span>
-                    <!-- Pattern Tags (Korean only) -->
+                    <!-- 패턴 태그 -->
                     <span v-for="pattern in extractPatterns(record.patterns)" :key="pattern"
                           class="px-3 py-1.5 bg-brand-50 text-brand-600 text-[10px] font-bold rounded-xl border-2 border-brand-100">
                         {{ pattern }}
                     </span>
                   </div>
-                  <!-- Title -->
+                  <!-- 제목 -->
                   <h3 class="text-lg md:text-xl font-bold text-slate-800 leading-tight group-hover:text-brand-600 transition-colors flex items-center gap-2">
                       <span v-if="platformBadge" class="text-slate-400 text-sm font-normal">
                           [{{ platformBadge }}]
@@ -85,11 +85,11 @@
       </div>
     </div>
 
-    <!-- Expanded View: Code Viewer Only (Side panels teleported) -->
+    <!-- 확장 뷰: 코드 뷰어 전용 -->
     <div v-if="isExpanded" class="animate-slide-down bg-slate-50 relative">
         <div class="flex flex-col">
             
-            <!-- CENTER PANEL: Code Viewer (Full Width) -->
+            <!-- 중앙 패널: 코드 뷰어 (전체 너비) -->
             <div class="rounded-xl overflow-hidden">
                 <CodeViewer
                     ref="codeViewerRef"
@@ -103,11 +103,8 @@
                 />
             </div>
 
-            <!-- LEFT PANEL REMOVED (Integrated into Right Panel) -->
-
-
+            </div>
         </div>
-    </div>
 
   </div>
 </template>
@@ -115,7 +112,7 @@
 <script setup>
 import { ref, watch, computed, nextTick } from 'vue';
 import { ExternalLink, ChevronDown, ChevronUp, Bot, Bug, Send, Loader2, Activity, LayoutList, Lightbulb, Tag, MessageSquare, Wand2, CheckCircle2, BookOpen, Footprints, HelpCircle, Trophy, Clock, Check, X, Shield, ShieldAlert, Package, Key, Flame, Sparkles, MessageCircle, Copy } from 'lucide-vue-next';
-import CodeViewer from '../../components/CodeViewer.vue';
+import CodeViewer from '../../components/editor/CodeViewer.vue';
 import { boardApi, commentApi } from '../../api/board';
 import { aiApi } from '../../api/ai'; 
 import { useAuth } from '../../composables/useAuth';
@@ -130,12 +127,13 @@ const emit = defineEmits(['find-counter-example', 'ask-tutor', 'toggle-expand'])
 
 const { user } = useAuth();
 
-// const expanded = ref(false); // Removed local state
+const { user } = useAuth();
+
 const loadingBoard = ref(false);
 const board = ref(null);
 const comments = ref([]);
 
-// TABS
+// 탭
 const activeTab = ref('overview');
 const tabs = [
     { id: 'overview', label: '개요' },
@@ -144,7 +142,7 @@ const tabs = [
     { id: 'tutor', label: '튜터' }
 ];
 
-// AI & Chat State
+// AI & 채팅 상태
 const loadingAi = ref(false);
 const aiData = ref(props.record.counterExampleInput ? {
     input: props.record.counterExampleInput,
@@ -159,10 +157,10 @@ const chatContainer = ref(null);
 const codeViewerRef = ref(null);
 const commentsScrollContainer = ref(null);
 
-// Overview Tab State
+// 개요 탭 상태
 const showTrace = ref(false);
 const overviewCommentInput = ref('');
-// Analysis Tab State
+// 분석 탭 상태
 const showComplexityExplanation = ref(false);
 
 const toggleTrace = () => {
@@ -175,20 +173,20 @@ const submitOverviewComment = async () => {
     overviewCommentInput.value = '';
 };
 
-// Methods
+// 메서드
 const toggleExpand = () => {
     console.log('Card: Emitting toggle-expand for', props.record.id);
     emit('toggle-expand', props.record.id);
 };
 
-// Watch for expansion to load data
+// 데이터 로드를 위한 확장 감지
 watch(() => props.isExpanded, async (newVal) => {
     if (newVal && !board.value) {
         await loadBoardAndComments();
     }
 });
 
-// Auto-scroll comments when new comment added
+// 새 댓글 추가 시 자동 스크롤
 watch(comments, () => {
     nextTick(() => {
         if (commentsScrollContainer.value) {
@@ -259,7 +257,7 @@ const submitLineComment = async ({ lineNumber, content }) => {
     } catch (e) { console.error("Failed to submit comment", e); }
 };
 
-// AI Logic
+// AI 로직
 const findCounterExample = async () => {
     loadingAi.value = true;
     try {
@@ -284,7 +282,7 @@ const copyToClipboard = async (text) => {
     if (!text) return;
     try {
         await navigator.clipboard.writeText(text);
-        // Optional: Toast notification could be added here
+    // 추후 토스트 알림 추가 가능
     } catch (err) {
         console.error('Failed to copy text: ', err);
     }
@@ -297,14 +295,14 @@ const sendTutorMessage = async () => {
     tutorInput.value = '';
     loadingTutorResponse.value = true;
     
-    // Auto-scroll
+    // 자동 스크롤
     nextTick(() => { if(chatContainer.value) chatContainer.value.scrollTop = chatContainer.value.scrollHeight; });
 
-    // Add Loading Placeholder
+    // 로딩 플레이스홀더 추가
     tutorMessages.value.push({ role: 'assistant', isLoading: true });
     nextTick(() => { if(chatContainer.value) chatContainer.value.scrollTop = chatContainer.value.scrollHeight; });
 
-    // History excludes current & loading
+    // 현재 메시지와 로딩은 히스토리에서 제외
     const history = tutorMessages.value.slice(0, -2).map(m => ({ 
         role: m.role === 'user' ? 'user' : 'assistant', 
         content: m.content 
@@ -320,7 +318,7 @@ const sendTutorMessage = async () => {
              history: history
         });
         
-        // Remove loading placeholder
+        // 로딩 플레이스홀더 제거
         tutorMessages.value.pop();
 
         tutorMessages.value.push({ 
@@ -346,7 +344,7 @@ const sendSuggestion = (q) => {
     sendTutorMessage();
 };
 
-// Helpers
+// 헬퍼 함수
 const formatDate = (d) => d ? new Date(d).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
 const getExtension = (l) => ({'java':'java','python':'py','cpp':'cpp','c':'c','javascript':'js'}[l?.toLowerCase()] || 'txt');
 
@@ -370,7 +368,7 @@ const extractPatterns = (json) => {
 
 const renderMarkdown = (text) => text ? marked.parse(text) : '';
 
-// Computed
+// Computed 속성
 const parsedKeyBlocks = computed(() => {
     if (!props.record.keyBlocks) return [];
     try { return Array.isArray(JSON.parse(props.record.keyBlocks)) ? JSON.parse(props.record.keyBlocks) : []; } catch { return []; }

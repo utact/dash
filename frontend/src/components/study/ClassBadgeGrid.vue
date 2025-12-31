@@ -5,24 +5,24 @@
       <span class="text-xs font-medium text-slate-400">Earned: {{ filteredStats.length }}</span>
     </div>
 
-    <!-- Adjusted Grid for smaller badges -->
+    <!-- 작은 뱃지를 위한 그리드 조정 -->
     <div class="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
       <div 
         v-for="stat in filteredStats" 
         :key="stat.classNumber"
         class="group relative"
       >
-        <!-- Badge Card (Compact) -->
+        <!-- 뱃지 카드 (컴팩트) -->
         <div 
           class="aspect-[4/5] rounded-xl border flex flex-col items-center justify-center p-2 transition-all duration-300"
           :class="getBadgeStyle(stat.decoration)"
         >
-          <!-- Icon/Medal (Smaller) -->
+          <!-- 아이콘/메달 (작게) -->
           <div class="w-8 h-8 mb-1.5 text-2xl flex items-center justify-center drop-shadow-md transform group-hover:scale-110 transition-transform duration-300">
             {{ getBadgeIcon(stat.decoration) }}
           </div>
 
-          <!-- Label (Smaller) -->
+          <!-- 라벨 (작게) -->
           <div class="text-center leading-tight">
             <div class="text-[10px] font-bold uppercase opacity-60">Class</div>
             <div class="text-lg font-extrabold tracking-tight">{{ stat.classNumber }}</div>
@@ -83,7 +83,8 @@ const getBadgeIcon = (decoration) => {
 
 .animate-shine {
   animation: shine 2s infinite linear; 
-  /* Usually triggered manually or on hover via logic, but here pure css hover is tricky for diagonal sweep without overflow:hidden container issues. 
-     Simplified: We use group-hover opacity instead for now. */
+  /* 보통 수동으로 트리거되거나 hover 로직으로 작동하지만, 
+     여기서는 CSS hover 시 오버플로우 문제로 인해 간단히 처리합니다.
+     간소화됨: 현재는 group-hover opacity를 대신 사용합니다. */
 }
 </style>

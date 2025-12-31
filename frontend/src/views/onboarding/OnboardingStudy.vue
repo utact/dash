@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { studyApi } from '../../api/study';
 import { useAuth } from '../../composables/useAuth';
-import StudyExplorer from '../../components/StudyExplorer.vue';
+import StudyExplorer from '../../components/study/StudyExplorer.vue';
 
 const router = useRouter();
 const { user, refresh } = useAuth();
@@ -21,7 +21,7 @@ const emit = defineEmits(['next']);
 const checkApprovalStatus = async () => {
   await refresh();
   if (user.value?.studyId) {
-    // Approved! Clear polling and emit next
+    // 승인됨! 폴링을 지우고 다음 단계로 진행
     if (pollingInterval) {
       clearInterval(pollingInterval);
       pollingInterval = null;
@@ -60,7 +60,7 @@ onUnmounted(() => {
   stopPolling();
 });
 
-// Start/stop polling based on pendingApplication state
+// 신청 상태에 따라 폴링 시작/중지
 watch(pendingApplication, (newVal) => {
   if (newVal) {
     startPolling();
@@ -76,7 +76,7 @@ const goExplore = () => {
 const handleApplySuccess = () => {
     isExploring.value = false;
     loading.value = true;
-    // Reload application status
+    // 신청 상태 새로고침
     studyApi.getMyApplication().then(res => {
         if (res.status === 200 && res.data) {
             pendingApplication.value = res.data;
@@ -103,7 +103,7 @@ const createStudy = async () => {
   creating.value = true;
   try {
     const res = await axios.post('/api/studies', { name: newStudyName.value, description: newBenefit.value });
-    // Success -> Navigate
+    // 성공 시 이동
     emit('next');
   } catch (error) {
     alert('스터디 생성 실패: ' + (error.response?.status === 401 ? '로그인이 필요합니다' : '오류가 발생했습니다'));
@@ -120,13 +120,13 @@ const backToSelection = () => {
 <template>
   <div class="min-h-screen bg-slate-50 text-slate-800 p-6 relative overflow-hidden font-[Pretendard] flex items-center justify-center">
     
-    <!-- Background Decor -->
+    <!-- 배경 장식 -->
     <div class="absolute top-[-10%] right-[-5%] w-[40vw] h-[40vw] bg-cyan-200/40 rounded-full blur-[100px] animate-blob mix-blend-multiply"></div>
     <div class="absolute bottom-[-10%] left-[-5%] w-[40vw] h-[40vw] bg-indigo-200/40 rounded-full blur-[100px] animate-blob animation-delay-2000 mix-blend-multiply"></div>
 
     <div v-if="!loading" class="max-w-5xl w-full relative z-10 animate-fade-in-up">
       
-      <!-- Pending State -->
+      <!-- 대기 상태 -->
       <div v-if="pendingApplication" class="max-w-xl mx-auto text-center bg-white/80 backdrop-blur rounded-3xl p-10 shadow-2xl border border-white/60">
          <div class="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl animate-bounce">
             ⏳
@@ -151,21 +151,21 @@ const backToSelection = () => {
          </div>
       </div>
 
-      <!-- Study Explorer State -->
+      <!-- 스터디 탐색 상태 -->
       <div v-else-if="isExploring" class="bg-white/90 backdrop-blur rounded-3xl p-8 shadow-2xl border border-white/60 max-h-[85vh] overflow-y-auto custom-scrollbar">
           <div class="flex items-center justify-between mb-6">
               <button @click="backToSelection" class="flex items-center gap-1 text-slate-500 hover:text-indigo-600 font-bold transition-colors">
                   ← 뒤로가기
               </button>
               <h2 class="text-xl font-bold text-slate-800">스터디 탐색</h2>
-              <div class="w-16"></div> <!-- Spacer -->
+              <div class="w-16"></div> <!-- 여백 -->
           </div>
           <StudyExplorer :is-onboarding="true" @apply-success="handleApplySuccess" />
       </div>
 
-      <!-- Normal State (Selection) -->
+      <!-- 일반 상태 (선택) -->
       <div v-else>
-          <!-- Header -->
+          <!-- 헤더 -->
           <div class="text-center mb-12">
             <h1 class="text-4xl font-black bg-gradient-to-r from-indigo-600 to-cyan-500 bg-clip-text text-transparent mb-4">
               여정의 시작
@@ -174,7 +174,7 @@ const backToSelection = () => {
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Create New Study -->
+            <!-- 새 스터디 만들기 -->
             <div class="group relative bg-white/80 backdrop-blur border border-white/60 rounded-3xl p-8 shadow-xl shadow-indigo-500/10 hover:shadow-indigo-500/20 transition-all hover:-translate-y-1">
               <div class="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div class="relative z-10">
@@ -212,7 +212,7 @@ const backToSelection = () => {
               </div>
             </div>
 
-            <!-- Find Study -->
+            <!-- 스터디 찾기 -->
             <div class="group relative bg-white/80 backdrop-blur border border-white/60 rounded-3xl p-8 shadow-xl shadow-cyan-500/10 hover:shadow-cyan-500/20 transition-all hover:-translate-y-1 cursor-pointer"
                  @click="goExplore">
               <div class="absolute inset-0 bg-gradient-to-br from-cyan-50/50 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>

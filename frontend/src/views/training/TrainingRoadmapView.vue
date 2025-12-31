@@ -56,10 +56,10 @@
           </section>
         </main>
 
-        <!-- RIGHT COLUMN: Sidebar -->
+        <!-- 오른쪽 칼럼: 사이드바 -->
         <aside class="hidden xl:flex w-[380px] shrink-0 flex-col gap-5 sticky top-8 h-fit">
           
-          <!-- 1. Stats Row -->
+          <!-- 1. 통계 열 -->
           <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-around">
             <div class="flex items-center gap-2" title="Current Tier">
               <img :src="`https://static.solved.ac/tier_small/${userTier}.svg`" class="w-7 h-7 object-contain" />
@@ -72,7 +72,7 @@
             </div>
           </div>
 
-          <!-- 2. Radar Chart (Compact) -->
+          <!-- 2. 레이더 차트 (간결) -->
           <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
             <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-wide mb-3 flex items-center gap-1">
               <BarChart3 class="w-3.5 h-3.5 text-brand-500" stroke-width="2.5" />
@@ -85,7 +85,7 @@
             </div>
           </div>
 
-          <!-- 3. Today's Review -->
+          <!-- 3. 오늘의 복습 -->
           <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-9 h-9 bg-brand-50 text-brand-600 rounded-lg flex items-center justify-center shrink-0">
@@ -106,7 +106,7 @@
             </button>
           </div>
 
-          <!-- 4. Daily Challenge -->
+          <!-- 4. 오늘의 도전 -->
           <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-9 h-9 bg-rose-50 text-rose-500 rounded-lg flex items-center justify-center shrink-0">
@@ -126,7 +126,7 @@
             </button>
           </div>
 
-          <!-- 5. Weakness Alert -->
+          <!-- 5. 취약점 알림 -->
           <div v-if="learningPath?.aiAnalysis?.primaryWeakness" class="bg-amber-50 rounded-2xl p-4 border border-amber-100/50">
             <h3 class="font-bold text-amber-800 text-xs mb-2 flex items-center gap-1.5">
               <AlertTriangle class="w-4 h-4 text-fox" stroke-width="2.5" /> 집중 필요
@@ -154,27 +154,27 @@ import { useRouter } from 'vue-router';
 import { 
     RefreshCw, Trophy, Swords, Play, AlertTriangle, CheckCircle, BarChart3, Sparkles
 } from 'lucide-vue-next';
-import LearningRoadmap from '@/components/LearningRoadmap.vue';
+import LearningRoadmap from '@/components/skill/LearningRoadmap.vue';
 import AlgorithmRadarChart from '@/components/charts/AlgorithmRadarChart.vue';
-import LectureModal from '@/components/LectureModal.vue';
+import LectureModal from '@/components/lecture/LectureModal.vue';
 import { useAuth } from '@/composables/useAuth';
 import { aiApi } from '@/api/ai';
 
 const router = useRouter();
 const { user } = useAuth();
 
-// State
+// 상태
 const lectureModalOpen = ref(false);
 const lectureTagName = ref('');
 const lectureTagKey = ref('');
 const lectureBojTagId = ref('');
 
-// Roadmap Data
+// 로드맵 데이터
 const learningPath = ref(null);
 const dailyReview = ref(null);
 const familyStats = ref([]);
 
-// User Tier
+// 사용자 티어
 const TIER_NAMES = [
   "Unrated",
   "Bronze V", "Bronze IV", "Bronze III", "Bronze II", "Bronze I",
@@ -192,7 +192,7 @@ const userTierName = computed(() => {
   return tier >= 0 && tier < TIER_NAMES.length ? TIER_NAMES[tier] : 'Unrated';
 });
 
-// Chart Tags
+// 차트 태그
 const chartTags = computed(() => {
   if (familyStats.value && familyStats.value.length > 0) {
     return familyStats.value.map(stat => ({
@@ -234,7 +234,7 @@ const loadLearningPath = async () => {
     learningPath.value = learningPathRes.data;
     familyStats.value = familyRes.data || [];
     
-    // Set daily review
+    // 오늘의 복습 설정
     if (learningPathRes.data.weaknessTags?.length > 0) {
       const worstTag = learningPathRes.data.weaknessTags[0];
       const winRate = worstTag.total > 0 ? Math.round((worstTag.solved / worstTag.total) * 100) : 0;

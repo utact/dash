@@ -16,7 +16,7 @@
         <div class="flex-1 w-full h-full relative">
             <SkillTreeGraphView />
 
-            <!-- 닫기 버튼 (Floating) -->
+            <!-- 닫기 버튼 (플로팅) -->
             <button 
                 @click="viewMode = 'card'"
                 class="absolute bottom-8 left-1/2 -translate-x-1/2 w-14 h-14 bg-white rounded-full shadow-lg border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:scale-110 transition-all z-50"
@@ -28,7 +28,7 @@
       
       <!-- 카드 뷰 (기존 스킬 그리드) -->
       <div v-else class="p-6 relative">
-        <!-- 그래프 모드 진입 버튼 (Floating) -->
+        <!-- 그래프 모드 진입 버튼 (플로팅) -->
         <button 
             @click="viewMode = 'graph'"
             class="fixed bottom-8 left-1/2 -translate-x-1/2 w-14 h-14 bg-brand-600 rounded-full shadow-lg hover:shadow-xl shadow-brand-500/30 flex items-center justify-center text-white hover:bg-brand-700 hover:scale-110 transition-all z-40"
@@ -107,7 +107,7 @@
                 <div 
                   class="relative p-4 rounded-3xl flex flex-col items-center hover:bg-slate-50 transition-all cursor-pointer group active:scale-95"
                 >
-                  <!-- Icon Circle Badge -->
+                  <!-- 아이콘 원형 뱃지 -->
                   <div class="relative w-20 h-20 mb-3 transition-transform duration-300 group-hover:scale-105">
                     <div 
                         class="w-full h-full rounded-full flex items-center justify-center text-3xl font-black shadow-sm border-b-4 transition-all"
@@ -116,7 +116,7 @@
                         {{ tag.tier }}
                     </div>
 
-                    <!-- Master/Recommended Badge -->
+                    <!-- 마스터/추천 뱃지 -->
                     <div v-if="isRecommendedTag(tag)" class="absolute -top-2 left-1/2 -translate-x-1/2 bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm animate-bounce whitespace-nowrap z-50">
                         추천
                     </div>
@@ -200,8 +200,8 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { tagApi } from '@/api/tags';
 import { useAuth } from '@/composables/useAuth';
-import SkillTreeGraphView from '@/components/SkillTreeGraphView.vue';
-import LectureModal from '@/components/LectureModal.vue';
+import SkillTreeGraphView from '@/components/skill/SkillTreeGraphView.vue';
+import LectureModal from '@/components/lecture/LectureModal.vue';
 import { X, Network, Zap, Puzzle, Calculator, Target, FileText, Package, Rocket, Sword, Code, Youtube, Trophy } from 'lucide-vue-next';
 
 const router = useRouter();
@@ -211,7 +211,7 @@ const skillTree = ref(null);
 const selectedFamily = ref(null);
 const viewMode = ref('card'); // 'card' or 'graph'
 
-// Lecture Modal State
+// 강의 모달 상태
 const lectureModalOpen = ref(false);
 const lectureTag = ref(null);
 
@@ -330,9 +330,7 @@ const getIconBadgeClass = (tag) => {
     return 'bg-amber-400 border-amber-600 text-white';
   }
   
-  // 2. 학습 중 (Coloured by Tier or Green) -> 레퍼런스처럼 Green/Color로 통일하거나 Tier별 색상
-  // 여기서는 '진행 중' 느낌을 위해 Green(Leaf) 사용, 또는 이미 Tier가 있으니 Tier Color 사용?
-  // 듀오링고는 색상이 다양함. Tier 색상을 쓰되 듀오링고 스타일(Solid+Border)로.
+  // 2. 학습 중
   // S/A: Purple/Blue, B/C: Green/Teal?
   // 일단 Leaf(Green)으로 통일하여 '학습' 느낌 강조.
   if (filled >= 1 || tag.progressPercent > 0) {
@@ -352,7 +350,7 @@ const getTierBadgeClass = (tier) => {
 };
 
 // 별 색상 (통일 골드 색상)
-// 별 색상 (배경이 진하므로 밝은 색 사용)
+// 별 색상
 const getStarClass = (tag, starIndex) => {
   const filledCount = getFilledStars(tag.masteryLevel);
   const isDarkBackground = filledCount >= 1 || tag.progressPercent > 0;
@@ -500,8 +498,8 @@ const solveProblem = (tag) => {
     const url = `https://www.acmicpc.net/problemset?sort=ac_desc&submit=pac%2Cfa%2Cus&tier=${tierRange}&algo=${tag.bojTagId}&algo_if=and`;
     window.open(url, '_blank');
   } else {
-    // Solved.ac fallback (tagKey 기반 검색) -> 여기도 필터링 적용 가능하면 좋으나 일단 기존 유지 혹은 업데이트
-    // 사용자 요청인 "로드맵의 todays review와 완전히 동일하게"를 따르자면 Solved.ac 검색도 userTier 조건이 들어가야 함.
+    // Solved.ac 대체 (tagKey 기반 검색)
+    // 사용자 요청에 따라 로드맵의 Today's Review와 동일한 로직 적용
     const query = `*tag:${tag.key} tier:${tierStart}..${tierEnd} -s@${user.value?.solvedacHandle || ''}`;
     window.open(`https://solved.ac/search?query=${encodeURIComponent(query)}`, '_blank');
   }

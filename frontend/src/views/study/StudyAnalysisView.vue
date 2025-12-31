@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-white text-slate-800">
 
-    <!-- Main Layout Container -->
+    <!-- 메인 레이아웃 컨테이너 -->
     <div class="flex justify-center p-4 md:p-8">
       
       <!-- Loading State -->
@@ -10,13 +10,13 @@
         <p class="text-slate-600 text-xl font-medium animate-pulse">팀 역량을 분석하고 있습니다...</p>
       </div>
 
-      <!-- Content State -->
+      <!-- 콘텐츠 상태 -->
       <div v-else-if="analysis" class="flex gap-8 max-w-screen-xl w-full items-start">
           
-          <!-- LEFT COLUMN: Main Content -->
+          <!-- 왼쪽 칼럼: 메인 콘텐츠 -->
           <main class="flex-1 min-w-0 space-y-6 animate-in slide-in-from-left duration-500">
              
-             <!-- 1. Team Skill Analysis (Radar Chart) -->
+             <!-- 1. 팀 스킬 분석 (레이더 차트) -->
              <div class="bg-white border border-slate-200 shadow-sm rounded-3xl p-8">
                  <h2 class="font-black text-slate-800 mb-6 flex items-center gap-2">
                    <Activity class="w-6 h-6 text-brand-500" stroke-width="2.5" fill="currentColor" /> 팀 스킬 분석
@@ -34,7 +34,7 @@
                  </div>
              </div>
   
-              <!-- 2. Recommended Curriculum -->
+              <!-- 2. 추천 커리큘럼 -->
               <div class="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm">
                 <div class="flex items-center justify-between mb-6">
                   <h2 class="font-black text-slate-900 flex items-center gap-2">
@@ -84,13 +84,13 @@
               </div>
           </main>
   
-          <!-- RIGHT COLUMN: Sidebar -->
+          <!-- 오른쪽 칼럼: 사이드바 -->
           <aside class="hidden xl:flex w-[380px] shrink-0 sticky top-8 h-fit">
               <StudyAnalysisSidebar :analysis="analysis" :memberColors="memberColors" />
           </aside>
       </div>
 
-      <!-- No Study State -->
+      <!-- 스터디 없음 상태 -->
       <div v-else class="flex flex-col items-center justify-center py-40 text-center w-full">
         <p class="text-slate-500 text-xl mb-6">스터디에 가입해야 팀 분석을 이용할 수 있습니다.</p>
         <router-link to="/onboarding" class="px-8 py-4 bg-brand-600 text-white rounded-2xl font-bold shadow-lg shadow-brand-200 hover:shadow-brand-300 transition-all hover:-translate-y-1">
@@ -118,8 +118,8 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { Radar } from 'vue-chartjs';
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
-import StudyMissionCreateModal from '@/components/StudyMissionCreateModal.vue';
-import StudyAnalysisSidebar from '@/components/StudyAnalysisSidebar.vue';
+import StudyMissionCreateModal from '@/components/study/StudyMissionCreateModal.vue';
+import StudyAnalysisSidebar from '@/components/study/StudyAnalysisSidebar.vue';
 import { BookOpen, AlertTriangle, Pin, Users, BookMarked, Activity } from 'lucide-vue-next';
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);

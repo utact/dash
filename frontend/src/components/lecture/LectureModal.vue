@@ -155,10 +155,10 @@ const videos = ref([]);
 const problems = ref([]);
 const selectedVideoId = ref(null);
 
-// Computed user tier
+// 계산된 사용자 티어
 const userTier = () => user.value?.solvedacTier || 1;
 
-// Watch for modal open to fetch data
+// 모달이 열릴 때 데이터 가져오기 감시
 watch(() => props.isOpen, async (isOpen) => {
   if (isOpen && props.tagName) {
     loading.value = true;

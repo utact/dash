@@ -9,7 +9,7 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useAuth } from "./composables/useAuth";
-import Sidebar from "./components/Sidebar.vue";
+import Sidebar from "./components/layout/Sidebar.vue";
 
 const route = useRoute();
 const { user } = useAuth();

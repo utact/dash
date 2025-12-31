@@ -1,6 +1,6 @@
 <template>
   <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm animate-in slide-in-from-right duration-300">
-    <!-- 1. Mission Matrix (현황판) -->
+    <!-- 1. 미션 현황판 -->
     <div class="mb-8">
        <div class="flex items-center justify-between mb-4">
          <h4 class="font-bold text-slate-700 text-sm flex items-center gap-2">
@@ -26,7 +26,7 @@
                      class="hover:bg-slate-50/50"
                      :class="{ 'bg-emerald-50/30': isCurrentUser(member.userId) }">
                    
-                   <!-- Member Name (Avatar Only) -->
+                   <!-- 팀원 이름 (아바타만 표시) -->
                    <td class="px-2 py-2 font-medium flex justify-center sticky left-0 z-10 group relative"
                        :class="isCurrentUser(member.userId) ? 'bg-emerald-50/30' : 'bg-white'">
                       <div class="relative">
@@ -39,7 +39,7 @@
                             <span class="text-[10px]">👑</span>
                         </div>
 
-                        <!-- Custom Tooltip (Right Side) -->
+                        <!-- 커스텀 툴팁 (우측) -->
                         <div class="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2 py-1 bg-slate-800 text-white text-[10px] font-medium rounded shadow-xl z-50 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                             {{ member.username }}
                             <div class="absolute top-1/2 -translate-y-1/2 -left-1 w-2 h-2 bg-slate-800 rotate-45"></div>
@@ -47,31 +47,31 @@
                       </div>
                    </td>
                    
-                   <!-- Problem Cells -->
+                   <!-- 문제 셀 -->
                     <td v-for="pid in mission.problemIds" :key="pid" 
-                        class="px-1 py-2 text-center group relative h-10"> <!-- Fixed height for alignment -->
+                        class="px-1 py-2 text-center group relative h-10"> <!-- 정렬을 위한 고정 높이 -->
                        
                        <div class="flex items-center justify-center w-full h-full">
-                           <!-- Solved -->
+                           <!-- 해결됨 -->
                            <div v-if="isSolved(member, pid)" class="flex justify-center">
                               <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
                                  <CheckIcon class="w-3 h-3" stroke-width="3" />
                               </span>
                            </div>
                            
-                           <!-- Not Solved -->
+                           <!-- 미해결 -->
                            <div v-else class="flex justify-center items-center">
-                               <!-- SOS State -->
+                               <!-- SOS 상태 -->
                                <div v-if="isSos(member, pid)" class="cursor-help animate-pulse" title="SOS 요청 중!">
                                   <FlagIcon class="w-4 h-4 text-rose-500 fill-rose-100" />
                                </div>
                                
-                               <!-- Empty Dot -->
+                               <!-- 빈 점 -->
                                <span v-else class="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
                            </div>
                        </div>
                        
-                       <!-- SOS Button Overlay -->
+                       <!-- SOS 버튼 오버레이 -->
                        <button v-if="isCurrentUser(member.userId) && !isSolved(member, pid) && mission.status !== 'COMPLETED'" 
                                @click.stop="toggleSos(pid)"
                                class="absolute inset-0 m-auto w-6 h-6 rounded-full items-center justify-center shadow-sm z-20 hidden group-hover:flex transition-all"
@@ -82,7 +82,7 @@
                        </button>
                     </td>
                    
-                   <!-- Progress -->
+                   <!-- 진행률 -->
                    <td class="px-2 py-2 text-center font-bold text-[10px]"
                         :class="isCurrentUser(member.userId) ? 'text-emerald-600' : 'text-slate-400'">
                        {{ Math.round((member.completedCount / Math.max(mission.totalProblems, 1)) * 100) }}%
@@ -93,7 +93,7 @@
        </div>
     </div>
 
-    <!-- 2. Problem List & Management -->
+    <!-- 2. 문제 목록 및 관리 -->
     <div v-if="isLeader">
        <h4 class="font-bold text-slate-700 text-sm mb-4 flex items-center gap-2">
           🛠️ 문제 관리
@@ -225,7 +225,7 @@ const cancelAdding = () => {
 const submitAddProblem = async () => {
     if (!newProblemId.value) return;
     
-    // Simple validation (numeric check)
+    // 간단한 유효성 검사 (숫자 확인)
     const pid = parseInt(newProblemId.value);
     if (isNaN(pid)) {
         alert('유효한 문제 번호를 입력해주세요.');
