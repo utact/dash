@@ -21,7 +21,7 @@ let spawnSequence = 0;
 
 const ACORN_META = {
   bronze: {
-    texture: "/items/acorn-1.png",
+    texture: "/images/items/acorn-1.png",
     canvasWidth: 609,
     canvasHeight: 609,
     contentWidth: 600,
@@ -32,7 +32,7 @@ const ACORN_META = {
     anchorY: 0.5016,
   },
   silver: {
-    texture: "/items/acorn-2.png",
+    texture: "/images/items/acorn-2.png",
     canvasWidth: 786,
     canvasHeight: 786,
     contentWidth: 664,
@@ -43,7 +43,7 @@ const ACORN_META = {
     anchorY: 0.5006,
   },
   gold: {
-    texture: "/items/acorn-3.png",
+    texture: "/images/items/acorn-3.png",
     canvasWidth: 1024,
     canvasHeight: 1024,
     contentWidth: 1014,
@@ -54,7 +54,7 @@ const ACORN_META = {
     anchorY: 0.4917,
   },
   platinum: {
-    texture: "/items/acorn-4.png",
+    texture: "/images/items/acorn-4.png",
     canvasWidth: 1069,
     canvasHeight: 1069,
     contentWidth: 1024,

@@ -45,7 +45,7 @@
                     :src="verifiedUser.profileImageUrl" 
                     class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover bg-slate-100"
                     alt="Profile"
-                    @error="$event.target.src='/default_profile.png'"
+                    @error="$event.target.src='/images/profiles/default-profile.png'"
                   />
                 </div>
                 
@@ -200,7 +200,7 @@ const submitHandle = async () => {
 
     // GitHub 아바타가 없고, 기존 프로필 이미지도 없는 경우 디폴트 이미지 사용
     if (!user.value?.avatarUrl) {
-        profileImage = '/default_profile.png';
+        profileImage = '/images/profiles/default-profile.png';
     }
     
     // profileImage가 null이면 백엔드에서 기존(GitHub) 아바타를 유지함

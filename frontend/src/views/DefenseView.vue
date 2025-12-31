@@ -83,7 +83,7 @@
               <!-- Silver Card -->
               <div @click="startDefense('SILVER')" class="group cursor-pointer flex flex-col items-center p-6 rounded-2xl hover:bg-slate-50 transition-all active:scale-95 border border-transparent hover:border-slate-200">
                 <div class="relative mb-4 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3">
-                  <img src="/defense/silver-def.png" alt="Silver Defense" class="w-32 h-32 object-contain drop-shadow-lg" />
+                  <img src="/images/defense/silver.png" alt="Silver Defense" class="w-32 h-32 object-contain drop-shadow-lg" />
                 </div>
                 <h3 class="text-xl font-black text-slate-800 mb-1">실버 등급</h3>
                 <p class="text-slate-400 text-sm font-bold mb-3">기본 알고리즘 역량</p>
@@ -96,7 +96,7 @@
               <!-- Gold Card -->
               <div @click="startDefense('GOLD')" class="group cursor-pointer flex flex-col items-center p-6 rounded-2xl hover:bg-amber-50 transition-all active:scale-95 border border-transparent hover:border-amber-200">
                 <div class="relative mb-4 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                  <img src="/defense/gold-def.png" alt="Gold Defense" class="w-32 h-32 object-contain drop-shadow-lg" />
+                  <img src="/images/defense/gold.png" alt="Gold Defense" class="w-32 h-32 object-contain drop-shadow-lg" />
                 </div>
                 <h3 class="text-xl font-black text-amber-800 mb-1">골드 등급</h3>
                 <p class="text-amber-700/60 text-sm font-bold mb-3">심화 알고리즘 역량</p>

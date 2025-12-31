@@ -56,7 +56,7 @@ const syncingRepo = ref(false);
 
 const userProfileImage = computed(() => {
     if (userData.value.avatarUrl) return userData.value.avatarUrl;
-    return '/default_profile.png';
+    return '/images/profiles/default-profile.png';
 });
 
 

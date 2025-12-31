@@ -6,10 +6,11 @@
     <!-- Logo Area -->
     <div class="px-8 py-5">
       <div 
-        class="cursor-pointer"
+        class="cursor-pointer font-['Outfit'] text-2xl flex items-center select-none gap-px"
         @click="goHome"
       >
-        <img src="/icons/dash_logo_new.png" alt="DASH" class="h-8 object-contain" />
+        <span class="font-black text-brand-600 tracking-tighter">Dash</span>
+        <span class="font-bold text-slate-700 tracking-tight">Hub</span>
       </div>
     </div>
 
@@ -156,8 +157,9 @@
 
   <!-- Mobile Header Placeholder (Visible only on small screens) -->
   <div v-if="visible" class="md:hidden fixed top-0 left-0 w-full h-16 bg-white border-b border-slate-200 z-50 flex items-center justify-between px-4">
-      <div class="flex items-center gap-2" @click="goHome">
-        <img src="/icons/dash_logo_new.png" alt="DASH" class="h-8 object-contain" />
+      <div class="flex items-center gap-2 font-['Outfit'] text-xl select-none" @click="goHome">
+        <span class="font-black text-brand-600 tracking-tighter">Dash</span>
+        <span class="font-bold text-slate-700 tracking-tight">Hub</span>
       </div>
       <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2 text-slate-600">
           <Menu :size="24" />
@@ -166,7 +168,10 @@
    <!-- Simple Mobile Menu Overlay -->
    <div v-if="mobileMenuOpen && visible" class="md:hidden fixed inset-0 bg-white z-[60] p-6 animate-fade-in">
        <div class="flex justify-between items-center mb-8">
-           <img src="/icons/dash_logo_new.png" alt="DASH" class="h-8 object-contain" />
+           <div class="font-['Outfit'] text-xl flex items-center select-none gap-px">
+               <span class="font-black text-brand-600 tracking-tighter">Dash</span>
+               <span class="font-bold text-slate-700 tracking-tight">Hub</span>
+           </div>
            <button @click="mobileMenuOpen = false"><X :size="24" class="text-slate-400"/></button>
        </div>
        <nav class="space-y-4">
@@ -333,7 +338,7 @@ onBeforeUnmount(() => stopPolling());
 const userProfileImage = computed(() => {
   if (!user.value) return '';
   if (user.value.avatarUrl) return user.value.avatarUrl;
-  return '/default_profile.png';
+  return '/images/profiles/default-profile.png';
 });
 
 // Actions
@@ -393,4 +398,6 @@ onBeforeUnmount(() => document.removeEventListener("click", onDocClick));
   opacity: 0;
   transform: translateY(10px) scale(0.95);
 }
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;900&display=swap');
 </style>
