@@ -55,10 +55,10 @@ const syncingSolvedac = ref(false);
 const syncingRepo = ref(false);
 
 const profileImages = [
-    '/profile/bag.png',
-    '/profile/proud.png',
-    '/profile/smart.png',
-    '/profile/smile.png'
+    // '/profile/bag.png',
+    // '/profile/proud.png',
+    // '/profile/smart.png',
+    // '/profile/smile.png'
 ];
 
 const userProfileImage = computed(() => {
