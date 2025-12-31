@@ -1,14 +1,14 @@
 <template>
-  <!-- Flex Container for Split View -->
+  <!-- 분할 뷰를 위한 Flex 컨테이너 -->
   <div class="flex h-screen overflow-hidden bg-white font-sans">
     
-    <!-- CONTEXT CARD MODE: When Drawer is Open - Show only selected problem -->
+    <!-- 컨텍스트 카드 모드: 드로어가 열려 있을 때 - 선택된 문제만 표시 -->
     <div 
       v-if="showDrawer && currentDrawerRecord"
       class="w-full md:w-[40%] bg-gradient-to-br from-slate-50 to-slate-100 border-r border-slate-200 flex flex-col"
     >
       <div class="flex-1 p-6 flex flex-col">
-        <!-- Context Header -->
+        <!-- 컨텍스트 헤더 -->
         <div class="mb-6">
           <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">분석 중인 문제</div>
           <div class="flex items-center gap-2 mb-3">
@@ -21,7 +21,7 @@
           <p class="text-sm text-slate-500 mt-1">{{ formatDate(currentDrawerRecord.createdAt) }}</p>
         </div>
         
-        <!-- Performance Metrics Grid -->
+        <!-- 성능 지표 그리드 -->
         <div class="grid grid-cols-2 gap-3 mb-6">
           <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm text-center">
             <div class="text-xs font-bold text-slate-400 uppercase mb-1">실행 시간</div>
@@ -41,7 +41,7 @@
           </div>
         </div>
         
-        <!-- Code Preview -->
+        <!-- 코드 미리보기 -->
         <div class="flex-1 bg-white rounded-xl overflow-hidden flex flex-col border border-slate-200">
           <div class="px-4 py-2 bg-slate-50 text-slate-500 text-xs font-mono flex justify-between items-center border-b border-slate-200">
             <span>{{ currentDrawerRecord.language }}.{{ getFileExtension(currentDrawerRecord.language) }}</span>
@@ -55,7 +55,7 @@
           </div>
         </div>
         
-        <!-- Close Button -->
+        <!-- 닫기 버튼 -->
         <button 
           @click="closeDrawer" 
           class="mt-4 w-full py-3 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold transition-colors flex items-center justify-center gap-2"
@@ -66,23 +66,23 @@
       </div>
     </div>
     
-    <!-- NORMAL MODE: Full Dashboard when Drawer is Closed -->
+    <!-- 일반 모드: 드로어가 닫혀 있을 때 전체 대시보드 -->
     <div 
       v-else
       class="w-full overflow-y-auto"
       @click="collapseExpandedCard"
     >
       <div class="min-h-screen bg-white text-slate-800">
-        <!-- Navbar / Header Area -->
+        <!-- 네비게이션/헤더 영역 -->
 
         <div class="flex-1 flex justify-center p-4 md:p-8">
             <div class="flex gap-8 max-w-screen-xl w-full">
             
-            <!-- 2. CENTRAL MAIN COLUMN -->
+            <!-- 2. 중앙 메인 컬럼 -->
             <main class="flex-1 min-w-0 space-y-6">
-                <!-- Header Section with Clean Metrics -->
+                <!-- 깔끔한 지표가 있는 헤더 섹션 -->
                 <div class="animate-fade-in-down">
-                    <!-- Weekly Mission Section -->
+                    <!-- 주간 미션 섹션 -->
                     <div class="mb-6">
                         <div v-if="targetMission" 
                             class="rounded-3xl p-6 shadow-none relative overflow-hidden transition-all duration-500 bg-white border border-slate-200"
@@ -130,18 +130,18 @@
                                 </div>
                             </div>
 
-                            <!-- Member Progress Section -->
+                            <!-- 멤버 진행 상황 섹션 -->
                             <div v-if="targetMission.memberProgressList?.length > 0" class="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-4">
                                 <div v-for="member in sortMembers(targetMission.memberProgressList)" :key="member.userId" 
                                     class="flex flex-col items-center gap-1 group relative cursor-help">
                                     
-                                    <!-- Tooltip for Name -->
+                                    <!-- 이름 툴팁 -->
                                     <div class="absolute bottom-full mb-2 px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20">
                                         {{ member.username }} {{ isMe(member.userId) ? '(나)' : '' }}
                                         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1 w-2 h-2 bg-black/80 rotate-45"></div>
                                     </div>
 
-                                    <!-- Avatar -->
+                                    <!-- 아바타 -->
                                     <img :src="getMemberProfileImage(member)" :alt="member.username"
                                         class="w-10 h-10 rounded-full object-cover border-2 transition-all relative z-10 bg-white"
                                         :class="[
@@ -152,7 +152,7 @@
                                                 : 'border-slate-200 opacity-80 grayscale-[0.0]'
                                         ]" />
                                     
-                                    <!-- Status -->
+                                    <!-- 상태 -->
                                     <div class="flex items-center gap-0.5 mt-0.5">
                                         <Flame :size="13" 
                                             class="transition-all"
@@ -172,14 +172,14 @@
                     </div>
                 </div>
 
-                <!-- Timeline Section -->
+                <!-- 타임라인 섹션 -->
                 <div>
                     <div class="mb-4 flex items-center justify-between">
                         <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
                             <Activity :size="20" class="text-brand-500 fill-brand-500"/>
                             타임라인
                         </h2>
-                        <!-- Filter Tabs -->
+                        <!-- 필터 탭 -->
                         <div class="flex p-1 bg-slate-200/50 rounded-xl font-bold">
                             <button 
                                 v-for="filter in ['ALL', 'MISSION', 'MOCK_EXAM', 'DEFENSE', 'GENERAL']" 
@@ -216,12 +216,12 @@
                 </div>
             </main>
 
-            <!-- 3. RIGHT SIDEBAR COLUMN (Stats + Activity + Analysis Panel) -->
+            <!-- 3. 우측 사이드바 컬럼 (통계 + 활동 + 분석 패널) -->
             <aside class="hidden xl:flex w-[380px] shrink-0 flex-col gap-6 sticky top-8 h-[calc(100vh-4rem)]">
                 
-                <!-- 1. Stats Row (Moved here) -->
+                <!-- 1. 통계 열 (이동됨) -->
                 <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-around">
-                     <!-- Stat 1: Acorns -->
+                     <!-- 통계 1: 도토리 -->
                      <div class="flex items-center gap-2 group cursor-pointer" title="Acorns" @click="goToPlayground">
                         <IconAcorn class="text-fox w-8 h-8" stroke-width="2.5" fill="currentColor" />
                         <span class="text-xl font-black text-slate-700">{{ studyData?.acornCount || 0 }}</span>
@@ -229,7 +229,7 @@
 
                     <div class="w-px h-8 bg-slate-100"></div>
 
-                    <!-- Stat 3: Streak -->
+                    <!-- 통계 3: 스트릭 -->
                     <div class="flex items-center gap-2 group cursor-pointer" title="Streak">
                         <Flame class="w-7 h-7" :class="currentStreak > 0 ? 'text-rose-500 fill-rose-500 animate-pulse' : 'text-slate-300'" stroke-width="2.5" />
                         <span class="text-xl font-black text-slate-700">{{ currentStreak }}</span>
@@ -237,20 +237,20 @@
                     
                     <div class="w-px h-8 bg-slate-100"></div>
 
-                    <!-- Stat 2: Submissions -->
+                    <!-- 통계 2: 제출 수 -->
                      <div class="flex items-center gap-2 group cursor-pointer" title="Submissions">
                         <Send class="w-6 h-6 text-sky-400 fill-sky-400" stroke-width="2.5" />
                         <span class="text-xl font-black text-slate-700">{{ records.length }}</span>
                     </div>
                 </div>
 
-                <!-- 2. Activity Log (Moved here) -->
+                <!-- 2. 활동 로그 (이동됨) -->
                 <div v-if="!loading" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                     <h3 class="font-black text-slate-700 text-sm mb-4">스터디 활동 로그</h3>
                     
-                    <!-- Heatmap Visualization -->
+                    <!-- 히트맵 시각화 -->
                     <div class="relative">
-                       <!-- Scroll wrapper -->
+                       <!-- 스크롤 래퍼 -->
                        <div ref="heatmapScrollRef" class="overflow-x-auto pb-2 custom-scrollbar no-scrollbar" style="direction: rtl;">
                            <div class="flex gap-[3px] justify-end min-w-max" style="direction: ltr;">
                                <div v-for="(week, wIdx) in heatmapWeeks" :key="wIdx" class="flex flex-col gap-[3px]">
@@ -264,7 +264,7 @@
                            </div>
                        </div>
                        
-                       <!-- Custom Tooltip -->
+                       <!-- 커스텀 툴팁 -->
                        <Teleport to="body">
                            <Transition name="fade">
                                <div 
@@ -272,7 +272,7 @@
                                    class="fixed z-[9999] bg-slate-900/95 backdrop-blur-sm text-white text-xs rounded-xl p-3 shadow-2xl pointer-events-none min-w-[180px] max-w-[240px]"
                                    :style="heatmapTooltipStyle"
                                >
-                                   <!-- Date Header -->
+                                   <!-- 날짜 헤더 -->
                                    <div class="flex items-center justify-between mb-2 pb-2 border-b border-slate-700">
                                        <span class="font-bold text-sm">{{ heatmapTooltip.date }}</span>
                                        <span class="bg-brand-500/20 text-brand-300 px-2 py-0.5 rounded-full text-[10px] font-bold">
@@ -280,17 +280,17 @@
                                        </span>
                                    </div>
                                    
-                                   <!-- Contributors List -->
+                                   <!-- 기여자 목록 -->
                                    <div v-if="heatmapTooltip.contributors?.length > 0" class="space-y-2">
                                        <div v-for="c in heatmapTooltip.contributors" :key="c.userId || c.username" 
                                             class="flex items-center gap-2 bg-slate-800/50 rounded-lg p-1.5 pr-3">
-                                           <!-- Profile Image -->
+                                           <!-- 프로필 이미지 -->
                                            <img 
                                                :src="c.avatarUrl || getDefaultProfileImage(c.userId)" 
                                                :alt="c.username"
                                                class="w-6 h-6 rounded-full object-cover border border-slate-600 bg-slate-700"
                                            />
-                                           <!-- Name & Count -->
+                                           <!-- 이름 & 카운트 -->
                                            <div class="flex-1 min-w-0">
                                                <div class="font-medium text-white truncate">{{ c.username }}</div>
                                            </div>
@@ -307,7 +307,7 @@
                     </div>
                 </div>
 
-                <!-- 3. Analysis Sidebar (Context) -->
+                <!-- 3. 분석 사이드바 (컨텍스트) -->
                 <div class="flex-1 min-h-0 overflow-hidden rounded-2xl border border-slate-200 shadow-sm bg-white" @click.stop>
                      <AnalysisSidebar :record="activeAnalysisRecord" @scroll-to-line="handleScrollToLine" />
                 </div>
@@ -327,7 +327,7 @@
     </div>
   </div>
 
-    <!-- Inline AI Drawer (60% width when open) -->
+    <!-- 인라인 AI 드로어 (열렸을 때 60% 너비) -->
     <div 
       v-if="showDrawer"
       class="w-full md:w-[60%] border-l border-slate-200 transition-all duration-300 ease-in-out bg-white"
@@ -350,7 +350,7 @@
     </div>
 
   </div>
-  <!-- End Split View Flex Container -->
+  <!-- 분할 뷰 Flex 컨테이너 종료 -->
 </template>
 
 <script setup>
@@ -364,7 +364,7 @@ import AnalysisSidebar from './dashboard/AnalysisSidebar.vue';
 import http from '../api/http';
 import { aiApi } from '../api/ai';
 import AlgorithmRadarChart from '../components/charts/AlgorithmRadarChart.vue';
-import AiDrawer from '../components/AiDrawer.vue';
+import AiDrawer from '../components/ai/AiDrawer.vue';
 import IconAcorn from '../components/icons/IconAcorn.vue';
 import { 
   Bot, 
@@ -423,7 +423,7 @@ const loading = ref(true);
 const heatmapWeeks = ref([]);
 const heatmapScrollRef = ref(null);
 
-// Heatmap Tooltip State
+// 히트맵 툴팁 상태
 const heatmapTooltip = ref({
     visible: false,
     x: 0,
@@ -449,7 +449,7 @@ const hideHeatmapTooltip = () => {
     heatmapTooltip.value.visible = false;
 };
 
-// Collapse expanded card when clicking on empty space
+// 빈 공간 클릭 시 확장된 카드 접기
 const collapseExpandedCard = (event) => {
     // Don't collapse if clicking inside a card (handled by stopPropagation on cards)
     if (expandedRecordId.value !== null) {
@@ -459,7 +459,7 @@ const collapseExpandedCard = (event) => {
     }
 };
 
-// Computed style for tooltip positioning (prevents overflow)
+// 툴팁 위치 계산 (오버플로우 방지)
 const heatmapTooltipStyle = computed(() => {
     const tooltip = heatmapTooltip.value;
     const tooltipWidth = 200;
@@ -469,14 +469,14 @@ const heatmapTooltipStyle = computed(() => {
     let left = tooltip.x;
     let top = tooltip.y - tooltipHeight - 8;
     
-    // Keep within horizontal bounds
+    // 가로 범위 유지
     if (left - tooltipWidth / 2 < padding) {
         left = tooltipWidth / 2 + padding;
     } else if (left + tooltipWidth / 2 > window.innerWidth - padding) {
         left = window.innerWidth - tooltipWidth / 2 - padding;
     }
     
-    // If tooltip would go above viewport, show below instead
+    // 툴팁이 화면 위로 넘치면 아래에 표시
     if (top < padding) {
         top = tooltip.y + 20;
     }
@@ -488,7 +488,7 @@ const heatmapTooltipStyle = computed(() => {
     };
 });
 
-// Default profile image based on userId
+// 사용자 ID 기반 기본 프로필 이미지
 const getDefaultProfileImage = (userId) => {
     const id = userId || 0;
     const index = id % profileImages.length;
@@ -501,7 +501,7 @@ const filteredRecords = computed(() => {
     return records.value.filter(r => r.tag === selectedFilter.value);
 });
 
-// Reset expansion when changing filters
+// 필터 변경 시 확장 초기화
 watch(selectedFilter, () => {
     expandedRecordId.value = null;
 });
@@ -566,7 +566,7 @@ const tagStats = ref([]);
 const topTagName = computed(() => tagStats.value.length > 0 ? tagStats.value[0].tagKey : '');
 const totalSolvedCount = computed(() => tagStats.value.reduce((acc, curr) => acc + (curr.solved || 0), 0));
 
-// Check if a specific problem is solved BY ME (raw version for computed)
+// 특정 문제가 나에 의해 해결되었는지 확인 (computed용 raw 버전)
 const isProblemSolvedRaw = (problemId) => {
     return records.value.some(r => 
         r.problemNumber == problemId && 
@@ -575,7 +575,7 @@ const isProblemSolvedRaw = (problemId) => {
     );
 };
 
-// Check if a specific problem is solved BY ME (not by other team members)
+// 특정 문제가 나에 의해 해결되었는지 확인 (팀원 미포함)
 const isProblemSolved = (problemId) => {
     return isProblemSolvedRaw(problemId);
 };
@@ -637,7 +637,7 @@ const processHeatmap = (data) => {
              const dateStr = current.toISOString().split('T')[0];
              const activity = activityMap.get(dateStr);
              
-             // --- Participation Logic Start ---
+             // --- 참여 로직 시작 ---
              const totalMembers = studyData.value?.memberCount || 1;
              const contributors = Array.isArray(activity?.contributors) ? activity.contributors : [];
              const activeCount = contributors.length;
@@ -654,7 +654,7 @@ const processHeatmap = (data) => {
              if (participationRate >= 0.50) colorClass = 'bg-brand-500';
              if (participationRate >= 0.75) colorClass = 'bg-brand-600';
              if (participationRate >= 1.0) colorClass = 'bg-brand-800';
-             // --- Participation Logic End ---
+             // --- 참여 로직 끝 ---
 
              currentWeek.push({
                  date: dateStr,
@@ -694,25 +694,25 @@ watch(() => studyData.value, () => {
 });
 
 
-// Computed: Current streak (consecutive days with activity)
+// Computed: 현재 스트릭 (연속 활동 일수)
 const currentStreak = computed(() => {
     if (!heatmapWeeks.value.length) return 0;
     
-    // Flatten weeks to days array and reverse to start from today
+    // 주간 데이터를 날짜 배열로 평탄화하고 오늘부터 시작하도록 역순 정렬
     const allDays = heatmapWeeks.value.flat().reverse();
     
     let streak = 0;
     const today = new Date().toISOString().split('T')[0];
     
     for (const day of allDays) {
-        // Skip future dates
+        // 미래 날짜 건너뛰기
         if (day.date > today) continue;
         
         if (day.count > 0) {
             streak++;
         } else if (streak > 0 || day.date === today) {
-            // If today has no activity, streak is 0
-            // If we had activity before and now hit a zero, stop counting
+            // 오늘 활동이 없으면 스트릭 0
+            // 이전에 활동이 있었는데 0을 만나면 카운팅 중단
             break;
         }
     }
@@ -740,15 +740,15 @@ const modalData = ref(null);
 const modalLoading = ref(false);
 const activeTab = ref('insight');
 
-// Drawer State
+// 드로어 상태
 const showDrawer = ref(false);
 const drawerType = ref('');
 const drawerTitle = ref('');
 const drawerData = ref(null);
 const drawerLoading = ref(false);
-const currentDrawerRecord = ref(null);  // Record being analyzed in Context Card
+const currentDrawerRecord = ref(null);  // 컨텍스트 카드에서 분석 중인 기록
 
-// Accordion state for code view
+// 코드 뷰를 위한 아코디언 상태
 // const expandedRecordId = ref(null); // Removed
 
 const tooltipData = ref(null);
@@ -771,7 +771,7 @@ const hideTooltip = () => {
 
 onMounted(async () => {
   try {
-      // 1. Fetch User Records
+      // 1. 사용자 기록 가져오기
       try {
           const recordsRes = await dashboardApi.getRecords();
           records.value = recordsRes.data;
@@ -779,7 +779,7 @@ onMounted(async () => {
           console.error('Records Load Error:', e);
       }
       
-      // 2. Fetch Tag Stats
+      // 2. 태그 통계 가져오기
       try {
           const statsRes = await aiApi.getTagStats(user.value?.id || 1, 6);
           tagStats.value = statsRes.data || [];
@@ -787,7 +787,7 @@ onMounted(async () => {
           console.error('TagStats Load Error:', e);
       }
       
-      // 3. Fetch Study Data (if applicable)
+      // 3. 스터디 데이터 가져오기 (해당되는 경우)
       if (user.value?.studyId) {
           try {
               const studyRes = await studyApi.get(user.value.studyId);

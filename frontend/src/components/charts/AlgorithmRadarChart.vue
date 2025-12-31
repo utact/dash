@@ -29,7 +29,7 @@ const props = defineProps({
 
 const topTags = computed(() => {
     if (!props.stats || props.stats.length === 0) return [];
-    // Sort by solved count desc
+    // 푼 문제 수 내림차순 정렬
     return [...props.stats]
         .sort((a, b) => (b.solved || 0) - (a.solved || 0))
         .slice(0, props.maxTags);
@@ -39,7 +39,7 @@ const chartData = computed(() => {
   if (topTags.value.length === 0) return null;
   
   const labels = topTags.value.map(t => {
-    // If explicit label is provided (e.g. from family stats), use it
+    // 명시적 라벨이 제공된 경우 (예: 패밀리 통계에서) 사용
     if (t.label) return t.label;
 
     const tagMap = {
@@ -65,15 +65,14 @@ const chartData = computed(() => {
   const maxSolved = Math.max(...topTags.value.map(t => t.solved || 0), 1);
   const data = topTags.value.map(t => Math.round(((t.solved || 0) / maxSolved) * 100));
   
-  // Close the loop for radar chart by repeating first element if needed? 
-  // Chart.js handles it automatically usually.
+  // 레이더 차트의 루프 닫기는 Chart.js가 자동으로 처리함
 
   return {
     labels,
     datasets: [{
       label: '역량 분포',
       data,
-      backgroundColor: 'rgba(99, 102, 241, 0.15)', // Indigo-500 low opacity
+      backgroundColor: 'rgba(99, 102, 241, 0.15)', // Indigo-500 낮은 불투명도
       borderColor: 'rgba(99, 102, 241, 0.8)',
       borderWidth: 2,
       pointBackgroundColor: 'rgba(99, 102, 241, 1)',
@@ -106,10 +105,10 @@ const chartOptions = {
       max: 100,
       ticks: {
         stepSize: 25,
-        display: false, // Hide numeric ticks for cleaner look
+        display: false, // 깔끔한 모양을 위해 숫자 눈금 숨기기
       },
       grid: {
-        color: 'rgba(148, 163, 184, 0.1)', // Slate-400 very low opacity
+        color: 'rgba(148, 163, 184, 0.1)', // Slate-400 매우 낮은 불투명도
         circular: true
       },
       angleLines: {

@@ -13,13 +13,13 @@
         <h1 class="text-xl font-bold text-slate-800">{{ isEdit ? '글 수정' : '새 글 작성' }}</h1>
       </div>
 
-      <!-- Main Layout -->
+      <!-- 메인 레이아웃 -->
       <div :class="isCodeReviewMode ? 'grid grid-cols-1 lg:grid-cols-12 gap-8 items-start' : 'max-w-3xl mx-auto'">
         
-        <!-- LEFT COLUMN: Code Viewer (Only in Code Review Mode) -->
+        <!-- 왼쪽 컬럼: 코드 뷰어 (코드 리뷰 모드에서만) -->
         <div v-if="isCodeReviewMode" class="lg:col-span-7 order-2 lg:order-1 animate-fade-in-up">
            <div class="sticky top-24 space-y-4">
-              <!-- Helper Text -->
+              <!-- 도움말 텍스트 -->
               <div class="bg-white/50 backdrop-blur border border-slate-200 p-4 rounded-xl flex items-start gap-3 shadow-sm">
                  <div class="p-2 bg-brand-50 text-brand-600 rounded-lg">
                     <Code2 :size="20" />
@@ -33,7 +33,7 @@
                  </div>
               </div>
 
-              <!-- The Viewer -->
+              <!-- 뷰어 -->
               <div v-if="selectedRecord" class="shadow-2xl shadow-slate-200/50 rounded-xl overflow-hidden border border-slate-200/60">
                 <CodeViewer
                   :code="selectedRecord.code"
@@ -51,13 +51,13 @@
            </div>
         </div>
 
-        <!-- RIGHT COLUMN: Form inputs (Or Center if General) -->
+        <!-- 오른쪽 컬럼: 폼 입력 (일반 모드일 때는 중앙) -->
         <div :class="[
           isCodeReviewMode ? 'lg:col-span-5 order-1 lg:order-2' : 'w-full',
           'space-y-6 animate-fade-in-up delay-100'
         ]">
           
-          <!-- Board Type & Record Select (Always visible, but styled differently) -->
+          <!-- 게시판 유형 & 기록 선택 (항상 표시하지만 스타일 다름) -->
           <div class="bg-white/80 backdrop-blur-md border border-white/60 shadow-xl shadow-brand-500/5 rounded-2xl p-6">
              <div class="mb-6">
                 <label class="block text-sm font-bold text-slate-700 mb-2">게시글 유형</label>
@@ -78,7 +78,7 @@
                 </div>
              </div>
 
-             <!-- Algorithm Record Select -->
+             <!-- 알고리즘 기록 선택 -->
              <div v-if="form.boardType === 'CODE_REVIEW'">
                 <label class="block text-sm font-bold text-slate-700 mb-2">풀이 선택</label>
                 <div v-if="loadingRecords" class="py-3 text-sm text-slate-500 flex items-center gap-2">
@@ -102,9 +102,9 @@
              </div>
           </div>
 
-          <!-- The Actual Writing Form -->
+          <!-- 실제 작성 폼 -->
           <form @submit.prevent="handleSubmit" class="bg-white/80 backdrop-blur-md border border-white/60 shadow-xl shadow-brand-500/5 rounded-2xl p-6 space-y-6">
-            <!-- Title -->
+            <!-- 제목 -->
             <div>
               <label class="block text-sm font-bold text-slate-700 mb-2">제목</label>
               <input
@@ -115,7 +115,7 @@
               />
             </div>
 
-            <!-- Content -->
+            <!-- 내용 -->
             <div>
               <label class="block text-sm font-bold text-slate-700 mb-2">내용</label>
               <textarea
@@ -126,7 +126,7 @@
               ></textarea>
             </div>
 
-            <!-- Submit Buttons -->
+            <!-- 제출 버튼 -->
             <div class="flex justify-end gap-3 pt-2">
               <button 
                 @click="$router.push('/boards')"
@@ -158,7 +158,7 @@ import { ArrowLeft, Code2 } from 'lucide-vue-next';
 import { boardApi } from '../api/board';
 import { algorithmApi } from '../api/algorithm';
 import { useAuth } from '../composables/useAuth';
-import CodeViewer from '../components/CodeViewer.vue';
+import CodeViewer from '../../components/editor/CodeViewer.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -169,7 +169,7 @@ const submitting = ref(false);
 const loadingRecords = ref(false);
 const studyRecords = ref([]);
 const codeViewerRef = ref(null);
-const draftComments = ref([]); // Stores { lineNumber, content, authorName, createdAt, id }
+const draftComments = ref([]); // { lineNumber, content, authorName, createdAt, id } 저장
 
 const form = ref({
     title: '',
@@ -186,12 +186,12 @@ const isValid = computed(() => {
     return true;
 });
 
-// Selected record object (computed from ID)
+// 선택된 기록 객체 (ID로 계산됨)
 const selectedRecord = computed(() => {
     return studyRecords.value.find(r => r.id === form.value.algorithmRecordId) || null;
 });
 
-// Helpers
+// 헬퍼
 const getExtension = (lang) => {
     const map = {
         'java': 'java',
@@ -203,7 +203,7 @@ const getExtension = (lang) => {
     return map[lang?.toLowerCase()] || 'txt';
 };
 
-// Watch for boardType changes to load study records
+// 게시판 유형 변경 감지하여 스터디 기록 로드
 watch(() => form.value.boardType, async (newType) => {
     if (newType === 'CODE_REVIEW' && user.value?.studyId) {
         await loadStudyRecords();
@@ -225,9 +225,9 @@ const loadStudyRecords = async () => {
 };
 
 const submitLineComment = ({ lineNumber, content }) => {
-    // Add to local draft state
+    // 로컬 초안 상태에 추가
     const newComment = {
-        id: Date.now(), // Temporary ID
+        id: Date.now(), // 임시 ID
         lineNumber,
         content,
         authorName: user.value?.username || 'Me',
@@ -247,7 +247,7 @@ onMounted(async () => {
                     boardType: res.data.boardType || 'GENERAL',
                     algorithmRecordId: res.data.algorithmRecordId || null
                 };
-                // Load records if CODE_REVIEW
+                // 코드 리뷰인 경우 기록 로드
                 if (form.value.boardType === 'CODE_REVIEW') {
                     await loadStudyRecords();
                 }
@@ -268,11 +268,11 @@ const handleSubmit = async () => {
             ...form.value,
             userId: user.value?.id
         };
-        // Remove algorithmRecordId if GENERAL type
+        // 일반 유형인 경우 algorithmRecordId 제거
         if (payload.boardType === 'GENERAL') {
             payload.algorithmRecordId = null;
         } else {
-            // Include initial comments for CODE_REVIEW
+            // 코드 리뷰를 위한 초기 댓글 포함
             payload.initialComments = draftComments.value.map(c => ({
                 lineNumber: c.lineNumber,
                 content: c.content

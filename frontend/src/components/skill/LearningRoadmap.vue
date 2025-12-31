@@ -2,9 +2,9 @@
   <div class="learning-roadmap bg-white/50 backdrop-blur border border-white/60 rounded-3xl p-6 shadow-xl shadow-brand-500/5 relative overflow-hidden">
     <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wide mb-6">학습 로드맵</h3>
 
-    <!-- Timeline -->
+    <!-- 타임라인 -->
     <div class="relative space-y-0">
-      <!-- Vertical Line -->
+      <!-- 수직선 -->
       <div class="absolute left-4 top-2 bottom-6 w-0.5 bg-slate-200"></div>
 
       <div 
@@ -12,7 +12,7 @@
         :key="idx" 
         class="relative flex gap-6 pb-8 last:pb-0"
       >
-        <!-- Node -->
+        <!-- 노드 -->
         <div class="relative z-10 flex-shrink-0">
           <div 
             class="w-8 h-8 rounded-full flex items-center justify-center border-4 transition-all duration-300"
@@ -27,7 +27,7 @@
           </div>
         </div>
 
-        <!-- Content -->
+        <!-- 콘텐츠 -->
         <div class="flex-1 pt-1">
           <div class="flex flex-wrap items-center gap-2 mb-1">
             <h4 
@@ -44,7 +44,7 @@
             </span>
           </div>
           
-          <!-- Duration & Focus Tags -->
+          <!-- 기간 및 집중 태그 -->
           <div class="flex flex-wrap items-center gap-2 text-xs font-medium text-slate-400 mb-2">
             <span v-if="phase.durationDays" class="flex items-center gap-1">
               <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,7 +66,7 @@
             </span>
           </div>
           
-          <!-- Focus Tags -->
+          <!-- 집중 태그 -->
           <div v-if="phase.focusTags && phase.focusTags.length" class="flex flex-wrap gap-1.5 mb-2">
             <span 
               v-for="(tag, tIdx) in phase.focusTags" 
@@ -76,10 +76,10 @@
               {{ tag }}
             </span>
           </div>
-          <!-- Legacy: focus string -->
+          <!-- 구버전: focus 문자열 -->
           <div v-else-if="phase.focus" class="text-xs text-slate-400 mb-2">{{ phase.focus }}</div>
           
-          <!-- Expandable Details (Only for active phase) -->
+          <!-- 확장 가능한 상세 내용 (활성 단계만) -->
           <div v-if="idx === 0" class="bg-brand-50/50 rounded-xl p-3 border border-brand-100/50 mt-2 space-y-2 animate-fade-in">
             <div v-if="phase.goals && phase.goals.length" class="space-y-1">
               <div class="text-[10px] text-brand-400 font-bold uppercase">Goals</div>

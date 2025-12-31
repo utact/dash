@@ -1,14 +1,14 @@
 <template>
   <div class="min-h-screen bg-white text-slate-800">
 
-    <!-- Main Layout Container -->
+    <!-- 메인 레이아웃 컨테이너 -->
     <div class="flex justify-center p-4 md:p-8">
       <div class="flex gap-8 max-w-screen-xl w-full items-start">
 
-        <!-- LEFT COLUMN: Main Content -->
+        <!-- 왼쪽 컬럼: 메인 콘텐츠 -->
         <main class="flex-1 min-w-0 space-y-6">
 
-          <!-- Search Bar -->
+          <!-- 검색 바 -->
           <div class="animate-fade-in-up">
             <div class="flex gap-3">
               <div class="flex-1 relative">
@@ -38,9 +38,9 @@
             </div>
           </div>
 
-          <!-- Board List -->
+          <!-- 게시판 목록 -->
           <div class="bg-white/80 border border-white/60 rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 backdrop-blur-md animate-fade-in-up delay-100">
-            <!-- List Header -->
+            <!-- 목록 헤더 -->
             <div class="grid grid-cols-12 px-8 py-5 bg-slate-50 border-b border-slate-100 text-sm font-bold text-slate-500 uppercase tracking-wider">
               <div class="col-span-1 text-center">번호</div>
               <div class="col-span-5 pl-2">제목</div>
@@ -49,7 +49,7 @@
               <div class="col-span-2 text-center">작성일</div>
             </div>
 
-            <!-- List Items -->
+            <!-- 목록 아이템 -->
             <template v-if="loading">
               <div class="p-16 text-center text-slate-400 font-medium">
                 <div class="animate-pulse flex flex-col items-center">
@@ -111,9 +111,9 @@
           </div>
         </main>
 
-        <!-- RIGHT COLUMN: Sidebar (Popular Posts) -->
+        <!-- 오른쪽 컬럼: 사이드바 (인기글) -->
         <aside class="hidden xl:flex w-[380px] shrink-0 flex-col gap-6 sticky top-8 h-[calc(100vh-4rem)]">
-          <!-- Popular Posts Section -->
+          <!-- 인기글 섹션 -->
           <div v-if="popularPosts.length > 0 && !searchProblemNumber" class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 animate-fade-in-up">
             <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
               <div class="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white shadow-sm shadow-orange-200">
@@ -147,7 +147,7 @@
             </div>
           </div>
           
-          <!-- Additional Info or Placeholder -->
+          <!-- 추가 정보 또는 플레이스홀더 -->
           <div class="bg-gradient-to-br from-slate-50 to-brand-50/20 rounded-3xl p-6 border border-slate-100">
             <h3 class="font-bold text-slate-700 text-sm mb-2 flex items-center gap-2">
               <div class="w-6 h-6 bg-brand-500 rounded-lg flex items-center justify-center text-white shadow-sm">

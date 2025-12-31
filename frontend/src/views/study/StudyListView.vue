@@ -1,15 +1,15 @@
 <template>
   <div class="min-h-screen bg-white text-slate-800 pb-20">
-    <!-- Main Layout Container -->
+    <!-- 메인 레이아웃 컨테이너 -->
     <div class="flex justify-center p-4 md:p-8">
       <div class="flex gap-8 max-w-screen-xl w-full">
         
-        <!-- LEFT COLUMN: Main Content -->
+        <!-- 왼쪽 컬럼: 메인 콘텐츠 -->
         <main class="flex-1 min-w-0 space-y-6">          
           <StudyExplorer />
         </main>
 
-        <!-- RIGHT COLUMN: Honor Board (Sidebar) -->
+        <!-- 오른쪽 컬럼: Honor Board (사이드바) -->
         <aside class="hidden xl:flex w-[380px] shrink-0 flex-col gap-6 sticky top-8 h-[calc(100vh-4rem)]">
             <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
                 <div class="flex items-center justify-between mb-6">
@@ -30,7 +30,7 @@
                          }"
                     >
                         <div class="flex items-center gap-3">
-                            <!-- Rank Badge -->
+                            <!-- 순위 뱃지 -->
                             <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg font-black text-sm shadow-sm"
                                  :class="{
                                    'bg-amber-100 text-amber-600': idx === 0,
@@ -41,7 +41,7 @@
                                 {{ idx + 1 }}
                             </div>
                             
-                            <!-- Content -->
+                            <!-- 콘텐츠 -->
                             <div class="flex-1 min-w-0">
                                 <h3 class="font-bold text-slate-800 text-sm truncate mb-0.5 group-hover:text-brand-600 transition-colors">
                                     {{ study.name }}
@@ -55,7 +55,7 @@
                                 </div>
                             </div>
 
-                             <!-- Crown Icon for 1st Place -->
+                             <!-- 1위를 위한 왕관 아이콘 -->
                              <Trophy v-if="idx === 0" class="w-5 h-5 text-amber-400 absolute top-0 right-3 -translate-y-1/2 drop-shadow-sm filter" fill="currentColor" />
                         </div>
                     </div>
@@ -70,10 +70,7 @@
 
       </div>
     
-      <!-- Confirmation Modal logic was moved to StudyExplorer, but Honor Board acts independently for now -->
-      <!-- If Honor Board needs to open apply modal, we might need shared state or event bus, but for now assuming Honor Board relies on study navigation or is just display -->
-      <!-- Actually, original StudyListView didn't have actions in Honor Board, just display. -->
-      <!-- Wait, original Honor Board was just looping studies. It didn't have apply button. It just showed stats. -->
+      <!-- Honor Board 로직 -->
     </div>
   </div>
 </template>
@@ -82,7 +79,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { Trophy, Flame } from 'lucide-vue-next';
-import StudyExplorer from '../components/StudyExplorer.vue';
+import StudyExplorer from '../../components/study/StudyExplorer.vue';
 
 const studies = ref([]);
 

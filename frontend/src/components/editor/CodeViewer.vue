@@ -1,15 +1,15 @@
 <template>
   <div ref="rootRef" class="code-viewer bg-white border border-slate-200 rounded-xl relative">
-    <!-- Header -->
+    <!-- 헤더 -->
     <div class="px-4 py-2 bg-slate-50 text-slate-500 text-xs font-mono border-b border-slate-200 flex justify-between items-center select-none rounded-t-xl">
       <span class="font-bold text-slate-600">{{ filename }}</span>
       <div class="flex items-center gap-3">
-        <!-- Author Filter -->
+        <!-- 작성자 필터 -->
         <select v-if="uniqueAuthors.length > 0" v-model="selectedAuthorFilter" class="text-[10px] bg-white border border-slate-200 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-brand-400">
           <option value="">모든 댓글</option>
           <option v-for="author in uniqueAuthors" :key="author" :value="author">{{ author }}</option>
         </select>
-        <!-- Expand/Collapse All -->
+        <!-- 모두 펼치기/접기 -->
         <button v-if="hasAnyComments" @click="toggleAllComments" class="flex items-center gap-1 text-[10px] font-bold text-brand-600 hover:text-brand-800 transition-colors">
           <span>{{ allCommentsExpanded ? '모두 접기' : '모두 펼치기' }}</span>
         </button>
@@ -21,12 +21,12 @@
       </div>
     </div>
     
-    <!-- Code Content -->
+    <!-- 코드 내용 -->
     <div class="overflow-x-auto custom-scrollbar bg-white rounded-b-xl">
       <table class="w-full border-collapse">
         <tbody>
           <template v-for="(line, index) in codeLines" :key="index">
-            <!-- Code Line Row -->
+            <!-- 코드 라인 행 -->
             <tr 
               class="group transition-colors duration-200"
               :class="{ 
@@ -36,7 +36,7 @@
               }"
               :data-line-number="index + 1"
             >
-              <!-- Line Number (Sticky) -->
+              <!-- 라인 번호 (고정) -->
               <td 
                 class="w-10 text-right pr-2 py-0.5 text-slate-400 select-none font-mono text-sm border-r border-slate-100 bg-slate-50 sticky left-0 z-10"
                 :class="{'text-slate-600 font-bold': selectedLine === index + 1, 'bg-brand-100 text-brand-600 font-bold': effectiveHighlightedLines.has(index + 1)}"
@@ -44,7 +44,7 @@
                 {{ index + 1 }}
               </td>
               
-              <!-- Code -->
+              <!-- 코드 -->
               <td 
                 class="pl-2 pr-4 py-0.5 font-mono text-sm whitespace-pre text-slate-700 relative cursor-pointer"
                 @click="toggleLine(index + 1)"
@@ -54,9 +54,9 @@
                 <code v-html="highlightLine(line)"></code>
               </td>
               
-              <!-- Comment Badge (Right side indicator) -->
+              <!-- 댓글 배지 (우측 표시기) -->
               <td class="w-16 text-center py-0.5 align-middle">
-                <!-- Collapsed: Show stacked avatars -->
+                <!-- 접힘: 쌓인 아바타 표시 -->
                 <div v-if="filteredCommentsByLine[index + 1]?.length > 0 && !isLineExpanded(index + 1)" 
                      class="flex items-center justify-center cursor-pointer" 
                      @click="toggleLine(index + 1)">
@@ -78,7 +78,7 @@
                     </div>
                   </div>
                 </div>
-                <!-- Expanded: Show message icon -->
+                <!-- 펼침: 메시지 아이콘 표시 -->
                 <button 
                   v-else-if="filteredCommentsByLine[index + 1]?.length > 0"
                   @click="toggleLine(index + 1)"
@@ -87,7 +87,7 @@
                 >
                   <MessageSquare :size="14" />
                 </button>
-                <!-- No comments: Show add button on hover -->
+                <!-- 댓글 없음: 호버 시 추가 버튼 표시 -->
                 <button
                    v-else
                    @click="toggleLine(index + 1)"
@@ -99,11 +99,11 @@
               </td>
             </tr>
 
-            <!-- Inline Comment Row -->
+            <!-- 인라인 댓글 행 -->
             <tr v-if="isLineExpanded(index + 1) || (allCommentsExpanded && filteredCommentsByLine[index + 1]?.length > 0)" class="bg-slate-50">
               <td class="border-r border-slate-100 bg-slate-50/50"></td>
               <td colspan="2" class="px-4 py-2 border-b border-slate-100 border-t border-slate-100">
-                <!-- Existing Comments (Slimmer) -->
+                <!-- 기존 댓글 (더 얇게) -->
                 <div v-if="filteredCommentsByLine[index + 1]?.length > 0" class="space-y-2 mb-3">
                   <div 
                     v-for="comment in filteredCommentsByLine[index + 1]" 
@@ -126,10 +126,10 @@
                   </div>
                 </div>
 
-                <!-- Separator between existing comments and new input -->
+                <!-- 기존 댓글과 새 입력 사이의 구분선 -->
                 <div v-if="filteredCommentsByLine[index + 1]?.length > 0 && expandedLine === index + 1" class="border-t border-dashed border-slate-200 my-2"></div>
 
-                <!-- New Comment Form (Only if explicitly toggled/selected) -->
+                <!-- 새 댓글 양식 (명시적으로 토글/선택된 경우만) -->
                 <div v-if="expandedLine === index + 1" class="flex items-center gap-2 pl-7 animate-fade-in">
                     <input
                       v-model="newCommentContent"
@@ -158,7 +158,7 @@
       </table>
     </div>
 
-    <!-- AI Annotation Tooltip (Absolute, non-teleported) -->
+    <!-- AI 주석 툴팁 (절대 위치, 텔레포트 안함) -->
     <div v-if="hoveredLine && keyBlocksByLine[hoveredLine]?.length > 0"
          class="absolute z-[100] bg-white text-slate-800 rounded-2xl shadow-2xl p-5 max-w-md pointer-events-none border border-brand-200"
          :style="{ left: tooltipPosition.x + 'px', top: tooltipPosition.y + 'px', transform: 'translateY(-100%) translateY(-12px)' }">
@@ -172,7 +172,7 @@
         </div>
         <p class="text-sm text-slate-600 leading-relaxed">{{ block.explanation }}</p>
       </div>
-      <!-- Down Arrow (Bottom) -->
+      <!-- 아래 화살표 (하단) -->
       <div class="absolute bottom-0 left-6 translate-y-[95%] text-brand-200 drop-shadow-sm">
            <div class="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-l-transparent border-r-transparent border-t-brand-200"></div>
            <div class="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-white absolute bottom-[2px] left-[-6px]"></div>
@@ -220,19 +220,19 @@ const keyBlocksByLine = computed(() => {
     if (!props.keyBlocks) return map;
     
     props.keyBlocks.forEach(block => {
-        // Method 1: Use startLine/endLine if provided
+        // 방법 1: startLine/endLine이 제공된 경우 사용
         if (block.startLine) {
             const start = Number(block.startLine);
             const end = block.endLine ? Number(block.endLine) : start;
             for (let i = start; i <= end; i++) {
                 if (!map[i]) map[i] = [];
-                // Avoid duplicates
+                // 중복 방지
                 if (!map[i].some(b => b.startLine === start && b.endLine === end)) {
                     map[i].push({...block, startLine: start, endLine: end});
                 }
             }
         }
-        // Method 2: Find by code matching (for structure items without line numbers)
+        // 방법 2: 코드 매칭으로 찾기 (라인 번호 없는 구조 항목용)
         else if (block.code) {
            const lines = codeLines.value;
            const targetCode = block.code.trim();
@@ -354,7 +354,7 @@ const handleLineHover = (lineNumber, event) => {
         
         const relatedLines = new Set();
         blocks.forEach(block => {
-            // Use startLine and endLine to highlight the entire range
+            // startLine과 endLine을 사용하여 전체 범위를 강조
             const start = block.startLine || lineNumber;
             const end = block.endLine || start;
             for (let i = start; i <= end; i++) {
@@ -363,7 +363,7 @@ const handleLineHover = (lineNumber, event) => {
         });
         hoverHighlightLines.value = relatedLines;
 
-        // Start tracking position
+        // 위치 추적 시작
         if (rafId.value) cancelAnimationFrame(rafId.value);
         updateTooltipPosition();
     }
@@ -402,10 +402,10 @@ const submitLineComment = (lineNumber) => {
     });
 
     newCommentContent.value = '';
-    // Keep the comment row open after submit so user can see their comment
+    // 제출 후 사용자가 댓글을 볼 수 있도록 댓글 행 열어두기
 };
 const scrollToLine = (lineNumber, endLine = null) => {
-    // 1. Logic to expand/select the line visually
+    // 1. 라인을 시각적으로 확장/선택하는 로직
     const start = Number(lineNumber);
     const end = endLine ? Number(endLine) : null;
 
@@ -422,7 +422,7 @@ const scrollToLine = (lineNumber, endLine = null) => {
     }
     selectedHighlightLines.value = linesToHighlight;
 
-    // 2. DOM Scroll
+    // 2. DOM 스크롤
     setTimeout(() => {
         const lineEl = document.querySelector(`tr[data-line-number="${start}"]`);
         if (lineEl) {

@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-white text-slate-800 selection:bg-brand-500/30 font-[Pretendard]">
 
     <main class="container mx-auto px-6 py-10 max-w-4xl">
-      <!-- Back Button -->
+      <!-- 뒤로가기 버튼 -->
       <button 
         @click="$router.push('/boards')" 
         class="flex items-center gap-2 text-slate-500 hover:text-brand-600 mb-6 transition-colors animate-fade-in-up"
@@ -11,9 +11,9 @@
         목록으로
       </button>
 
-      <!-- Post Content -->
+      <!-- 게시글 내용 -->
       <article v-if="post" class="bg-white/80 border border-white/60 shadow-xl shadow-brand-500/5 backdrop-blur-md rounded-3xl p-8 mb-6 animate-fade-in-up delay-100">
-        <!-- Header -->
+        <!-- 헤더 -->
         <div class="border-b border-slate-100 pb-6 mb-6">
           <div class="flex items-center gap-3 mb-4">
             <span v-if="post.boardType === 'CODE_REVIEW'" class="px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-700">코드리뷰</span>
@@ -35,18 +35,18 @@
           </div>
         </div>
 
-        <!-- Body -->
+        <!-- 본문 -->
         <div class="prose max-w-none text-slate-700 leading-relaxed whitespace-pre-wrap mb-6">
           {{ post.content }}
         </div>
 
-        <!-- Code Viewer (for CODE_REVIEW posts) -->
+        <!-- 코드 뷰어 (코드 리뷰 게시글용) -->
         <div v-if="post.boardType === 'CODE_REVIEW' && algorithmRecord" class="mb-6">
           <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
             <Code2 :size="20" class="text-emerald-500" />
             코드
           </h3>
-          <!-- CodeViewer stays dark usually, or we can check its implementation. Assuming default component works fine. -->
+          <!-- CodeViewer는 보통 어둡게 유지됨. 기본 컴포넌트가 잘 작동한다고 가정. -->
           <CodeViewer
             :code="algorithmRecord.code"
             :language="algorithmRecord.language || 'java'"
@@ -57,12 +57,12 @@
         </div>
 
 
-        <!-- Code loading state -->
+        <!-- 코드 로딩 상태 -->
         <div v-else-if="post.boardType === 'CODE_REVIEW' && loadingCode" class="mb-6 p-6 bg-slate-100 rounded-xl text-center text-slate-500">
           <div class="animate-pulse">코드를 불러오는 중...</div>
         </div>
 
-        <!-- Like Button -->
+        <!-- 추천 버튼 -->
         <div class="mt-8 pt-6 border-t border-slate-100 flex items-center gap-4">
           <button 
             @click="toggleLike"
@@ -87,14 +87,14 @@
         게시글을 불러오는 중...
       </div>
 
-      <!-- Comments Section -->
+      <!-- 댓글 섹션 -->
       <section v-if="post" class="bg-white/80 border border-white/60 shadow-xl shadow-brand-500/5 backdrop-blur-md rounded-3xl p-8 animate-fade-in-up delay-200">
         <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
           <MessageCircle :size="22" />
           일반 댓글
         </h2>
 
-        <!-- Comment Form -->
+        <!-- 댓글 폼 -->
         <div class="mb-8">
           <textarea
             v-model="newComment"
@@ -113,7 +113,7 @@
           </div>
         </div>
 
-        <!-- Comments List (General comments only - no lineNumber) -->
+        <!-- 댓글 목록 (일반 댓글만 - 줄 번호 없음) -->
         <div v-if="generalComments.length === 0" class="text-center py-10 text-slate-400">
           아직 댓글이 없습니다. 첫 댓글을 남겨보세요!
         </div>
@@ -144,7 +144,7 @@
             </div>
             <p class="text-slate-700 whitespace-pre-wrap pl-11">{{ comment.content }}</p>
 
-            <!-- Replies -->
+            <!-- 답글 -->
             <div v-if="comment.replies && comment.replies.length > 0" class="mt-4 pl-11 border-l-2 border-slate-200 space-y-3">
               <div 
                 v-for="reply in comment.replies" 
@@ -168,7 +168,7 @@
         </div>
       </section>
 
-      <!-- Actions -->
+      <!-- 작업 -->
       <div v-if="post && isAuthor" class="flex justify-end gap-3 mt-6 animate-fade-in-up delay-300">
         <button 
           @click="deletePost"
@@ -194,7 +194,7 @@ import { ArrowLeft, ThumbsUp, MessageCircle, Code2 } from 'lucide-vue-next';
 import { boardApi, commentApi } from '../api/board';
 import { algorithmApi } from '../api/algorithm';
 import { useAuth } from '../composables/useAuth';
-import CodeViewer from '../components/CodeViewer.vue';
+import CodeViewer from '../../components/editor/CodeViewer.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -214,7 +214,7 @@ const isAuthor = computed(() => {
     return true; 
 });
 
-// General comments (no lineNumber)
+// 일반 댓글 (줄 번호 없음)
 const generalComments = computed(() => {
     return comments.value.filter(c => !c.lineNumber);
 });
@@ -241,11 +241,11 @@ onMounted(async () => {
         post.value = res.data;
         isLiked.value = res.data.isLiked || false;
 
-        // Load comments
+        // 댓글 로드
         const commentsRes = await commentApi.findByBoardId(route.params.id);
         comments.value = commentsRes.data || [];
 
-        // Load algorithm record if CODE_REVIEW
+        // 코드 리뷰인 경우 알고리즘 기록 로드
         if (post.value.boardType === 'CODE_REVIEW' && post.value.algorithmRecordId) {
             loadingCode.value = true;
             try {

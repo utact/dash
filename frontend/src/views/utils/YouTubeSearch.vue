@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-slate-950 text-slate-100 selection:bg-brand-500/30">
     <main class="container mx-auto px-6 py-10">
-      <!-- Header -->
+      <!-- 헤더 -->
       <div class="mb-8 animate-fade-in-up">
         <h1 class="text-3xl font-bold mb-4 flex items-center gap-3">
           <Youtube :size="32" class="text-red-500" />
@@ -10,7 +10,7 @@
         <p class="text-slate-400">관심 있는 키워드로 학습 영상을 검색해보세요.</p>
       </div>
 
-      <!-- Search Bar -->
+      <!-- 검색 바 -->
       <div class="mb-12 animate-fade-in-up delay-100">
         <form @submit.prevent="handleSearch" class="relative max-w-2xl">
           <input
@@ -30,7 +30,7 @@
         </form>
       </div>
 
-      <!-- Results Grid -->
+      <!-- 결과 그리드 -->
       <section v-if="hasSearched" class="animate-fade-in-up delay-200">
         <div v-if="videos.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <article
@@ -39,7 +39,7 @@
             class="group bg-slate-900/50 border border-white/10 rounded-xl overflow-hidden hover:bg-slate-900 hover:border-red-500/30 transition-all hover:-translate-y-1 shadow-lg cursor-pointer"
             @click="openVideo(video.videoId)"
           >
-            <!-- Thumbnail -->
+            <!-- 썸네일 -->
             <div class="relative aspect-video overflow-hidden">
               <img :src="video.thumbnailUrl" :alt="video.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors"></div>
@@ -50,7 +50,7 @@
               </div>
             </div>
 
-            <!-- Content -->
+            <!-- 콘텐츠 -->
             <div class="p-5">
               <h3 class="font-bold text-lg mb-2 line-clamp-2 leading-snug group-hover:text-red-400 transition-colors" v-html="video.title"></h3>
               <div class="flex items-center gap-2 text-sm text-slate-400 mb-3">
@@ -63,13 +63,13 @@
           </article>
         </div>
         
-        <!-- Empty State -->
+        <!-- 빈 상태 -->
         <div v-else class="text-center py-20 text-slate-500">
           <p>검색 결과가 없습니다.</p>
         </div>
       </section>
 
-      <!-- Initial State -->
+      <!-- 초기 상태 -->
       <section v-else class="text-center py-20 text-slate-600 animate-fade-in-up delay-200">
         <div class="inline-flex p-4 bg-slate-900/50 rounded-full mb-4">
           <Youtube :size="48" class="text-slate-700" />

@@ -1,17 +1,17 @@
 <template>
   <div class="playground-container">
-    <!-- Physics Canvas -->
+    <!-- 물리 캔버스 -->
     <AcornStack ref="stackRef" :totalSolved="currentTotalSolved" />
 
-    <!-- Overlay UI -->
+    <!-- 오버레이 UI -->
     <div class="ui-overlay">
-      <!-- Back Button -->
+      <!-- 뒤로가기 버튼 -->
       <button @click="$router.push('/')" class="nav-back-btn">
         <span class="icon">⬅️</span>
         <span class="text">대시보드로</span>
       </button>
 
-      <!-- Recent Activity Panel -->
+      <!-- 최근 활동 패널 -->
       <transition name="float-panel">
         <div v-if="acornLogs.length > 0" class="recent-activity-panel">
           <h3 class="panel-title flex items-center gap-2">
@@ -85,13 +85,13 @@ const fetchAndSpawn = async () => {
       spawnSilver.value = silver;
       spawnBronze.value = bronze;
 
-      // Physics Spawn
+      // 물리 엔진 생성
       setTimeout(() => {
         spawnInit();
       }, 500);
     }
 
-    // Fetch Acorn Logs
+    // 도토리 로그 가져오기
     const logsRes = await studyApi.getAcornLogs(user.value.studyId);
     acornLogs.value = logsRes.data || [];
 
@@ -156,7 +156,7 @@ const formatDate = (dateString) => {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  /* Light & Trendy Gradient Background */
+  /* 밝고 트렌디한 그라데이션 배경 */
   background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
 }
 
@@ -171,7 +171,7 @@ const formatDate = (dateString) => {
   padding: 40px;
 }
 
-/* Back Button */
+/* 뒤로가기 버튼 */
 .nav-back-btn {
   pointer-events: auto;
   align-self: flex-start;
@@ -197,17 +197,17 @@ const formatDate = (dateString) => {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-/* Recent Activity Panel (Center Stage) */
+/* 최근 활동 패널 (중앙 무대) */
 .recent-activity-panel {
   pointer-events: auto;
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%); /* Centered */
+  transform: translate(-50%, -50%); /* 중앙 정렬 */
   
   width: 360px;
   max-height: 480px;
-  background: rgba(255, 255, 255, 0.65); /* More transparent */
+  background: rgba(255, 255, 255, 0.65); /* 더 투명하게 */
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.4);
@@ -245,7 +245,7 @@ const formatDate = (dateString) => {
   gap: 12px;
   overflow-y: auto;
   padding-right: 4px;
-  /* Hide scrollbar logic if needed or custom scrollbar */
+  /* 필요시 스크롤바 숨기기 로직 또는 커스텀 스크롤바 */
 }
 
 .activity-item {
@@ -297,7 +297,7 @@ const formatDate = (dateString) => {
   font-weight: 800;
 }
 
-/* Custom Scrollbar for the list */
+/* 리스트용 커스텀 스크롤바 */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }

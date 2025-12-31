@@ -26,7 +26,6 @@
         <!-- 히어로 카드 2개 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <!-- 오늘의 복습 -->
-          <!-- 오늘의 복습 -->
           <div class="bg-white rounded-3xl p-6 shadow-sm">
             <div class="flex items-center gap-4 mb-4">
               <div class="w-14 h-14 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center shrink-0">
@@ -48,7 +47,6 @@
             </button>
           </div>
 
-          <!-- 오늘의 도전 -->
           <!-- 오늘의 도전 -->
           <div class="bg-white rounded-3xl p-6 shadow-sm">
             <div class="flex items-center gap-4 mb-4">
@@ -152,22 +150,22 @@ import {
     Map as MapIcon, FileText, TrendingUp, Target, Activity, AlertTriangle, Zap
 } from 'lucide-vue-next';
 import AlgorithmRadarChart from '../components/charts/AlgorithmRadarChart.vue';
-import LearningRoadmap from '../components/LearningRoadmap.vue';
-import SkillTreeView from '../components/SkillTreeView.vue';
-import SkillAnalysisCard from '../components/SkillAnalysisCard.vue';
-import LectureModal from '../components/LectureModal.vue';
-import AiAnalysisReport from '../components/AiAnalysisReport.vue';
+import LearningRoadmap from '../components/skill/LearningRoadmap.vue';
+import SkillTreeView from '../components/skill/SkillTreeView.vue';
+import SkillAnalysisCard from '../components/skill/SkillAnalysisCard.vue';
+import LectureModal from '../components/lecture/LectureModal.vue';
+import AiAnalysisReport from '../components/ai/AiAnalysisReport.vue';
 import { useAuth } from '../composables/useAuth';
 import { aiApi } from '../api/ai';
 import { marked } from 'marked';
 
-// State
+// 상태
 const { user } = useAuth();
 const currentTab = ref('roadmap');
 const isSimulating = ref(false);
 const selectedVideoId = ref(null); // YouTube 모달용
 
-// Lecture Modal State
+// 강의 모달 상태
 const lectureModalOpen = ref(false);
 const lectureTagName = ref('');
 const lectureTagKey = ref('');
@@ -178,12 +176,12 @@ const tabs = [
     { id: 'skilltree', label: '스킬 트리' }
 ];
 
-// 1. Roadmap Data
+// 1. 로드맵 데이터
 const learningPath = ref(null);
 const dailyReview = ref(null);
 const allTagStats = ref([]);
 
-// User Tier (from auth or learning path)
+// 사용자 티어 (인증 또는 학습 경로)
 const TIER_NAMES = [
   "Unrated",
   "Bronze V", "Bronze IV", "Bronze III", "Bronze II", "Bronze I",
@@ -201,10 +199,10 @@ const userTierName = computed(() => {
   return tier >= 0 && tier < TIER_NAMES.length ? TIER_NAMES[tier] : 'Unrated';
 });
 
-// Chart Tags for Radar Chart (familyStats based, like OnboardingAnalysis)
+// 레이더 차트용 태그 (패밀리 통계 기반, 온보딩 분석과 유사)
 const familyStats = ref([]);
 const chartTags = computed(() => {
-  // 1. If Family Stats exist (Ideal), use them
+  // 1. 패밀리 통계가 있으면 (이상적) 사용
   if (familyStats.value && familyStats.value.length > 0) {
     return familyStats.value.map(stat => ({
       tagKey: stat.familyKey?.toLowerCase(),
@@ -214,7 +212,7 @@ const chartTags = computed(() => {
     }));
   }
 
-  // 2. Fallback: Use Tags from Learning Path
+  // 2. 대체: 학습 경로의 태그 사용
   if (learningPath.value) {
     const strong = learningPath.value.strengthTags || [];
     const weak = learningPath.value.weaknessTags || [];
@@ -235,7 +233,7 @@ const chartTags = computed(() => {
   return [];
 });
 
-// 2. Videos Data
+// 2. 영상 데이터
 const searchKeyword = ref('');
 const recommendedKeywords = ref(['Dynamic Programming', 'BFS', 'Dijkstra', 'Greedy']);
 const videos = ref([]);
@@ -280,7 +278,7 @@ const goToMoreProblems = () => {
         const url = `https://www.acmicpc.net/problemset?sort=ac_desc&submit=pac%2Cfa%2Cus&tier=${tierRange}&algo=${currentBojId.value}&algo_if=and`;
         window.open(url, '_blank');
     } else if (currentTagKey.value) {
-        // 2. 없으면 Solved.ac 검색 (fallback)
+        // 2. 없으면 Solved.ac 검색 (대체)
         const query = `*tag:${currentTagKey.value} tier:${tierStart}..${tierEnd} -s@${user.value.username}`;
         window.open(`https://solved.ac/search?query=${encodeURIComponent(query)}`, '_blank');
     }
@@ -296,7 +294,7 @@ const loadLearningPath = async () => {
     try {
         if (!user.value) return;
         
-        // Load learning path and family stats in parallel
+        // 학습 경로와 패밀리 통계를 병렬로 로드
         const [learningPathRes, familyRes] = await Promise.all([
             aiApi.getLearningPath(user.value.id),
             aiApi.getFamilyStats(user.value.id).catch(() => ({ data: [] }))
@@ -319,12 +317,12 @@ const loadLearningPath = async () => {
             const worstTag = learningPathRes.data.weaknessTags[0];
             const winRate = worstTag.total > 0 ? Math.round((worstTag.solved / worstTag.total) * 100) : 0;
             
-            // Build tier range: userTier ~ userTier+4 (capped at 30)
+            // 티어 범위 생성: 내 티어 ~ +4 (최대 30)
             const tierStart = userTier.value || 1;
             const tierEnd = Math.min(tierStart + 4, 30);
             const tierRange = Array.from({ length: tierEnd - tierStart + 1 }, (_, i) => tierStart + i).join('%2C');
             
-            // Build 백준 problemset URL with tier filtering
+            // 티어 필터링이 적용된 백준 문제집 URL 생성
             const bojTagId = worstTag.bojTagId;
             const link = bojTagId 
                 ? `https://www.acmicpc.net/problemset?sort=ac_desc&submit=pac%2Cfa%2Cus&tier=${tierRange}&algo=${bojTagId}&algo_if=and`

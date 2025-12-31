@@ -4,7 +4,7 @@
     <div class="flex justify-center p-4 md:p-8">
       <div class="flex gap-8 max-w-screen-xl w-full items-start">
         
-        <!-- LEFT COLUMN: Main Content -->
+        <!-- 왼쪽 칼럼: 메인 콘텐츠 -->
         <main class="flex-1 min-w-0 space-y-6 animate-in slide-in-from-left duration-500">
           
           <!-- Page Header (외부) -->
@@ -13,16 +13,16 @@
             <h1 class="text-xl font-black text-slate-800">알고리즘 스킬트리</h1>
           </div>
 
-          <!-- SkillTree Component -->
+          <!-- 스킬 트리 컴포넌트 -->
           <SkillTreeView />
         </main>
 
-        <!-- RIGHT COLUMN: Sidebar -->
+        <!-- 오른쪽 칼럼: 사이드바 -->
         <aside class="hidden xl:flex w-[380px] shrink-0 flex-col gap-6 sticky top-8 h-fit">
           
-          <!-- 1. Stats Row -->
+          <!-- 1. 통계 열 -->
           <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-around">
-            <!-- Tier -->
+            <!-- 티어 -->
             <div class="flex items-center gap-2 group cursor-pointer" title="Current Tier">
               <img :src="`https://static.solved.ac/tier_small/${userTier}.svg`" class="w-8 h-8 object-contain" />
               <span class="text-sm font-black text-slate-700">{{ userTierName }}</span>
@@ -30,14 +30,14 @@
 
             <div class="w-px h-8 bg-slate-100"></div>
 
-            <!-- Solved Count -->
+            <!-- 해결한 문제 수 -->
             <div class="flex items-center gap-2 group cursor-pointer" title="Solved Problems">
               <CheckCircle class="w-6 h-6 text-leaf" stroke-width="2.5" fill="currentColor" />
               <span class="text-xl font-black text-slate-700">{{ user?.solvedCount || 0 }}</span>
             </div>
           </div>
 
-          <!-- 2. Legend (Compact & Beautiful) -->
+          <!-- 2. 범례 (간결 & 아름다움) -->
           <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
             <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-3">레벨 가이드</div>
             
@@ -87,7 +87,7 @@
             </div>
           </div>
 
-          <!-- 4. Quick Actions -->
+          <!-- 4. 빠른 액션 -->
           <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
             <h3 class="font-black text-slate-700 text-sm mb-4 flex items-center gap-2">
               <Zap class="w-5 h-5 text-bee" stroke-width="2.5" fill="currentColor" /> 빠른 액션
@@ -108,17 +108,19 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { CheckCircle, Info, TrendingUp, Zap, Map, Sword } from 'lucide-vue-next';
-import SkillTreeView from '@/components/SkillTreeView.vue';
+import SkillTreeView from '@/components/skill/SkillTreeView.vue';
 import { useAuth } from '@/composables/useAuth';
 import { tagApi } from '@/api/tags';
 
 const router = useRouter();
 const { user } = useAuth();
 
-// Skill Tree Stats (fetch from API)
+const { user } = useAuth();
+
+// 스킬 트리 통계 (API에서 가져옴)
 const skillTreeData = ref(null);
 
-// User Tier
+// 사용자 티어
 const TIER_NAMES = [
   "Unrated",
   "Bronze V", "Bronze IV", "Bronze III", "Bronze II", "Bronze I",
@@ -136,7 +138,7 @@ const userTierName = computed(() => {
   return tier >= 0 && tier < TIER_NAMES.length ? TIER_NAMES[tier] : 'Unrated';
 });
 
-// Skill Stats Computed from fetched data
+// 가져온 데이터로 계산된 스킬 통계
 const allChildTags = computed(() => {
   if (!skillTreeData.value?.families) return [];
   return skillTreeData.value.families.flatMap(f => f.children || []);

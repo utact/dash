@@ -1,5 +1,5 @@
 <template>
-  <!-- Simple static drawer for inline split-view -->
+  <!-- 인라인 분할 보기를 위한 간단한 정적 드로어 -->
   <div class="h-full flex flex-col bg-white shadow-2xl">
     <!-- Header -->
     <div class="px-4 py-6 sm:px-6 border-b border-slate-100 bg-white">
@@ -19,26 +19,26 @@
       </div>
     </div>
 
-    <!-- Main Content (Scrollable) -->
+    <!-- 메인 콘텐츠 (스크롤 가능) -->
     <div class="flex-1 overflow-y-auto px-4 sm:px-6 pb-10">
 
                 
-                <!-- LOADING STATE -->
+                <!-- 로딩 상태 -->
                 <div v-if="loading" class="flex flex-col items-center justify-center h-full py-20">
                     <div class="w-16 h-16 border-4 border-brand-100 border-t-brand-500 rounded-full animate-spin mb-6"></div>
                     <h4 class="text-lg font-bold text-slate-800">AI가 분석 중입니다</h4>
                     <p class="text-slate-500">잠시만 기다려주세요...</p>
                 </div>
 
-                <!-- EMPTY STATE (except for hint type) -->
+                <!-- 빈 상태 (힌트 타입 제외) -->
                 <div v-else-if="!data && type !== 'tutor'" class="flex flex-col items-center justify-center h-full text-slate-500">
                     데이터가 없습니다. 다시 시도해주세요.
                 </div>
 
-                <!-- CONTENT: COUNTER EXAMPLE -->
+                <!-- 콘텐츠: 반례 -->
                 <div v-else-if="type === 'counter_example'" class="space-y-8 animate-fade-in">
                     
-                    <!-- 1. Input Section (Terminal Style) -->
+                    <!-- 1. 입력 섹션 (터미널 스타일) -->
                     <div class="space-y-2">
                         <div class="flex items-center justify-between">
                             <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Counterexample Input</label>
@@ -63,9 +63,9 @@
                         </div>
                     </div>
 
-                    <!-- 2. Diff View (Expected vs Predicted) -->
+                    <!-- 2. 비교 보기 (예상 vs 예측) -->
                     <div class="grid grid-cols-2 gap-4">
-                        <!-- Predicted (Wrong) -->
+                        <!-- 예측값 (오답) -->
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-rose-500 uppercase tracking-wider flex items-center gap-1">
                                 <XCircle class="w-4 h-4" /> Your Output
@@ -73,7 +73,7 @@
                             <div class="bg-rose-50 rounded-xl p-4 border border-rose-100 h-full font-mono text-sm text-slate-700 whitespace-pre-wrap shadow-sm">{{ data.predicted }}</div>
                         </div>
 
-                        <!-- Expected (Correct) -->
+                        <!-- 예상값 (정답) -->
                         <div class="space-y-2">
                             <label class="text-xs font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1">
                                 <CheckCircle2 class="w-4 h-4" /> Expected Output
@@ -82,7 +82,7 @@
                         </div>
                     </div>
 
-                    <!-- 3. AI Tutor Explanation -->
+                    <!-- 3. AI 튜터 설명 -->
                     <div class="bg-white rounded-2xl border border-brand-100 shadow-lg p-6 relative overflow-hidden">
                         <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-brand-500 to-purple-500"></div>
                         <div class="flex items-start gap-4">
@@ -98,10 +98,10 @@
 
                 </div>
 
-                <!-- CONTENT: HINT (Chat-based) -->
+                <!-- 콘텐츠: 힌트 (채팅 기반) -->
                 <div v-else-if="type === 'tutor'" class="space-y-6 animate-fade-in">
                     
-                    <!-- Header -->
+                    <!-- 헤더 -->
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-12 h-12 rounded-full bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-lg">
                             <MessageSquare class="w-6 h-6 text-white" />
@@ -112,7 +112,7 @@
                         </div>
                     </div>
 
-                    <!-- Chat Messages -->
+                    <!-- 채팅 메시지 -->
                     <div class="space-y-3 mb-4 max-h-[400px] overflow-y-auto" ref="chatContainer">
                         <div v-for="(msg, idx) in chatMessages" :key="idx"
                              class="flex" :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
@@ -123,7 +123,7 @@
                                 <div v-html="renderMarkdown(msg.content)"></div>
                             </div>
                         </div>
-                        <!-- Loading indicator -->
+                        <!-- 로딩 표시기 -->
                         <div v-if="chatLoading" class="flex justify-start">
                             <div class="bg-white border border-slate-200 px-4 py-3 rounded-2xl rounded-bl-sm shadow-sm">
                                 <div class="flex gap-1.5">
@@ -135,7 +135,7 @@
                         </div>
                     </div>
 
-                    <!-- Quick Replies -->
+                    <!-- 빠른 답장 -->
                     <div v-if="quickReplies.length > 0 && !chatLoading" class="flex flex-wrap gap-2 mb-4">
                         <button v-for="(reply, idx) in quickReplies" :key="idx"
                                 @click="sendChatMessage(reply)"
@@ -144,7 +144,7 @@
                         </button>
                     </div>
 
-                    <!-- Chat Input -->
+                    <!-- 채팅 입력 -->
                     <div class="flex gap-2 sticky bottom-0 bg-white pt-2">
                         <input 
                             v-model="chatInput"
@@ -164,10 +164,10 @@
 
                 </div>
 
-                <!-- CONTENT: REVIEW (Analysis Only - No Code Panel) -->
+                <!-- 콘텐츠: 리뷰 (분석 전용 - 코드 패널 없음) -->
                 <div v-else-if="type === 'review'" class="space-y-6 animate-fade-in">
                     
-                    <!-- Tabs -->
+                    <!-- 탭 -->
                     <div v-if="data" class="flex items-center border-b border-slate-200 bg-white -mx-4 sm:-mx-6 px-4 sm:px-6">
                         <button @click="activeTab = 'insight'" 
                             class="px-4 py-4 text-sm font-bold border-b-2 transition-colors flex items-center gap-2"
@@ -186,17 +186,17 @@
                         </button>
                     </div>
 
-                    <!-- Tab Content -->
+                    <!-- 탭 콘텐츠 -->
                     <div v-if="data" class="space-y-6">
-                        <!-- TAB 1: INSIGHT -->
+                        <!-- 탭 1: 통찰 -->
                         <div v-if="activeTab === 'insight'" class="space-y-6 animate-fade-in">
-                            <!-- Summary -->
+                            <!-- 요약 -->
                             <div class="bg-gradient-to-br from-brand-50 to-white p-6 rounded-2xl border border-brand-100 shadow-sm">
                                 <h4 class="text-xs font-bold text-brand-400 uppercase tracking-widest mb-3">Analysis Summary</h4>
                                 <div class="prose prose-sm max-w-none text-slate-800 text-lg font-medium leading-relaxed" v-html="renderMarkdown(data.summary)"></div>
                             </div>
                             
-                            <!-- Complexity Cards -->
+                            <!-- 복잡도 카드 -->
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center">
                                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Time Complexity</span>
@@ -208,7 +208,7 @@
                                 </div>
                             </div>
 
-                            <!-- Problem & Intuition -->
+                            <!-- 문제 & 직관 -->
                             <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
                                 <h4 class="flex items-center gap-2 text-sm font-bold text-slate-800 mb-4">
                                     🎯 문제의 본질 & 직관
@@ -221,9 +221,9 @@
                             </div>
                         </div>
 
-                        <!-- TAB 2: STRUCTURE -->
+                        <!-- 탭 2: 구조 -->
                         <div v-if="activeTab === 'structure'" class="space-y-6 animate-fade-in">
-                            <!-- Code Structure Map -->
+                            <!-- 코드 구조 맵 -->
                             <div v-if="data.structure?.length" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
                                 <h4 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">🏗️ 코드 구조도</h4>
                                 <div class="space-y-2">
@@ -239,7 +239,7 @@
                                 </div>
                             </div>
 
-                            <!-- Trace -->
+                            <!-- 추적 -->
                             <div v-if="data.traceExample?.steps?.length" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
                                 <h4 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">🔍 실행 추적 (Trace)</h4>
                                 <div class="bg-slate-900 rounded-xl p-4 mb-4 font-mono text-xs text-blue-300">
@@ -247,7 +247,7 @@
                                 </div>
                                 <div class="space-y-4 pl-2">
                                     <div v-for="(step, idx) in data.traceExample.steps" :key="idx" class="flex gap-4 relative">
-                                        <!-- Vertical Line -->
+                                        <!-- 수직선 -->
                                         <div v-if="idx !== data.traceExample.steps.length - 1" class="absolute left-[11px] top-6 bottom-[-20px] w-0.5 bg-slate-100"></div>
                                         
                                         <div class="w-6 h-6 rounded-full bg-blue-50 border-2 border-blue-100 flex items-center justify-center shrink-0 z-10">
@@ -259,9 +259,9 @@
                             </div>
                         </div>
 
-                        <!-- TAB 3: FEEDBACK -->
+                        <!-- 탭 3: 피드백 -->
                         <div v-if="activeTab === 'feedback'" class="space-y-5 animate-fade-in">
-                            <!-- Complexity Detail -->
+                            <!-- 복잡도 상세 -->
                             <div class="bg-white p-5 rounded-xl border border-slate-100">
                                 <h4 class="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
                                     <span class="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center text-sm">⏱️</span>
@@ -276,7 +276,7 @@
                                 </div>
                             </div>
 
-                            <!-- Pitfalls -->
+                            <!-- 함정 -->
                             <div v-if="data.pitfalls?.items?.length" class="bg-white p-5 rounded-xl border border-slate-100">
                                 <h4 class="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
                                     <span class="w-6 h-6 rounded-lg bg-amber-50 flex items-center justify-center text-sm">⚠️</span>
@@ -290,7 +290,7 @@
                                 </ul>
                             </div>
 
-                            <!-- Refactor -->
+                            <!-- 리팩토링 -->
                             <div v-if="data.refactor?.code" class="bg-white p-5 rounded-xl border border-slate-100">
                                 <h4 class="text-sm font-semibold text-slate-800 mb-3 flex items-center gap-2">
                                     <span class="w-6 h-6 rounded-lg bg-brand-50 flex items-center justify-center text-sm">✨</span>
@@ -306,7 +306,7 @@
                                 </div>
                             </div>
 
-                            <!-- No Content Fallback -->
+                            <!-- 콘텐츠 없음 대체 -->
                             <div v-if="!data.complexity?.explanation && !data.pitfalls?.items?.length && !data.refactor?.code" 
                                 class="text-center py-10 text-slate-400">
                                 <p>피드백 데이터가 없습니다.</p>
@@ -317,7 +317,7 @@
                     </div>
                  </div>
 
-                <!-- CONTENT: OTHER (Placeholders for now) -->
+                <!-- 콘텐츠: 기타 (현재 자리 표시자) -->
                 <div v-else class="text-center text-slate-400 py-10">
                     Content for {{ type }} will be implemented next.
                 </div>
@@ -347,13 +347,13 @@ const props = defineProps({
   title: String,
   loading: Boolean,
   data: Object,
-  code: String, // For review mode
+  code: String, // 리뷰 모드용
   recordId: Number,      // 알고리즘 기록 ID (DB 조회용)
   userId: Number,        // 사용자 ID
   solveStatus: String,   // "solved" | "wrong"
   wrongReason: String,   // 틀린 이유 (시간초과, 틀렸습니다 등)
-  problemNumber: String, // For hint chat (fallback)
-  problemTitle: String   // For hint chat (fallback)
+  problemNumber: String, // 힌트 채팅용 (대체)
+  problemTitle: String   // 힌트 채팅용 (대체)
 });
 
 const emit = defineEmits(['close']);
@@ -361,13 +361,13 @@ const emit = defineEmits(['close']);
 const copied = ref(false);
 const activeTab = ref('insight');
 
-// Hint Chat State
+// 힌트 채팅 상태
 const chatMessages = ref([]);
 const chatInput = ref('');
 const chatLoading = ref(false);
 const quickReplies = ref(['🤔 이 문제 어떻게 접근하지?', '💡 알고리즘 유형이 뭐야?', '🐛 왜 틀렸을까?']);
 
-// Reset chat when drawer closes or hint changes
+// 드로어가 닫히거나 힌트가 변경될 때 채팅 초기화
 watch([() => props.isVisible, () => props.solveStatus], ([visible, status]) => {
     if (!visible) {
         chatMessages.value = [];
@@ -375,7 +375,7 @@ watch([() => props.isVisible, () => props.solveStatus], ([visible, status]) => {
         return;
     }
     
-    // Set initial quick replies based on solve status
+    // 풀이 상태에 따라 초기 빠른 답장 설정
     if (status === 'solved') {
         quickReplies.value = [
             '⚡ 시간 복잡도를 더 줄일 수 있나요?', 
@@ -397,7 +397,7 @@ const sendChatMessage = async (message) => {
     const trimmedMessage = message.trim();
     chatInput.value = '';
     
-    // Add user message
+    // 사용자 메시지 추가
     chatMessages.value.push({ role: 'user', content: trimmedMessage });
     chatLoading.value = true;
     
@@ -412,10 +412,10 @@ const sendChatMessage = async (message) => {
             history: chatMessages.value.slice(0, -1) // 마지막 user 메시지 제외
         });
         
-        // Add assistant message
+        // 어시스턴트 메시지 추가
         chatMessages.value.push({ role: 'assistant', content: response.data.reply });
         
-        // Update quick replies with follow-up questions
+        // 후속 질문으로 빠른 답장 업데이트
         if (response.data.followUpQuestions?.length > 0) {
             quickReplies.value = response.data.followUpQuestions.slice(0, 3);
         } else {
@@ -472,12 +472,12 @@ const highlightCode = (code, language) => {
 const renderMarkdown = (text) => {
     if (!text) return '';
     try {
-        // Convert single-quoted code variables to backtick format before markdown processing
-        // Matches patterns like 'variable', 'a', 'cnt' etc. and converts to `variable`
+        // 마크다운 처리 전 작은따옴표 코드 변수를 백틱 형식으로 변환
+        // 'variable', 'a', 'cnt' 등의 패턴과 일치하며 `variable`로 변환
         let processed = text.replace(/'([a-zA-Z_][a-zA-Z0-9_]*(?:\s*[+\-*/=<>!&|]+\s*[a-zA-Z0-9_]+)?)'/g, '`$1`');
-        // Also handle patterns like 'c >= b + 2' with operators
+        // 연산자가 있는 'c >= b + 2' 등의 패턴도 처리
         processed = processed.replace(/'([^']{1,50})'/g, (match, inner) => {
-            // Only convert if it looks like code (has operators or is a variable name)
+            // 코드로 보이는 경우(연산자가 있거나 변수명인 경우)에만 변환
             if (/^[a-zA-Z_]/.test(inner) || /[+\-*/=<>!&|]/.test(inner)) {
                 return '`' + inner + '`';
             }
@@ -500,7 +500,7 @@ const copyCode = async (code) => {
 </script>
 
 <style scoped>
-/* Custom Scrollbar for the drawer content */
+/* 드로어 콘텐츠용 커스텀 스크롤바 */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -512,7 +512,7 @@ const copyCode = async (code) => {
   border-radius: 3px;
 }
 
-/* Default inline code style (for AI responses - white/light bg) */
+/* 기본 인라인 코드 스타일 (AI 응답용 - 흰색/밝은 배경) */
 :deep(code:not(pre code)) {
   background-color: rgba(99, 102, 241, 0.1);
   color: #4338ca;
@@ -523,13 +523,13 @@ const copyCode = async (code) => {
   font-weight: 500;
 }
 
-/* Inline code in user messages (indigo/blue bg) */
+/* 사용자 메시지의 인라인 코드 (인디고/파란색 배경) */
 .bg-brand-500 :deep(code:not(pre code)) {
   background-color: rgba(255, 255, 255, 0.25);
   color: #fff;
 }
 
-/* Inline code in indigo quick replies */
+/* 인디고 빠른 답장의 인라인 코드 */
 .bg-brand-50 :deep(code:not(pre code)),
 .border-brand-200 :deep(code:not(pre code)) {
   background-color: rgba(99, 102, 241, 0.15);

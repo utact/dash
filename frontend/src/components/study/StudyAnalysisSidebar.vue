@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-6 w-full">
-      <!-- 1. Team Weakness Tags -->
+      <!-- 1. 팀 약점 태그 -->
       <div class="bg-amber-50 rounded-2xl p-6 border border-amber-100/50 shadow-sm">
         <h3 class="font-black text-amber-800 text-sm mb-4 flex items-center gap-2">
           <AlertTriangle class="w-5 h-5 text-fox" stroke-width="2.5" fill="currentColor" /> 팀 약점 태그
@@ -17,7 +17,7 @@
         </div>
       </div>
 
-      <!-- 2. Member Info & Legend -->
+      <!-- 2. 멤버 정보 및 범례 -->
       <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
         <h3 class="font-black text-slate-700 text-sm mb-4 flex items-center gap-2">
             <Users class="w-5 h-5 text-slate-400" stroke-width="2" /> 멤버별 정보
@@ -25,10 +25,10 @@
         <div class="space-y-2">
           <div v-for="(member, idx) in analysis.memberStats.slice(0, 5)" :key="'legend-' + idx"
                class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl transition-colors">
-            <!-- Legend Color Dot -->
+            <!-- 범례 색상 점 -->
             <div class="w-3.5 h-3.5 rounded-full ring-2 ring-white shadow-sm flex-shrink-0" :style="{ backgroundColor: memberColors[idx % memberColors.length] }"></div>
             
-            <!-- Avatar (GitHub Profile) -->
+            <!-- 아바타 (GitHub 프로필) -->
             <div class="flex-shrink-0">
                 <img v-if="member.avatarUrl" :src="member.avatarUrl" class="w-8 h-8 rounded-full border-2 border-white bg-slate-100 object-cover shadow-sm" />
                 <div v-else class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-500 border-2 border-white">
@@ -38,7 +38,7 @@
 
             <span class="text-sm font-bold text-slate-700 truncate flex-1 min-w-0" :title="member.username">{{ member.username }}</span>
             
-            <!-- Tier Badge -->
+            <!-- 티어 뱃지 -->
             <div class="flex items-center gap-1.5 flex-shrink-0 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
               <img :src="getTierIconUrl(member.tier)" class="w-4 h-4 object-contain" />
               <span class="text-xs font-bold" :class="getTierColorClass(member.tier)">
@@ -47,7 +47,7 @@
             </div>
           </div>
           
-          <!-- Team Average Legend -->
+          <!-- 팀 평균 범례 -->
           <div class="flex items-center gap-3 mt-3 pt-3 border-t border-slate-100 p-2">
             <div class="w-3.5 h-3.5 rounded-full bg-brand-500 ring-2 ring-white shadow-sm flex-shrink-0"></div>
             <div class="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center border-2 border-white">

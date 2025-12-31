@@ -3,7 +3,7 @@
     v-if="visible"
     class="fixed left-0 top-0 h-screen w-64 bg-white border-r border-slate-200 flex flex-col z-50 transition-all duration-300 hidden md:flex"
   >
-    <!-- Logo Area -->
+    <!-- 로고 영역 -->
     <div class="px-8 py-5">
       <div 
         class="cursor-pointer font-['Outfit'] text-2xl flex items-center select-none gap-px"
@@ -14,7 +14,7 @@
       </div>
     </div>
 
-    <!-- Navigation Menu -->
+    <!-- 네비게이션 메뉴 -->
     <nav class="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
       <template v-if="user">
         <div v-for="(group, gIdx) in navGroups" :key="gIdx">
@@ -59,9 +59,9 @@
       </div>
     </nav>
 
-    <!-- Bottom Action Area -->
+    <!-- 하단 액션 영역 -->
     <div v-if="user" class="p-3 border-t border-slate-100 space-y-2">
-       <!-- Notifications (Study Leader Only) -->
+       <!-- 알림 (스터디장 전용) -->
        <div v-if="isStudyLeader" class="relative" ref="notificationRef">
           <button 
             @click="toggleNotifications"
@@ -78,7 +78,7 @@
             <span class="tracking-wide uppercase text-xs">알림</span>
           </button>
 
-          <!-- Notification Dropdown (Upwards) -->
+          <!-- 알림 드롭다운 (위쪽으로) -->
           <transition name="slide-up">
             <div v-if="notificationsOpen" class="absolute left-full bottom-0 ml-4 w-80 bg-white border border-slate-100 rounded-2xl shadow-xl z-50 overflow-hidden">
                <div class="px-4 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
@@ -112,7 +112,7 @@
           </transition>
        </div>
 
-       <!-- Profile / More -->
+       <!-- 프로필 / 더보기 -->
        <div class="relative" ref="profileRef">
           <button 
             @click="toggleProfileMenu"
@@ -127,7 +127,7 @@
             <span class="tracking-wide uppercase text-xs truncate flex-1 text-left">더보기</span>
           </button>
 
-          <!-- Profile Menu Dropdown (Upwards) -->
+          <!-- 프로필 메뉴 드롭다운 (위쪽으로) -->
           <transition name="slide-up">
             <div
               v-if="profileMenuOpen"
@@ -155,7 +155,7 @@
     </div>
   </aside>
 
-  <!-- Mobile Header Placeholder (Visible only on small screens) -->
+  <!-- 모바일 헤더 (작은 화면에서만 표시) -->
   <div v-if="visible" class="md:hidden fixed top-0 left-0 w-full h-16 bg-white border-b border-slate-200 z-50 flex items-center justify-between px-4">
       <div class="flex items-center gap-2 font-['Outfit'] text-xl select-none" @click="goHome">
         <span class="font-black text-brand-600 tracking-tighter">Dash</span>
@@ -249,17 +249,17 @@ const navGroups = [
 
 const navItems = computed(() => navGroups.flatMap(g => g.items));
 
-// Route matching helper - handles child routes (e.g., /training/roadmap matches /training)
+// 라우트 매칭 헬퍼 - 하위 라우트 처리 (예: /training/roadmap은 /training과 일치)
 const isActiveRoute = (itemPath) => {
   const currentPath = route.path;
-  // Exact match
+  // 정확히 일치
   if (currentPath === itemPath) return true;
-  // Child route match (e.g., /training/roadmap starts with /training)
+  // 하위 라우트 일치
   if (currentPath.startsWith(itemPath + '/')) return true;
   return false;
 };
 
-// Profile & Notifications
+// 프로필 및 알림
 const profileMenuOpen = ref(false);
 const profileRef = ref(null);
 const notificationsOpen = ref(false);
@@ -311,7 +311,7 @@ const handleReject = async (applicationId) => {
   }
 };
 
-// Polling Logic
+// 폴링 로직
 let pollingInterval = null;
 const startPolling = () => {
   stopPolling();
@@ -334,14 +334,14 @@ watch(isStudyLeader, (val) => {
 
 onBeforeUnmount(() => stopPolling());
 
-// User Profile
+// 사용자 프로필
 const userProfileImage = computed(() => {
   if (!user.value) return '';
   if (user.value.avatarUrl) return user.value.avatarUrl;
   return '/images/profiles/default-profile.png';
 });
 
-// Actions
+// 액션
 const goHome = () => window.location.href = "/";
 const handleLogin = () => window.location.href = `/oauth2/authorization/github`;
 const goToProfile = () => {
@@ -366,7 +366,7 @@ const formatAppDate = (dateStr) => {
   return `${Math.floor(hours / 24)}일 전`;
 };
 
-// Click Outside
+// 외부 클릭 감지
 const onDocClick = (e) => {
   if (profileRef.value && !profileRef.value.contains(e.target)) profileMenuOpen.value = false;
   if (notificationRef.value && !notificationRef.value.contains(e.target)) notificationsOpen.value = false;

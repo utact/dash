@@ -1,13 +1,13 @@
 <template>
   <div class="min-h-screen bg-white font-sans pb-20">
     
-    <!-- Centered Container for 2-Column Layout -->
+    <!-- 2열 레이아웃을 위한 중앙 컨테이너 -->
     <div class="flex justify-center p-4 md:p-8">
         <div class="flex gap-8 max-w-screen-xl w-full">
             
-            <!-- LEFT COLUMN: Main Content (Missions) -->
+            <!-- 왼쪽 칼럼: 메인 콘텐츠 (미션) -->
             <main class="flex-1 min-w-0">
-                <!-- Header Section -->
+                <!-- 헤더 섹션 -->
                 <div class="flex items-center justify-between mb-8">
                     <h1 class="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
                         <MapIcon :size="28" class="text-brand-500 fill-brand-500" />
@@ -21,13 +21,13 @@
                     </button>
                 </div>
 
-                <!-- Loading State -->
+                <!-- 로딩 상태 -->
                 <div v-if="loading" class="flex flex-col items-center justify-center py-20 space-y-4">
                     <div class="w-12 h-12 border-4 border-slate-200 border-t-brand rounded-full animate-spin"></div>
                     <p class="text-slate-400 font-bold animate-pulse">로딩 중입니다...</p>
                 </div>
 
-                <!-- Empty State -->
+                <!-- 빈 상태 -->
                 <div v-else-if="missions.length === 0" class="flex flex-col items-center justify-center py-20 text-center bg-white rounded-3xl border border-dashed border-slate-200">
                         <div class="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6 text-slate-300">
                             <Inbox :size="48" stroke-width="1.5" />
@@ -40,29 +40,29 @@
                         </button>
                 </div>
 
-                <!-- Missions List -->
+                <!-- 미션 목록 -->
                 <div v-else class="space-y-6">
                     <div v-for="mission in missions" :key="mission.id"
                         class="bg-white rounded-3xl p-6 md:p-8 shadow-sm transition-all hover:bg-slate-50 border border-slate-200 group relative overflow-hidden"
                         :class="{ 'opacity-70 grayscale': mission.status === 'COMPLETED' }"
                     >
-                        <!-- Status Badge (Absolute) -->
+                        <!-- 상태 뱃지 (절대 위치) -->
                         <div v-if="mission.status === 'COMPLETED'" class="absolute -right-12 top-8 bg-slate-100 text-slate-400 font-black text-xs py-1 w-40 text-center rotate-45 shadow-sm border border-slate-200">
                             COMPLETED
                         </div>
 
                         <div class="flex flex-col md:flex-row gap-6">
-                            <!-- Left: Info -->
+                            <!-- 왼쪽: 정보 -->
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-3">
-                                    <!-- Week Badge -->
+                                    <!-- 주차 뱃지 -->
                                     <BaseIconBadge 
                                         :icon="Calendar"
                                         :text="`Week ${mission.week}`"
                                         :color="mission.status === 'COMPLETED' ? 'slate' : 'yellow'"
                                         size="sm"
                                     />
-                                    <!-- AI Badge -->
+                                    <!-- AI 뱃지 -->
                                     <BaseIconBadge 
                                         v-if="mission.sourceType === 'AI_RECOMMENDED'"
                                         :icon="Brain"
@@ -79,7 +79,7 @@
                                 <div class="flex items-center gap-4 text-slate-400 text-sm font-bold mb-6">
                                     <span>{{ formatDate(mission.deadline) }} 까지</span>
                                     
-                                    <!-- D-Day Badge -->
+                                    <!-- D-Day 뱃지 -->
                                     <BaseIconBadge 
                                         v-if="getDaysLeft(mission.deadline) >= 0"
                                         :icon="Flame"
@@ -92,7 +92,7 @@
                                     </span>
                                 </div>
 
-                                <!-- Problem Chips -->
+                                <!-- 문제 칩 -->
                                 <div class="flex flex-wrap gap-2">
                                     <div v-if="isLeader" class="flex gap-1 mb-2 w-full">
                                       <button 
@@ -134,7 +134,7 @@
                                 </div>
                             </div>
 
-                            <!-- Right: Race Track -->
+                            <!-- 오른쪽: 레이스 트랙 -->
                             <div class="w-full md:w-1/3 bg-slate-50 rounded-2xl p-4 self-stretch flex flex-col justify-center border border-slate-100">
                                 <div class="flex justify-between items-center mb-4">
                                     <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Team Race</span>
@@ -144,7 +144,7 @@
                                 </div>
 
                                 <div class="relative h-3 bg-slate-200 rounded-full mb-8 mx-2 overflow-visible">
-                                    <!-- Runners -->
+                                    <!-- 참여자 (러너) -->
                                     <template v-for="(members, progress) in getGroupedMembers(mission.memberProgressList)" :key="progress">
                                         <div 
                                             class="absolute top-1/2 -translate-y-1/2 group/runner-group z-10 w-8 h-8"
@@ -158,7 +158,7 @@
                                                     transform: `translateX(${idx * 12}px)`
                                                 }">
                                                 
-                                                <!-- Avatar Container -->
+                                                <!-- 아바타 컨테이너 -->
                                                 <div class="relative transition-transform duration-300 transform group-hover/runner-group:scale-110 group/avatar"
                                                     :class="idx > 0 ? 'group-hover/runner-group:opacity-80' : ''">
                                                     
@@ -170,12 +170,12 @@
                                                         {{ member.username?.substring(0, 2) }}
                                                     </div>
 
-                                                    <!-- Flag for Completion -->
+                                                    <!-- 완료 깃발 -->
                                                     <div v-if="member.completedCount === member.totalProblems" class="absolute -top-3 -right-2 text-rose-500 drop-shadow-md animate-bounce z-50">
                                                         <Flag :size="16" fill="currentColor" />
                                                     </div>
 
-                                                    <!-- Tooltip -->
+                                                    <!-- 툴팁 -->
                                                     <div class="absolute left-1/2 -translate-x-1/2 -top-8 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded-lg opacity-0 group-hover/avatar:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-[60]">
                                                         {{ member.username }}
                                                     </div>
@@ -185,7 +185,7 @@
                                     </template>
                                 </div>
                                 
-                                <!-- Legend -->
+                                <!-- 범례 -->
                                 <div class="flex flex-wrap gap-2 mt-auto pt-2">
                                     <div v-for="member in mission.memberProgressList?.slice(0, 3)" :key="'legend-'+member.userId" 
                                         class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 bg-white px-2 py-1 rounded-lg border border-slate-100">
@@ -202,12 +202,12 @@
                 </div>
             </main>
 
-            <!-- RIGHT COLUMN: Stats & Activity (Matched Dashboard) -->
+            <!-- 오른쪽 칼럼: 통계 및 활동 -->
             <aside class="hidden xl:flex w-[380px] shrink-0 flex-col gap-6 sticky top-8 h-[calc(100vh-4rem)]">
                 
-                <!-- 1. Stats Row -->
+                <!-- 1. 통계 열 -->
                 <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-around">
-                     <!-- Stat 1: Acorns -->
+                     <!-- 통계 1: 도토리 -->
                      <div class="flex items-center gap-2 group cursor-pointer" title="Acorns">
                         <IconAcorn class="text-fox w-8 h-8" stroke-width="2.5" fill="currentColor" />
                         <span class="text-xl font-black text-slate-700">{{ studyData?.acornCount || 0 }}</span>
@@ -215,7 +215,7 @@
 
                     <div class="w-px h-8 bg-slate-100"></div>
 
-                    <!-- Stat 2: Streak -->
+                    <!-- 통계 2: 스트릭 -->
                     <div class="flex items-center gap-2 group cursor-pointer" title="Streak">
                         <Flame class="w-7 h-7" :class="currentStreak > 0 ? 'text-rose-500 fill-rose-500 animate-pulse' : 'text-slate-300'" stroke-width="2.5" />
                         <span class="text-xl font-black text-slate-700">{{ currentStreak }}</span>
@@ -234,9 +234,9 @@
                 <div v-if="!loading && heatmapWeeks.length > 0" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
                     <h3 class="font-black text-slate-700 text-sm mb-4">스터디 활동 로그</h3>
                     
-                    <!-- Heatmap Visualization -->
+                    <!-- 히트맵 시각화 -->
                     <div class="">
-                       <!-- Scroll wrapper -->
+                       <!-- 스크롤 래퍼 -->
                        <div ref="heatmapScrollRef" class="overflow-x-auto pb-2 custom-scrollbar no-scrollbar" style="direction: rtl;">
                            <div class="flex gap-[3px] justify-end min-w-max" style="direction: ltr;">
                                <div v-for="(week, wIdx) in heatmapWeeks" :key="wIdx" class="flex flex-col gap-[3px]">
@@ -250,8 +250,8 @@
                        </div>
                     </div>
                 </div>
-                <!-- 3. Dynamic Mission Detail (Sidebar) -->
-                <!-- Fixed to Current Active Mission -->
+                <!-- 3. 동적 미션 상세 (사이드바) -->
+                <!-- 현재 활성 미션 고정 -->
                 <StudyMissionSidebarDetail 
                     v-if="selectedMission"
                     :mission="selectedMission"
@@ -266,7 +266,7 @@
         </div>
     </div>
 
-    <!-- Modals -->
+    <!-- 모달 -->
     <StudyMissionCreateModal
       :isOpen="showCreateModal"
       :studyId="studyId"
@@ -283,14 +283,6 @@
       @refresh="loadMissions"
     />
 
-    <!-- Drawer (Deprecated/Hidden for now, logic moved to sidebar) -->
-    <!-- 
-    <StudyMissionDetailDrawer
-      :isOpen="showDetailDrawer"
-      :mission="selectedMission"
-      ...
-    /> 
-    -->
   </div>
 </template>
 
@@ -298,9 +290,9 @@
 import { ref, onMounted, computed, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
-import StudyMissionCreateModal from '@/components/StudyMissionCreateModal.vue';
-import StudyMissionDetailDrawer from '@/components/StudyMissionDetailDrawer.vue';
-import StudyMissionSidebarDetail from '@/components/StudyMissionSidebarDetail.vue';
+import StudyMissionCreateModal from '@/components/study/StudyMissionCreateModal.vue';
+import StudyMissionDetailDrawer from '@/components/study/StudyMissionDetailDrawer.vue';
+import StudyMissionSidebarDetail from '@/components/study/StudyMissionSidebarDetail.vue';
 import BaseIconBadge from '@/components/common/BaseIconBadge.vue';
 import IconAcorn from '@/components/icons/IconAcorn.vue';
 import { dashboardApi } from '@/api/dashboard';
@@ -329,7 +321,7 @@ const currentUserId = ref(null);
 const showCreateModal = ref(false);
 const isLeader = ref(false);
 
-// Stats Data
+// 통계 데이터
 const studyData = ref(null);
 const recordCount = ref(0);
 const heatmapWeeks = ref([]);
@@ -345,10 +337,10 @@ const editingMissionId = ref(null);
 const modalDeadline = ref('');
 const modalWeek = ref(null);
 
-// Sidebar Selection State
+// 사이드바 선택 상태
 const selectedMission = ref(null);
 
-// Use Dashboard.vue logic for consistency
+// 대시보드 로직과 일관성 유지
 const processHeatmap = (data) => {
     try {
         const activityMap = new Map();
@@ -369,7 +361,7 @@ const processHeatmap = (data) => {
              const dateStr = current.toISOString().split('T')[0];
              const activity = activityMap.get(dateStr);
              
-             // --- Participation Logic Start ---
+             // --- 참여 로직 시작 ---
              const totalMembers = studyData.value?.memberCount || 1;
              const contributors = Array.isArray(activity?.contributors) ? activity.contributors : [];
              const activeCount = contributors.length;
@@ -386,7 +378,7 @@ const processHeatmap = (data) => {
              if (participationRate >= 0.50) colorClass = 'bg-brand-500';
              if (participationRate >= 0.75) colorClass = 'bg-brand-600';
              if (participationRate >= 1.0) colorClass = 'bg-brand-800';
-             // --- Participation Logic End ---
+             // --- 참여 로직 끝 ---
 
              currentWeek.push({
                  date: dateStr,
@@ -411,21 +403,21 @@ const processHeatmap = (data) => {
 const currentStreak = computed(() => {
     if (!heatmapWeeks.value.length) return 0;
     
-    // Flatten weeks to days array and reverse to start from today
+    // 주간 데이터를 날짜 배열로 평탄화하고 오늘부터 시작하도록 역순 정렬
     const allDays = heatmapWeeks.value.flat().reverse();
     
     let streak = 0;
     const today = new Date().toISOString().split('T')[0];
     
     for (const day of allDays) {
-        // Skip future dates
+        // 미래 날짜 건너뛰기
         if (day.date > today) continue;
         
         if (day.count > 0) {
             streak++;
         } else if (streak > 0 || day.date === today) {
-            // If today has no activity, streak is 0
-            // If we had activity before and now hit a zero, stop counting
+            // 오늘 활동이 없으면 스트릭 0
+            // 이전에 활동이 있었는데 0을 만나면 카운팅 중단
             break;
         }
     }
@@ -444,14 +436,14 @@ onMounted(async () => {
     if (studyId.value) {
       await loadMissions();
 
-      // Fetch Stats
+      // 통계 가져오기
       const statsRes = await studyApi.get(studyId.value);
       studyData.value = statsRes.data;
 
       const recordsRes = await dashboardApi.getRecords();
       recordCount.value = recordsRes.data?.length || 0;
 
-      // Process heatmap
+      // 히트맵 처리
       try {
         const heatmapRes = await dashboardApi.getHeatmap();
         processHeatmap(heatmapRes.data || []);
@@ -485,12 +477,11 @@ const loadMissions = async () => {
     const res = await axios.get(`/api/studies/${studyId.value}/missions`);
     missions.value = res.data;
     
-    // Find the latest active (status !== 'COMPLETED') mission to fix in sidebar
-    // Assuming missions are sorted by week desc (or id desc)
+    // 사이드바에 고정할 최신 활성 미션(완료되지 않은) 찾기
+    // 미션이 주차별 내림차순(또는 ID 내림차순)으로 정렬되어 있다고 가정
     const activeMission = missions.value.find(m => m.status !== 'COMPLETED');
-    // If no active mission, maybe show the latest one (even if completed) or null?
-    // User said "current running mission", so if all completed, maybe show nothing or the last one?
-    // Let's default to the *latest* mission if all are completed, but prioritize active.
+    // 활성 미션이 없으면(모두 완료됨), 최신 미션을 표시하거나 null 처리
+    // 사용자는 "현재 진행 중인 미션"을 원하므로, 모두 완료된 경우 일단 최신을 기본값으로 하되, 활성을 우선함.
     selectedMission.value = activeMission || missions.value[0] || null;
 
   } catch (e) {
@@ -527,10 +518,10 @@ const openCreateModal = () => {
 
 const openEditModal = (mission) => {
     isEditMode.value = true;
-    // backend expects missionId for PATCH
+    // 백엔드는 PATCH 요청에 missionId가 필요함
     editingMissionId.value = mission.id;
     
-    // Fill initial values
+    // 초기값 채우기
     modalTitle.value = mission.title;
     modalDeadline.value = mission.deadline;
     modalWeek.value = mission.week;
@@ -577,7 +568,7 @@ const closeModal = () => {
   forceNewMission.value = false;
 };
 
-// Instead of opening drawer, select mission for sidebar
+// 드로어 여는 대신 사이드바용 미션 선택
 const openDetailDrawer = (mission) => {
   selectedMission.value = mission;
 };

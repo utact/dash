@@ -1,13 +1,13 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-50 flex justify-end">
-    <!-- Backdrop -->
+    <!-- 배경 -->
     <div class="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity" @click="closeDrawer"></div>
 
-    <!-- Drawer Panel -->
+    <!-- 드로어 패널 -->
     <div class="relative w-full max-w-2xl h-full bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-300"
          :class="{ 'opacity-90': localMission.status === 'COMPLETED' }">
       
-      <!-- Header -->
+      <!-- 헤더 -->
       <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between"
            :class="localMission.status === 'COMPLETED' ? 'bg-slate-100' : 'bg-slate-50/50'">
         <div>
@@ -23,7 +23,7 @@
              </span>
            </div>
            
-           <!-- Title Editing -->
+           <!-- 제목 수정 -->
            <div v-if="isEditing" class="flex items-center gap-2">
               <input v-model="editForm.title" type="text" 
                      class="px-2 py-1 border rounded text-lg font-bold w-full focus:ring-2 focus:ring-emerald-500" />
@@ -45,10 +45,10 @@
         </button>
       </div>
 
-      <!-- Scrollable Content -->
+      <!-- 스크롤 가능한 콘텐츠 -->
       <div class="flex-1 overflow-y-auto p-6 space-y-8">
         
-        <!-- Deadline Section -->
+        <!-- 마감일 섹션 -->
         <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 flex items-center justify-between">
            <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-600">
@@ -71,7 +71,7 @@
            </div>
         </div>
 
-        <!-- 1. Mission Matrix (현황판) -->
+        <!-- 1. 미션 현황판 -->
         <div>
            <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
               📊 미션 현황판 <span class="text-xs font-normal text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">Matrix View</span>
@@ -82,7 +82,7 @@
                  <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
                     <tr>
                        <th class="px-4 py-3 font-bold w-32 sticky left-0 bg-slate-50 z-10">팀원</th>
-                       <!-- Problem Headers -->
+                       <!-- 문제 헤더 -->
                        <th v-for="pid in localMission.problemIds" :key="pid" class="px-4 py-3 text-center min-w-[80px]">
                           <a :href="`https://www.acmicpc.net/problem/${pid}`" target="_blank" class="hover:text-emerald-600 hover:underline">
                             {{ pid }}
@@ -103,7 +103,7 @@
                           <span class="truncate max-w-[100px]">{{ member.username }}</span>
                        </td>
                        
-                       <!-- Problem Cells -->
+                       <!-- 문제 셀 -->
                         <td v-for="pid in localMission.problemIds" :key="pid" 
                             class="px-4 py-3 text-center group relative">
                            <div v-if="isSolved(member, pid)" class="flex justify-center">
@@ -114,16 +114,16 @@
                               </span>
                            </div>
                            <div v-else class="flex justify-center items-center min-h-[24px]">
-                              <!-- 1. SOS State (Flag) -->
+                              <!-- 1. SOS 상태 (깃발) -->
                               <span v-if="isSos(member, pid)" class="cursor-help" title="SOS 요청 중!">
                                  <span class="text-xl animate-pulse">🚩</span>
                               </span>
                               
-                              <!-- 2. Empty Dot -->
+                              <!-- 2. 빈 점 -->
                               <span v-else class="w-2 h-2 rounded-full bg-slate-200"></span>
                            </div>
                            
-                           <!-- 3. SOS Button (호버 시 셀 중앙에 표시) -->
+                           <!-- 3. SOS 버튼 (호버 시 셀 중앙에 표시) -->
                            <button v-if="isCurrentUser(member.userId) && !isSolved(member, pid) && localMission.status !== 'COMPLETED'" 
                                    @click.stop="toggleSos(pid)"
                                    class="absolute inset-0 m-auto w-7 h-7 rounded-full items-center justify-center shadow-md transition-all z-20 hidden group-hover:flex"
@@ -143,7 +143,7 @@
            </div>
         </div>
 
-        <!-- 2. Problem Management (Leader Only) -->
+        <!-- 2. 문제 관리 (리더 전용) -->
         <div v-if="isLeader">
            <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
               🛠️ 문제 관리
@@ -179,7 +179,7 @@
 
       </div>
       
-      <!-- Footer -->
+      <!-- 푸터 -->
       <div v-if="isLeader" class="p-6 border-t border-slate-100 bg-slate-50 flex justify-between items-center">
          <div class="flex items-center gap-4">
             <span class="text-xs text-slate-400">마지막 업데이트: {{ new Date().toLocaleTimeString() }}</span>
@@ -216,10 +216,10 @@ const localMission = ref({});
 const isEditing = ref(false);
 const editForm = ref({ title: '', deadline: '' });
 
-// Watchers
+// 감시자
 watch(() => props.mission, (newVal) => {
    if (newVal) {
-      localMission.value = JSON.parse(JSON.stringify(newVal)); // Deep copy
+      localMission.value = JSON.parse(JSON.stringify(newVal)); // 깊은 복사
    }
 }, { immediate: true, deep: true });
 
@@ -233,7 +233,7 @@ const sortedMemberProgressList = computed(() => {
    });
 });
 
-// Methods
+// 메서드
 const closeDrawer = () => {
     isEditing.value = false;
     emit('close');
@@ -280,9 +280,9 @@ const toggleSos = async (problemId) => {
          
          const idx = myProgress.sosProblemIds.indexOf(problemId);
          if (idx > -1) {
-             myProgress.sosProblemIds.splice(idx, 1); // Remove
+             myProgress.sosProblemIds.splice(idx, 1); // 제거
          } else {
-             myProgress.sosProblemIds.push(problemId); // Add
+             myProgress.sosProblemIds.push(problemId); // 추가
          }
       }
       
@@ -311,7 +311,7 @@ const saveMissionInfo = async () => {
          deadline: editForm.value.deadline
       });
       
-      // Local update & Emit refresh
+      // 로컬 업데이트 및 새로고침 이벤트 발신
       localMission.value.title = editForm.value.title;
       localMission.value.deadline = editForm.value.deadline;
       isEditing.value = false;
@@ -327,7 +327,7 @@ const confirmDeleteProblem = async (problemId) => {
    try {
       await axios.delete(`/api/studies/${props.studyId}/missions/${props.mission.id}/problems/${problemId}`);
       
-      // Local update
+      // 로컬 업데이트
       localMission.value.problemIds = localMission.value.problemIds.filter(pid => pid !== problemId);
       emit('refresh');
    } catch (e) {
@@ -357,7 +357,7 @@ const forceCompleteMission = async () => {
 </script>
 
 <style scoped>
-/* Scrollbar Styling */
+/* 스크롤바 스타일링 */
 ::-webkit-scrollbar {
   width: 6px;
 }

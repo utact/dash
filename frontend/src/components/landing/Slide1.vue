@@ -4,7 +4,7 @@ import { Code, Sparkles } from 'lucide-vue-next'
 const shapes = ['◆', '●', '■', '▲']
 const colors = ['#58CC02', '#3396F4', '#FFC800', '#2DD4BF', '#FF9600']
 
-// Generate random shapes data
+// 랜덤 모양 데이터 생성
 const floatingShapes = Array.from({ length: 8 }, (_, i) => ({
   id: i,
   shape: shapes[i % shapes.length],
