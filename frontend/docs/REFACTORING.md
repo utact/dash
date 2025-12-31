@@ -18,3 +18,19 @@
 - **`OauthRedirect.vue`**: `authApi.getSession()` 및 `onboardingApi.submitRepository()` 사용.
 - **`CommonHeader.vue`**: `authApi.logout()` 사용하여 로그아웃 처리.
 - **`Landing.vue`**: `authApi.logout()` 사용 및 하드코딩된 로그인 URL을 상대 경로로 변경.
+
+## 2025-12-31
+
+### 뷰 구조 재편 (View Structure Restructure)
+프로젝트 구조의 유지보수성을 높이기 위해 루트 레벨에 있던 뷰 파일들을 도메인별 하위 디렉토리로 이동하였습니다.
+
+- **Dashboard**: `views/Dashboard.vue` -> `views/dashboard/DashboardView.vue`
+- **Training**: `views/TrainingView.vue` -> `views/training/TrainingView.vue`
+- **Defense**: `views/DefenseView.vue` -> `views/defense/DefenseView.vue`
+- **Landing**: `views/LandingView.vue` -> `views/landing/LandingView.vue`
+- **User**: `views/Profile.vue` -> `views/user/ProfileView.vue`
+- **MockExam**: `views/MockExamView.vue` -> `views/mockexam/MockExamView.vue`
+
+### 문서화 (Documentation)
+- **`DESIGN_SYSTEM.md`**: 루트에서 `frontend/docs/`로 이동하여 문서 관리 일원화.
+- **`PAGES.md`**: 이동된 파일 경로 반영하여 최신화.
