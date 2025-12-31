@@ -169,7 +169,7 @@
                   <div v-else class="max-h-64 overflow-y-auto">
                     <div v-for="app in pendingApplications" :key="app.id" class="p-4 border-b border-slate-50 last:border-b-0">
                       <div class="flex items-center gap-3 mb-2">
-                        <img :src="app.applicant?.avatarUrl || '/profile/smile.png'" class="w-8 h-8 rounded-full bg-slate-100" />
+                        <img :src="app.applicant?.avatarUrl" class="w-8 h-8 rounded-full bg-slate-100" />
                         <div class="flex-1 min-w-0">
                           <p class="font-bold text-slate-800 truncate">{{ app.applicant?.username }}</p>
                           <p class="text-xs text-slate-400">{{ formatAppDate(app.createdAt) }}</p>
@@ -349,10 +349,10 @@ onBeforeUnmount(() => {
 });
 
 const profileImages = [
-  '/profile/bag.png',
-  '/profile/proud.png',
-  '/profile/smart.png',
-  '/profile/smile.png'
+  // '/profile/bag.png',
+  // '/profile/proud.png',
+  // '/profile/smart.png',
+  // '/profile/smile.png'
 ];
 
 const userProfileImage = computed(() => {

@@ -42,10 +42,10 @@
                 <!-- Profile Image -->
                 <div class="w-16 h-16 rounded-full bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg overflow-hidden">
                   <img 
-                    :src="verifiedUser.profileImageUrl || '/land/default_profile.png'" 
-                    :alt="verifiedUser.handle"
-                    class="w-full h-full object-cover"
-                    @error="$event.target.src = '/land/default_profile.png'"
+                    :src="verifiedUser.profileImageUrl" 
+                    class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover bg-slate-100"
+                    alt="Profile"
+                    @error="$event.target.style.display='none'"
                   />
                 </div>
                 
@@ -201,10 +201,10 @@ const submitHandle = async () => {
     // GitHub 아바타가 없고, 기존 프로필 이미지도 없는 경우에만 랜덤 이미지 사용
     if (!user.value?.avatarUrl) {
          const profileImages = [
-          '/profile/bag.png',
-          '/profile/proud.png',
-          '/profile/smart.png',
-          '/profile/smile.png'
+          // '/profile/bag.png',
+          // '/profile/proud.png',
+          // '/profile/smart.png',
+          // '/profile/smile.png'
         ];
         profileImage = profileImages[Math.floor(Math.random() * profileImages.length)];
     }

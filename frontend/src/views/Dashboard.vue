@@ -401,10 +401,10 @@ import 'highlight.js/styles/github.css';
 import { marked } from 'marked';
 
 const profileImages = [
-    '/profile/bag.png',
-    '/profile/proud.png',
-    '/profile/smart.png',
-    '/profile/smile.png'
+    // '/profile/bag.png',
+    // '/profile/proud.png',
+    // '/profile/smart.png',
+    // '/profile/smile.png'
 ];
 
 const getMemberProfileImage = (member) => {

@@ -168,11 +168,11 @@ const initScene = () => {
   scene.add(cursorMesh);
 
   // 집 텍스처 로드
-  const textureLoader = new THREE.TextureLoader();
-  textureLoader.load('/models/home.png', (t) => {
-      homeTexture = t;
-      homeAspect = t.image.width / t.image.height;
-  });
+  // textureLoader.load('/models/home.png', (t) => {
+  //   // Texture loading removed
+  //   // homeTexture = t;
+  //   // homeAspect = t.image.width / t.image.height;
+  // });
 
   // 도토리 나무 (중앙) - 2D 빌보드 스프라이트
   createTreeSprite();
@@ -198,32 +198,10 @@ const initScene = () => {
 };
 
 const createTreeSprite = () => {
-    const textureLoader = new THREE.TextureLoader();
-    textureLoader.load('/models/tree.png', (texture) => {
-        // 종횡비 계산
-        const imageAspect = texture.image.width / texture.image.height;
-        const height = 5;
-        const width = height * imageAspect;
-        
-        const geometry = new THREE.PlaneGeometry(width, height);
-        const material = new THREE.MeshBasicMaterial({ 
-            map: texture, 
-            transparent: true, 
-            side: THREE.DoubleSide,
-            alphaTest: 0.5, // clear cut
-            fog: false // 안개에도 불구하고 나무를 선명하게 유지
-        });
-        const mesh = new THREE.Mesh(geometry, material);
-        
-        // 중앙 위치 - 바닥 위에 배치 (y = height/2) + 약간의 오프셋 (0.1)
-        mesh.position.set(0, height/2 + 0.1, 0); 
-        
-        // 카메라를 균일하게 바라보도록 설정
-        mesh.quaternion.copy(camera.quaternion);
-        
-        scene.add(mesh);
-        markTreeProtected();
-    });
+    // const textureLoader = new THREE.TextureLoader();
+    // textureLoader.load('/models/tree.png', (texture) => {
+    //   // Code removed
+    // });
 };
 
 const markTreeProtected = () => {
