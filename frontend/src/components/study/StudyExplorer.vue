@@ -238,7 +238,7 @@
 <script setup>
 import { ref, onMounted, computed, defineProps, defineEmits } from 'vue';
 import axios from 'axios';
-import { useAuth } from '../composables/useAuth';
+import { useAuth } from '@/composables/useAuth';
 import { Trophy, Flame, Users, Search, Activity, ArrowRight, Send, Sparkles, Compass } from 'lucide-vue-next';
 
 const props = defineProps({

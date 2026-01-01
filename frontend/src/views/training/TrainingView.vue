@@ -155,7 +155,7 @@ import SkillTreeView from '../components/skill/SkillTreeView.vue';
 import SkillAnalysisCard from '../components/skill/SkillAnalysisCard.vue';
 import LectureModal from '../components/lecture/LectureModal.vue';
 import AiAnalysisReport from '../components/ai/AiAnalysisReport.vue';
-import { useAuth } from '../composables/useAuth';
+import { useAuth } from '@/composables/useAuth';
 import { aiApi } from '../api/ai';
 import { marked } from 'marked';
 

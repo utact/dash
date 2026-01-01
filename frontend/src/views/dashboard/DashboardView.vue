@@ -358,7 +358,7 @@ import { ref, onMounted, computed, watch, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { dashboardApi } from '../api/dashboard';
 import { studyApi } from '../api/study';
-import { useAuth } from '../composables/useAuth';
+import { useAuth } from '@/composables/useAuth';
 import DashboardRecordCard from './dashboard/DashboardRecordCard.vue';
 import AnalysisSidebar from './dashboard/AnalysisSidebar.vue';
 import http from '../api/http';

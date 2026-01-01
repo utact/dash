@@ -192,9 +192,9 @@ import {
     PieChart, Target, Trophy, Bell, UserCircle, LogOut, X, Menu, Network, Compass
 } from "lucide-vue-next";
 
-import { useAuth } from "../composables/useAuth";
-import { authApi } from "../api/auth";
-import { studyApi } from "../api/study";
+import { useAuth } from "@/composables/useAuth";
+import { authApi } from "@/api/auth";
+import { studyApi } from "@/api/study";
 
 const emits = defineEmits(['scroll']);
 

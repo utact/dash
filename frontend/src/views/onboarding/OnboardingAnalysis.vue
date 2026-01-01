@@ -71,7 +71,7 @@ import SkillAnalysisCard from '../../components/SkillAnalysisCard.vue';
 import AiAnalysisReport from '../../components/AiAnalysisReport.vue';
 // API
 import { aiApi } from '../../api/ai';
-import { useAuth } from '../../composables/useAuth';
+import { useAuth } from '@/composables/useAuth';
 import { onboardingApi } from '../../api/onboarding'; // To verify if user info needed again
 
 const router = useRouter();

@@ -157,7 +157,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { ArrowLeft, Code2 } from 'lucide-vue-next';
 import { boardApi } from '../api/board';
 import { algorithmApi } from '../api/algorithm';
-import { useAuth } from '../composables/useAuth';
+import { useAuth } from '@/composables/useAuth';
 import CodeViewer from '../../components/editor/CodeViewer.vue';
 
 const router = useRouter();
