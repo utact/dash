@@ -17,7 +17,7 @@ import org.springframework.web.client.RestClient;
 @RequiredArgsConstructor
 public class AiServerClientImpl implements AiServerClient {
 
-    @Value("${ai.server.base-url:http://localhost:8000}")
+    @Value("${ai.server.base-url:http://127.0.0.1:8000}")
     private String baseUrl;
 
     private final RestClient restClient;
@@ -26,6 +26,7 @@ public class AiServerClientImpl implements AiServerClient {
     public CodeReviewResponse analyzeCode(CodeReviewRequest request) {
         try {
             log.debug("Requesting code analysis for problem: {}", request.getProblemNumber());
+            log.info("Calling AI Server at: {}/review", baseUrl);
 
             return restClient.post()
                     .uri(baseUrl + "/review")
