@@ -65,10 +65,10 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 // Components
 import AlgorithmRadarChart from '../../components/charts/AlgorithmRadarChart.vue';
-import LearningRoadmap from '../../components/LearningRoadmap.vue';
-import ClassBadgeGrid from '../../components/ClassBadgeGrid.vue';
-import SkillAnalysisCard from '../../components/SkillAnalysisCard.vue';
-import AiAnalysisReport from '../../components/AiAnalysisReport.vue';
+import LearningRoadmap from '../../components/skill/LearningRoadmap.vue';
+import ClassBadgeGrid from '../../components/study/ClassBadgeGrid.vue';
+import SkillAnalysisCard from '../../components/skill/SkillAnalysisCard.vue';
+import AiAnalysisReport from '../../components/ai/AiAnalysisReport.vue';
 // API
 import { aiApi } from '../../api/ai';
 import { useAuth } from '@/composables/useAuth';
