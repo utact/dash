@@ -10,7 +10,6 @@ const BoardForm = () => import("../views/board/BoardForm.vue");
 const BoardDetail = () => import("../views/board/BoardDetail.vue");
 const Profile = () => import("../views/user/ProfileView.vue");
 const YouTubeSearch = () => import("../views/utils/YouTubeSearch.vue");
-const StudySimCity = () => import("../views/study/StudySimCity.vue");
 
 const routes = [
   { path: "/", name: "Landing", component: LandingView },

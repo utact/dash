@@ -115,8 +115,6 @@ import { tagApi } from '@/api/tags';
 const router = useRouter();
 const { user } = useAuth();
 
-const { user } = useAuth();
-
 // 스킬 트리 통계 (API에서 가져옴)
 const skillTreeData = ref(null);
 
