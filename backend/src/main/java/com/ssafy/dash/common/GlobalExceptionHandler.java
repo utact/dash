@@ -67,6 +67,11 @@ public class GlobalExceptionHandler {
         return buildResponse(ErrorCode.RESOURCE_NOT_FOUND, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(com.ssafy.dash.common.exception.UnauthorizedAccessException.class)
+    public ResponseEntity<ApiErrorResponse> handleUnauthorized(com.ssafy.dash.common.exception.UnauthorizedAccessException ex, HttpServletRequest request) {
+        return buildResponse(ErrorCode.UNAUTHORIZED_ACCESS, ex.getMessage(), request);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleAll(Exception ex, HttpServletRequest request) {
 
