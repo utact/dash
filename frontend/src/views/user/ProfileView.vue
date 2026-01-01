@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { userApi } from '../api/user';
 import { studyApi } from '../api/study';
-import { useAuth } from '../composables/useAuth';
+import { useAuth } from '@/composables/useAuth';
 import { onboardingApi } from '../api/onboarding';
 import { Settings, LogOut, Github, Award, Users, Crown } from 'lucide-vue-next';
 import BaseIconBadge from '@/components/common/BaseIconBadge.vue';

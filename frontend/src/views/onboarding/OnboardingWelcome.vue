@@ -120,7 +120,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { onboardingApi } from '../../api/onboarding';
-import { useAuth } from '../../composables/useAuth';
+import { useAuth } from '@/composables/useAuth';
 import { Loader2, Puzzle, BookOpen, Check, ArrowRight, CheckCircle2 } from 'lucide-vue-next';
 
 const router = useRouter();

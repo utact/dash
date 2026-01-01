@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { studyApi } from '../../api/study';
-import { useAuth } from '../../composables/useAuth';
+import { useAuth } from '@/composables/useAuth';
 import StudyExplorer from '../../components/study/StudyExplorer.vue';
 
 const router = useRouter();

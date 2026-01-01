@@ -21,7 +21,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuth } from '../../composables/useAuth';
+import { useAuth } from '@/composables/useAuth';
 import OnboardingWelcome from './OnboardingWelcome.vue';
 import OnboardingAnalysis from './OnboardingAnalysis.vue';
 import OnboardingStudy from './OnboardingStudy.vue';

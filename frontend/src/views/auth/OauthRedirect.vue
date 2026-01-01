@@ -50,7 +50,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
-import { authApi } from "../api/auth";
+import { authApi } from "@/api/auth";
 import { Compass, Ghost } from "lucide-vue-next";
 
 const router = useRouter();

@@ -43,8 +43,8 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
 import AcornStack from "./AcornStack.vue";
-import { useAuth } from "../composables/useAuth";
-import { studyApi } from "../api/study";
+import { useAuth } from "@/composables/useAuth";
+import { studyApi } from "@/api/study";
 import { Activity } from "lucide-vue-next";
 
 const { user } = useAuth();

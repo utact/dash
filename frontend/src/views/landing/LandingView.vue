@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { ArrowUp, ArrowDown } from 'lucide-vue-next' // 아이콘 변경됨
-import { useAuth } from '../composables/useAuth'
+import { useAuth } from '@/composables/useAuth'
 import { useRouter } from 'vue-router'
 import { useMouseInElement, useDebounceFn } from '@vueuse/core'
 
 // 모든 슬라이드 가져오기
-import Slide1 from '../components/landing/Slide1.vue'
-import Slide2 from '../components/landing/Slide2.vue'
-import Slide3 from '../components/landing/Slide3.vue'
-import Slide4 from '../components/landing/Slide4.vue'
-import Slide5 from '../components/landing/Slide5.vue'
+import Slide1 from '@/components/landing/Slide1.vue'
+import Slide2 from '@/components/landing/Slide2.vue'
+import Slide3 from '@/components/landing/Slide3.vue'
+import Slide4 from '@/components/landing/Slide4.vue'
+import Slide5 from '@/components/landing/Slide5.vue'
 
 // 랜딩 스타일 가져오기
-import '../assets/styles/landing/index.css'
+import '@/assets/styles/landing/index.css'
 
 const { user, authChecked } = useAuth()
 const router = useRouter()

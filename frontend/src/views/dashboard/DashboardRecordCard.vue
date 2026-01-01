@@ -115,7 +115,7 @@ import { ExternalLink, ChevronDown, ChevronUp, Bot, Bug, Send, Loader2, Activity
 import CodeViewer from '../../components/editor/CodeViewer.vue';
 import { boardApi, commentApi } from '../../api/board';
 import { aiApi } from '../../api/ai'; 
-import { useAuth } from '../../composables/useAuth';
+import { useAuth } from '@/composables/useAuth';
 import { marked } from 'marked';
 
 const props = defineProps({
