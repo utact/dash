@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import com.ssafy.dash.acorn.application.AcornService;
+
 import java.util.List;
 
 import com.ssafy.dash.ai.application.dto.HintChatCommand;
@@ -31,7 +33,7 @@ public class TutorChatService {
     private final UserSkillAnalysisService skillAnalysisService;
     private final UserRepository userRepository;
     private final AlgorithmRecordRepository algorithmRecordRepository;
-    private final com.ssafy.dash.acorn.application.AcornService acornService;
+    private final AcornService acornService;
 
     public HintChatResponse processChat(HintChatCommand command) {
         if (command.recordId() != null) {
