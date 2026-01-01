@@ -26,7 +26,7 @@ import com.ssafy.dash.onboarding.presentation.dto.response.RepositorySetupRespon
 import com.ssafy.dash.onboarding.presentation.dto.response.RepositorySearchResponse;
 import com.ssafy.dash.onboarding.presentation.dto.response.SolvedacVerifyResponse;
 import com.ssafy.dash.solvedac.domain.SolvedacApiClient;
-import com.ssafy.dash.solvedac.domain.dto.SolvedacUserResponse;
+import com.ssafy.dash.solvedac.domain.SolvedacUser;
 import com.ssafy.dash.solvedac.domain.exception.SolvedacApiException;
 import com.ssafy.dash.github.domain.GitHubClient;
 import com.ssafy.dash.github.domain.RepositoryInfo;
@@ -60,7 +60,7 @@ public class OnboardingController {
     public ResponseEntity<SolvedacVerifyResponse> verifySolvedacHandle(
             @RequestParam String handle) {
         try {
-            SolvedacUserResponse userResponse = solvedacApiClient.getUserInfo(handle.trim());
+            SolvedacUser userResponse = solvedacApiClient.getUserInfo(handle.trim());
             return ResponseEntity.ok(SolvedacVerifyResponse.from(userResponse));
         } catch (SolvedacApiException e) {
             return ResponseEntity.notFound().build();
