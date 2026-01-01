@@ -127,8 +127,6 @@ const emit = defineEmits(['find-counter-example', 'ask-tutor', 'toggle-expand'])
 
 const { user } = useAuth();
 
-const { user } = useAuth();
-
 const loadingBoard = ref(false);
 const board = ref(null);
 const comments = ref([]);
