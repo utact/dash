@@ -1,4 +1,4 @@
-package com.ssafy.dash.solvedac.domain.dto;
+package com.ssafy.dash.solvedac.infrastructure.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
