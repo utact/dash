@@ -42,7 +42,7 @@
                 <!-- Profile Image -->
                 <div class="w-16 h-16 rounded-full bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg overflow-hidden border-2 border-white">
                   <img 
-                    :src="verifiedUser.profileImageUrl" 
+                    :src="verifiedUser.profileImageUrl || '/images/profiles/default-profile.png'" 
                     class="w-full h-full object-cover"
                     alt="Profile"
                     @error="$event.target.src='/images/profiles/default-profile.png'"
