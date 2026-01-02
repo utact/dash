@@ -125,12 +125,13 @@
                         </div>
                         <!-- 로딩 표시기 -->
                         <div v-if="chatLoading" class="flex justify-start">
-                            <div class="bg-white border border-slate-200 px-4 py-3 rounded-2xl rounded-bl-sm shadow-sm">
+                            <div class="bg-white border border-slate-200 px-4 py-3 rounded-2xl rounded-bl-sm shadow-sm flex items-center gap-3">
                                 <div class="flex gap-1.5">
                                     <div class="w-2 h-2 bg-brand-400 rounded-full animate-bounce"></div>
                                     <div class="w-2 h-2 bg-brand-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
                                     <div class="w-2 h-2 bg-brand-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
                                 </div>
+                                <span class="text-xs text-slate-400 font-medium">AI가 답변을 생성중입니다...</span>
                             </div>
                         </div>
                     </div>
@@ -139,8 +140,9 @@
                     <div v-if="quickReplies.length > 0 && !chatLoading" class="flex flex-wrap gap-2 mb-4">
                         <button v-for="(reply, idx) in quickReplies" :key="idx"
                                 @click="sendChatMessage(reply)"
-                                class="px-3 py-1.5 bg-brand-50 border border-brand-200 text-brand-700 rounded-full text-xs font-medium hover:bg-brand-100 transition-colors"
-                                v-html="renderMarkdown(reply)">
+                                class="px-3 py-2 bg-brand-50 border border-brand-200 text-brand-700 rounded-xl text-xs font-medium hover:bg-brand-100 transition-colors flex items-start gap-2 shadow-sm w-full text-left">
+                                <MessageSquare class="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                                <span class="leading-relaxed">{{ reply }}</span>
                         </button>
                     </div>
 
@@ -327,7 +329,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { 
   X, Bot, Bug, Lightbulb, Copy, Check,
   XCircle, CheckCircle2, Zap, Trophy, ArrowRight,
@@ -391,6 +393,19 @@ watch([() => props.isVisible, () => props.solveStatus], ([visible, status]) => {
     }
 }, { immediate: true });
 
+const scrollToBottom = async () => {
+    await nextTick();
+    if (chatContainer.value) {
+        chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+    }
+};
+
+// 채팅 메시지가 추가되면 스크롤
+watch(() => chatMessages.value.length, scrollToBottom);
+
+// 로딩 상태가 변하면 스크롤 (로딩 시작/끝)
+watch(chatLoading, scrollToBottom);
+
 const sendChatMessage = async (message) => {
     if (!message?.trim() || chatLoading.value) return;
     
@@ -423,10 +438,20 @@ const sendChatMessage = async (message) => {
         }
     } catch (error) {
         console.error('Hint chat failed:', error);
-        chatMessages.value.push({ 
-            role: 'assistant', 
-            content: '죄송해요, 일시적인 오류가 발생했어요. 다시 시도해주세요.' 
-        });
+        
+        // Handle insufficient acorns specifically
+        const errorMsg = error.response?.data?.message || '';
+        if (errorMsg.includes('Not enough acorns')) {
+            chatMessages.value.push({
+                role: 'assistant',
+                content: '도토리가 부족해 응답을 생성할 수 없습니다.'
+            });
+        } else {
+            chatMessages.value.push({ 
+                role: 'assistant', 
+                content: '죄송해요, 일시적인 오류가 발생했어요. 다시 시도해주세요.' 
+            });
+        }
     } finally {
         chatLoading.value = false;
     }
