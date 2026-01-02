@@ -315,8 +315,9 @@
 
                                 <div v-if="msg.suggestions && msg.suggestions.length > 0" class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap gap-2 animate-fade-in">
                                     <button v-for="q in msg.suggestions" :key="q" @click="sendSuggestion(q)" 
-                                        class="px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-xl text-xs font-medium transition-colors flex items-center gap-1.5 border border-brand-200 shadow-sm">
-                                        <MessageCircle :size="12"/> {{ q }}
+                                        class="px-3 py-2 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-xl text-xs font-medium transition-colors flex items-start gap-2 border border-brand-200 shadow-sm w-full text-left">
+                                        <MessageCircle :size="14" class="shrink-0 mt-0.5"/> 
+                                        <span class="leading-relaxed">{{ q }}</span>
                                     </button>
                                 </div>
                             </div>
