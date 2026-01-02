@@ -62,8 +62,10 @@
         </template>
         
         <!-- 문제 번호 (동적 추가 방식) -->
-        <div v-if="creationMode !== 'EDIT'">
-          <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">📝 추가할 문제 번호</label>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">
+              {{ creationMode === 'EDIT' ? '📝 문제 번호 수정' : '📝 추가할 문제 번호' }}
+          </label>
           
           <div class="space-y-3">
              <div v-for="(input, index) in problemInputs" :key="index" class="flex gap-2 animate-in fade-in slide-in-from-left-2 duration-200">
@@ -131,8 +133,7 @@ const props = defineProps({
   isOpen: Boolean,
   studyId: Number,
   initialProblemIds: String,
-  initialTitle: String,
-  initialTitle: String,
+  initialTitle: String, // Note: duplicate prop definition in original, removed implicitly
   preSelectedMissionId: Number,
   forceNew: Boolean,
   isEditMode: Boolean,
@@ -258,6 +259,17 @@ const handleCreateOrUpdate = async () => {
       .map(input => parseInt(input.value))
       .filter(n => !isNaN(n));
       
+    // 마감일 검증
+    if (newMission.value.deadline) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const deadlineDate = new Date(newMission.value.deadline);
+        if (deadlineDate < today) {
+            alert('마감일은 과거 날짜로 설정할 수 없습니다.');
+            return;
+        }
+    }
+      
     if (problemIds.length === 0) {
         alert('추가할 문제 번호를 입력해주세요.');
         return;
@@ -274,7 +286,8 @@ const handleCreateOrUpdate = async () => {
     } else if (creationMode.value === 'EDIT') {
          await axios.patch(`/api/studies/${props.studyId}/missions/${props.missionId}`, {
             title: newMission.value.title,
-            deadline: newMission.value.deadline
+            deadline: newMission.value.deadline,
+            problemIds
          });
     } else {
         if (!selectedMissionId.value) {

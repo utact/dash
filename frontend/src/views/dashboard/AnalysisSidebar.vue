@@ -27,8 +27,13 @@
         <div class="flex-1 overflow-y-auto p-0 custom-scrollbar bg-slate-50">
             
             <!-- 1. OVERVIEW TAB -->
-            <div v-if="activeTab === 'overview'" class="p-5 space-y-6 flex flex-col h-full">
-                <div class="space-y-6 flex-1">
+            <div v-if="activeTab === 'overview'" class="p-5 flex flex-col h-full">
+                <div v-if="!hasAnyAnalysis" class="flex-1 flex flex-col items-center justify-center text-slate-400 p-8 text-center h-full animate-pulse">
+                    <Loader2 class="w-8 h-8 mb-4 animate-spin text-brand-500" />
+                    <p class="text-sm font-bold text-slate-600 mb-1">AI가 코드를 분석하고 있습니다</p>
+                    <p class="text-xs">잠시만 기다려주세요...</p>
+                </div>
+                <div v-else class="space-y-6 flex-1">
                     <!-- Structure: Variables & Functions -->
                     <div v-if="parsedVariables.length > 0 || parsedFunctions.length > 0" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                         <h4 class="text-xs font-bold text-slate-800 mb-3 flex items-center gap-2">
@@ -137,9 +142,15 @@
             </div>
 
             <!-- 2. ANALYSIS TAB -->
-            <div v-if="activeTab === 'analysis'" class="p-5 space-y-6">
+            <div v-if="activeTab === 'analysis'" class="p-5 flex flex-col h-full">
+                <div v-if="!hasAnyAnalysis" class="flex-1 flex flex-col items-center justify-center text-slate-400 p-8 text-center h-full animate-pulse">
+                    <Loader2 class="w-8 h-8 mb-4 animate-spin text-brand-500" />
+                    <p class="text-sm font-bold text-slate-600 mb-1">AI가 코드를 분석하고 있습니다</p>
+                    <p class="text-xs">잠시만 기다려주세요...</p>
+                </div>
                 <!-- Complexity Cards -->
-                <div class="space-y-3">
+                <div v-else class="space-y-6">
+                    <div class="space-y-3">
                     <div class="grid grid-cols-2 gap-3">
                         <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-center">
                             <div class="text-[10px] text-slate-400 font-bold uppercase mb-1">시간 복잡도</div>
@@ -197,9 +208,6 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="!hasAnyAnalysis" class="text-center py-10 text-slate-400">
-                    <Activity class="w-8 h-8 mx-auto mb-2 opacity-20" />
-                    <span class="text-xs">분석 데이터가 없습니다</span>
                 </div>
             </div>
 
@@ -269,7 +277,12 @@
 
             <!-- 4. TUTOR TAB -->
             <div v-if="activeTab === 'tutor'" class="flex flex-col h-full relative">
-                <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar" ref="chatContainer">
+                <div v-if="!hasAnyAnalysis" class="flex-1 flex flex-col items-center justify-center text-slate-400 p-8 text-center h-full animate-pulse">
+                    <Loader2 class="w-8 h-8 mb-4 animate-spin text-brand-500" />
+                    <p class="text-sm font-bold text-slate-600 mb-1">AI가 코드를 분석하고 있습니다</p>
+                    <p class="text-xs">분석이 완료되면 튜터 기능을 사용할 수 있습니다.</p>
+                </div>
+                <div v-else class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar" ref="chatContainer">
                     <div v-if="tutorMessages.length === 0" class="flex flex-col items-center justify-center h-full text-slate-400 text-center opacity-70">
                         <Bot :size="32" class="mb-2"/>
                         <p class="text-xs mb-4">코드에 대해 궁금한 점을 물어보세요!</p>
@@ -325,7 +338,7 @@
                     </div>
                 </div>
                     
-                <div class="p-3 bg-white border-t border-slate-200 sticky bottom-0">
+                <div v-if="hasAnyAnalysis" class="p-3 bg-white border-t border-slate-200 sticky bottom-0">
                     <div class="flex gap-2">
                         <input v-model="tutorInput" @keypress.enter="sendTutorMessage" :disabled="loadingTutorResponse"
                             placeholder="질문을 입력하세요..." class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-brand-700 focus:outline-none"/>
@@ -436,7 +449,13 @@ const parsedPitfalls = computed(() => {
 });
 
 const hasAnyAnalysis = computed(() => {
-    return props.record?.timeComplexity || props.record?.spaceComplexity || parsedPitfalls.value.length > 0 || props.record?.refactorProvided;
+    return props.record?.timeComplexity || 
+           props.record?.spaceComplexity || 
+           parsedPitfalls.value.length > 0 || 
+           props.record?.refactorProvided || 
+           parsedVariables.value.length > 0 || 
+           parsedSummary.value || 
+           parsedIntuition.value;
 });
 
 const isPassed = computed(() => {
