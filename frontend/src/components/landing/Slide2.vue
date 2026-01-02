@@ -1,198 +1,115 @@
-<script setup lang="ts">
-import { Sparkles, User, Zap } from 'lucide-vue-next'
-import { computed } from 'vue'
-
-const data = [
-  { subject: '그리디', A: 85, fullMark: 100 },
-  { subject: '그래프', A: 70, fullMark: 100 },
-  { subject: 'DP', A: 45, fullMark: 100 },
-  { subject: '구현', A: 90, fullMark: 100 },
-  { subject: '문자열', A: 75, fullMark: 100 },
-  { subject: '정렬', A: 80, fullMark: 100 },
-]
-
-const radius = 120
-const centerX = 200
-const centerY = 200
-const angleStep = (Math.PI * 2) / data.length
-
-const getPoint = (value: number, index: number) => {
-  const angle = index * angleStep - Math.PI / 2
-  const x = centerX + (value / 100) * radius * Math.cos(angle)
-  const y = centerY + (value / 100) * radius * Math.sin(angle)
-  return `${x},${y}`
-}
-
-const radarPoints = computed(() => {
-  return data.map((d, i) => getPoint(d.A, i)).join(' ')
-})
-
-const gridLevels = [25, 50, 75, 100]
-
-const getGridPolygon = (level: number) => {
-  return data.map((_, i) => getPoint(level, i)).join(' ')
-}
-</script>
-
 <template>
-  <div class="relative h-full w-full overflow-hidden bg-[#F8FAFC]">
-    <!-- Decorative elements -->
-    <div class="absolute top-20 left-20 w-64 h-64 bg-[#3396F4] opacity-5 rounded-full blur-3xl"></div>
-    <div class="absolute bottom-20 right-20 w-80 h-80 bg-[#58CC02] opacity-5 rounded-full blur-3xl"></div>
+  <div class="w-full h-full bg-slate-50 flex items-center justify-center overflow-hidden relative">
+      <!-- 배경 장식 -->
+      <div class="absolute top-0 right-0 w-1/2 h-full bg-slate-100/50 skew-x-12 origin-top-right z-0"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30 z-0"></div>
 
-    <div class="relative z-10 flex h-full items-center px-8 py-16 max-w-7xl mx-auto">
-      <div class="grid md:grid-cols-2 gap-16 w-full">
-        <!-- Left side - Text content -->
-        <div class="flex flex-col justify-center">
-          <div
-            v-motion
-            :initial="{ x: -50, opacity: 0 }"
-            :enter="{ x: 0, opacity: 1, transition: { duration: 800 } }"
-          >
-            <div 
-              class="inline-flex items-center gap-2 px-4 py-2 bg-[#3396F4] text-white rounded-xl mb-8 font-bold text-sm"
-              v-motion
-              :initial="{ scale: 0 }"
-              :enter="{ scale: 1, transition: { delay: 200, type: 'spring' } }"
-            >
-              <Zap class="w-4 h-4" :stroke-width="2.5" />
-              Hero Feature
-            </div>
-            
-            <h2 class="text-5xl md:text-6xl font-black text-slate-800 mb-6 leading-tight tracking-tight">
-              퀵 온보딩:<br />
-              <span class="text-[#3396F4]">
-                ID 하나로 시작
-              </span>
-            </h2>
-            
-            <p class="text-2xl text-slate-700 mb-8 font-bold">
-              당신의 'Solved.ac' ID는<br />
-              당신의 역량을 알고 있습니다 ✨
-            </p>
-
-            <div class="space-y-6">
-              <div
-                class="flex items-start gap-4"
-                v-motion
-                :initial="{ x: -30, opacity: 0 }"
-                :enter="{ x: 0, opacity: 1, transition: { delay: 300 } }"
-              >
-                <div class="flex-shrink-0 w-12 h-12 bg-[#3396F4] bg-opacity-10 rounded-2xl flex items-center justify-center">
-                  <User class="w-6 h-6 text-[#3396F4]" :stroke-width="2.5" />
-                </div>
-                <div>
-                  <h3 class="text-xl font-bold text-slate-800 mb-1">아이디 입력 즉시 스캔</h3>
-                  <p class="text-slate-600 font-medium">지난 풀이 이력을 자동으로 분석</p>
-                </div>
+      <div class="relative z-10 max-w-6xl mx-auto px-6 w-full flex flex-col md:flex-row items-center gap-12">
+          
+          <!-- 텍스트 영역 -->
+          <div class="flex-1 space-y-8 animate-in slide-in-from-left duration-700">
+              <div class="space-y-4">
+                  <span class="inline-block px-3 py-1 bg-rose-100 text-rose-600 rounded-lg text-xs font-bold uppercase tracking-wider">Pain Point</span>
+                  <h2 class="text-4xl md:text-5xl font-black text-slate-800 leading-tight">
+                    <span class="text-slate-400 line-through decoration-rose-500 decoration-4">귀찮은 기록</span>은 이제 그만.<br/>
+                    알고리즘 공부에만<br/>
+                    <span class="text-brand-500">집중하세요.</span>
+                  </h2>
+                  <p class="text-lg text-slate-600 leading-relaxed">
+                      귀찮은 주석, PR, 문서 정리, 코드 리뷰...<br/>
+                      이 모든 번거로움, <strong>DashHub</strong>가 대신해 드립니다.
+                  </p>
               </div>
 
-              <div
-                class="flex items-start gap-4"
-                v-motion
-                :initial="{ x: -30, opacity: 0 }"
-                :enter="{ x: 0, opacity: 1, transition: { delay: 500 } }"
-              >
-                <div class="flex-shrink-0 w-12 h-12 bg-[#FFC800] bg-opacity-20 rounded-2xl flex items-center justify-center">
-                  <Sparkles class="w-6 h-6 text-[#FF9600]" :stroke-width="2.5" />
+              <!-- 비교 리스트 -->
+              <div class="space-y-4">
+                <div class="flex items-center gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
+                    <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center shrink-0">
+                        <FileX class="w-6 h-6 text-slate-500" />
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-700">수동 커밋 & 리드미 작성</h4>
+                        <p class="text-sm text-slate-500">문제 풀 때마다 반복되는 단순 노동</p>
+                    </div>
                 </div>
-                <div>
-                  <h3 class="text-xl font-bold text-slate-800 mb-1">AI 리포트 생성</h3>
-                  <p class="text-slate-600 font-medium">강점 태그(예: 그리디), 약점 태그(예: DP) 자동 분류</p>
-                </div>
-              </div>
-            </div>
 
-            <!-- ID Input mock -->
-            <div
-              class="mt-10 p-6 bg-white rounded-3xl border-2 border-slate-200 shadow-sm"
-              v-motion
-              :initial="{ y: 30, opacity: 0 }"
-              :enter="{ y: 0, opacity: 1, transition: { delay: 700 } }"
-            >
-              <label class="block text-sm font-bold text-slate-700 mb-3">Solved.ac ID</label>
-              <div class="flex gap-3">
-                <input 
-                  type="text" 
-                  placeholder="your_id"
-                  class="flex-1 px-4 py-3 bg-slate-50 rounded-xl border-2 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#3396F4] transition-colors font-medium"
-                />
-                <button class="px-6 py-3 bg-[#3396F4] hover:bg-[#2B7FD4] rounded-xl text-white font-bold shadow-sm hover:shadow-md transition-all">
-                  분석 시작
-                </button>
-              </div>
+                <div class="flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-brand-100 shadow-xl shadow-brand-500/10 scale-105 relative z-10">
+                    <div class="absolute -left-2 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-brand-500 rounded-full"></div>
+                    <div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center shrink-0">
+                        <Zap class="w-7 h-7 text-brand-500 fill-brand-500" />
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800">Zero-Manual 파이프라인</h4>
+                        <p class="text-sm text-slate-600">제출 버튼 클릭 한 번으로 <span class="text-brand-600 font-bold">자동 업로드 & 분석 완료</span></p>
+                    </div>
+               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Right side - Radar chart -->
-        <div
-          class="flex items-center justify-center"
-          v-motion
-          :initial="{ x: 50, opacity: 0, scale: 0.9 }"
-          :enter="{ x: 0, opacity: 1, scale: 1, transition: { duration: 800, delay: 300 } }"
-        >
-          <div class="relative w-full">
-            <div class="p-8 bg-white rounded-3xl border-2 border-slate-200 shadow-sm">
-              <div class="flex items-center gap-3 mb-6">
-                <div class="text-3xl">📊</div>
-                <h3 className="text-2xl font-bold text-slate-800">역량 분석 결과</h3>
-              </div>
-              
-              <!-- Custom SVG Radar Chart -->
-              <div class="flex justify-center">
-                <svg width="400" height="400" viewBox="0 0 400 400">
-                  <!-- Grid -->
-                  <g v-for="level in gridLevels" :key="level">
-                    <polygon :points="getGridPolygon(level)" fill="none" stroke="#E2E8F0" :stroke-width="1" />
-                  </g>
-                  
-                  <!-- Axes -->
-                  <line 
-                    v-for="(_, i) in data" 
-                    :key="'line'+i"
-                    :x1="centerX" 
-                    :y1="centerY" 
-                    :x2="centerX + radius * Math.cos(i * angleStep - Math.PI/2)" 
-                    :y2="centerY + radius * Math.sin(i * angleStep - Math.PI/2)" 
-                    stroke="#E2E8F0" 
-                    stroke-width="1" 
-                  />
+          <!-- 그래픽 영역 -->
+          <div class="flex-1 w-full max-w-lg relative animate-in slide-in-from-right duration-700 delay-200">
+               <!-- 파이프라인 시각화 -->
+               <div class="relative bg-white rounded-[2rem] shadow-2xl p-8 border border-slate-100 overflow-hidden">
+                   <!-- 배경 그리드 -->
+                   <div class="absolute inset-0 bg-slate-50/50 bg-[linear-gradient(to_right,#f1f5f9_1px,transparent_1px),linear-gradient(to_bottom,#f1f5f9_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
-                  <!-- Data Area -->
-                  <polygon :points="radarPoints" fill="#3396F4" fill-opacity="0.5" stroke="#3396F4" stroke-width="3" />
-                  
-                  <!-- Labels -->
-                  <text 
-                    v-for="(d, i) in data" 
-                    :key="'text'+i"
-                    :x="centerX + (radius + 25) * Math.cos(i * angleStep - Math.PI/2)" 
-                    :y="centerY + (radius + 25) * Math.sin(i * angleStep - Math.PI/2)" 
-                    text-anchor="middle" 
-                    dominant-baseline="middle"
-                    fill="#334155"
-                    font-size="14"
-                    font-weight="bold"
-                  >
-                    {{ d.subject }}
-                  </text>
-                </svg>
-              </div>
-              
-              <div class="mt-6 grid grid-cols-2 gap-4">
-                <div class="p-4 bg-[#58CC02] bg-opacity-10 rounded-2xl border-2 border-[#58CC02]">
-                  <p className="text-sm text-[#58CC02] font-bold mb-1">💪 강점</p>
-                  <p className="text-lg font-bold text-slate-800">구현, 그리디</p>
-                </div>
-                <div class="p-4 bg-[#FF4B4B] bg-opacity-10 rounded-2xl border-2 border-[#FF4B4B]">
-                  <p className="text-sm text-[#FF4B4B] font-bold mb-1">📚 약점</p>
-                  <p className="text-lg font-bold text-slate-800">DP</p>
-                </div>
-              </div>
-            </div>
+                   <div class="relative z-10 flex flex-col items-center gap-6">
+                       <!-- Step 1: Solving -->
+                       <div class="w-full flex items-center gap-4 p-4 bg-white rounded-2xl shadow-sm border border-slate-200">
+                           <div class="w-10 h-10 bg-[#0078C0] rounded-lg flex items-center justify-center shrink-0 text-white font-bold text-xs ring-4 ring-[#0078C0]/10">
+                              BOJ
+                           </div>
+                           <div class="flex-1">
+                               <div class="h-2 w-20 bg-slate-200 rounded mb-2"></div>
+                               <div class="h-2 w-32 bg-slate-100 rounded"></div>
+                           </div>
+                           <span class="text-xs font-bold text-slate-400">User</span>
+                       </div>
+
+                       <ArrowDown class="w-6 h-6 text-brand-300 animate-bounce" />
+
+                       <!-- Step 2: Automation Core -->
+                       <div class="w-full p-1 bg-gradient-to-br from-brand-400 to-brand-600 rounded-2xl shadow-lg">
+                           <div class="bg-white rounded-xl p-5 flex items-center justify-between">
+                               <div class="flex items-center gap-3">
+                                   <div class="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center">
+                                       <img src="/images/icons/icon-512.png" class="w-6 h-6" alt="Icon"/>
+                                   </div>
+                                   <div>
+                                       <h5 class="font-bold text-slate-800 text-sm">DashHub Engine</h5>
+                                       <span class="text-[10px] text-brand-500 font-bold bg-brand-50 px-1.5 py-0.5 rounded">Running...</span>
+                                   </div>
+                               </div>
+                               <div class="flex gap-1">
+                                   <span class="block w-1.5 h-1.5 bg-brand-500 rounded-full animate-ping"></span>
+                               </div>
+                           </div>
+                       </div>
+
+                       <ArrowDown class="w-6 h-6 text-brand-300 animate-bounce delay-100" />
+
+                        <!-- Step 3: Result -->
+                        <div class="w-full flex gap-3">
+                            <div class="flex-1 p-3 bg-slate-900 rounded-xl flex items-center gap-3 shadow-md">
+                                <Github class="w-5 h-5 text-white" />
+                                <span class="text-xs font-bold text-slate-300">Commit Pushed</span>
+                            </div>
+                             <div class="flex-1 p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-3 shadow-sm">
+                                <BarChart3 class="w-5 h-5 text-brand-500" />
+                                <span class="text-xs font-bold text-slate-600">Stats Updated</span>
+                            </div>
+                        </div>
+                   </div>
+               </div>
+               
+               <!-- 장식 -->
+               <div class="absolute -top-6 -right-6 w-24 h-24 bg-brand-400/20 rounded-full blur-2xl animate-pulse"></div>
+               <div class="absolute -bottom-8 -left-8 w-32 h-32 bg-rose-400/20 rounded-full blur-3xl animate-pulse delay-700"></div>
           </div>
-        </div>
       </div>
-    </div>
   </div>
 </template>
+
+<script setup>
+import { FileX, Zap, ArrowDown, Github, BarChart3 } from 'lucide-vue-next';
+</script>

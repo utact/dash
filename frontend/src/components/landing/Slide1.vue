@@ -1,155 +1,84 @@
-<script setup lang="ts">
-import { Code, Sparkles } from 'lucide-vue-next'
-
-const shapes = ['◆', '●', '■', '▲']
-const colors = ['#58CC02', '#3396F4', '#FFC800', '#2DD4BF', '#FF9600']
-
-// 랜덤 모양 데이터 생성
-const floatingShapes = Array.from({ length: 8 }, (_, i) => ({
-  id: i,
-  shape: shapes[i % shapes.length],
-  color: colors[i % colors.length],
-  initial: {
-    x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-    y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
-    opacity: 0.1,
-    rotate: 0
-  },
-  enter: {
-    y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
-    rotate: 360,
-    transition: {
-      duration: (15 + Math.random() * 10) * 1000,
-      repeat: Infinity,
-      ease: "linear"
-    }
-  }
-}))
-
-const badges = [
-  { text: '자동 기록', color: 'bg-[#58CC02] text-white' },
-  { text: 'AI 코칭', color: 'bg-[#3396F4] text-white' },
-  { text: '실전 모의고사', color: 'bg-[#FF9600] text-white' },
-]
-
-const handleLogin = () => {
-  window.location.href = `/oauth2/authorization/github`
-}
-</script>
-
 <template>
-  <div class="relative h-full w-full overflow-hidden bg-[#F8FAFC]">
-    <!-- Background Pattern -->
-    <div class="absolute inset-0 opacity-5">
-      <div class="absolute inset-0" :style="{
-        backgroundImage: `url(&quot;data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233396F4' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E&quot;)`
-      }"></div>
+  <div class="relative w-full h-full overflow-hidden bg-slate-900 flex items-center justify-center">
+    <!-- 배경 이미지 & 오버레이 -->
+    <div class="absolute inset-0 z-0">
+      <img src="/images/background/storage.png" alt="DashHub Background" class="w-full h-full object-cover opacity-50 scale-105 animate-slow-zoom" />
+      <div class="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/80 to-slate-900"></div>
+      
+      <!-- 장식용 그라디언트 오브브 (Blur Blobs) -->
+      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-500/20 rounded-full blur-[100px] animate-pulse-slow"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-leaf/10 rounded-full blur-[80px] animate-pulse-slow delay-1000"></div>
     </div>
 
-    <!-- Floating Shapes -->
-    <div
-      v-for="item in floatingShapes"
-      :key="item.id"
-      class="absolute text-6xl opacity-10"
-      :style="{ color: item.color }"
-      v-motion
-      :initial="item.initial"
-      :enter="item.enter"
-    >
-      {{ item.shape }}
-    </div>
-
-    <!-- Main Content -->
-    <div class="relative z-10 flex h-full flex-col items-center justify-center px-8 text-center">
-      <!-- Logo -->
-      <div
-        class="mb-12"
-        v-motion
-        :initial="{ scale: 0, rotate: -180 }"
-        :enter="{ scale: 1, rotate: 0, transition: { duration: 800, type: 'spring' } }"
-      >
-        <div class="inline-flex items-center gap-4 px-8 py-6 bg-white rounded-3xl shadow-md border-4 border-[#3396F4]">
-          <Code class="w-16 h-16 text-[#3396F4]" :stroke-width="2.5" />
-          <div
-            v-motion
-            :enter="{ rotate: [0, 10, -10, 0], transition: { duration: 2000, repeat: Infinity, repeatDelay: 1000 } }"
-          >
-            <Sparkles class="w-12 h-12 text-[#FFC800]" :stroke-width="2.5" />
-          </div>
-        </div>
+    <!-- 메인 콘텐츠 -->
+    <div class="relative z-10 flex flex-col items-center justify-center p-6 text-center max-w-4xl mx-auto space-y-8">
+      
+      <!-- 상단 뱃지 -->
+      <div class="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
+        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-brand-200 text-sm font-bold shadow-lg shadow-brand-500/10 hover:bg-white/10 transition-colors cursor-default">
+          <span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
+          AI-Powered Study Platform
+        </span>
       </div>
 
-      <!-- Text -->
-      <div 
-        class="mb-4"
-        v-motion
-        :initial="{ y: 30, opacity: 0 }"
-        :enter="{ y: 0, opacity: 1, transition: { delay: 300, duration: 800 } }"
-      >
-        <h1 class="text-8xl md:text-9xl font-black text-[#3396F4] mb-4 tracking-tight" style="font-weight: 900">
-          DASH
-        </h1>
-      </div>
+      <!-- 헤드라인 -->
+      <h1 class="text-5xl md:text-7xl font-black text-white tracking-tight leading-tight animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200 drop-shadow-2xl">
+        개발자 성장의 모든 순간에,<br />
+        <span class="text-brand-500">Dash</span><span class="text-white">Hub</span>
+      </h1>
 
-      <p
-        class="text-3xl md:text-4xl text-slate-800 mb-3 font-bold tracking-tight"
-        v-motion
-        :initial="{ y: 30, opacity: 0 }"
-        :enter="{ y: 0, opacity: 1, transition: { delay: 500, duration: 800 } }"
-      >
-        기록을 넘어 성장을 설계하다
+      <!-- 서브텍스트 -->
+      <p class="text-lg md:text-xl text-slate-300 font-medium max-w-2xl leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
+        기록, 분석, 피드백까지.<br class="block md:hidden"/>
+        단 3초면 끝나는 <span class="text-white font-bold">자동화된 알고리즘 스터디</span>를 경험하세요.
       </p>
 
-      <p
-        class="text-2xl md:text-3xl text-slate-600 mb-2 font-medium"
-        v-motion
-        :initial="{ y: 30, opacity: 0 }"
-        :enter="{ y: 0, opacity: 1, transition: { delay: 600, duration: 800 } }"
-      >
-        알고리즘 통합 플랫폼
-      </p>
-
-      <div
-        class="mt-8 text-xl md:text-2xl text-slate-500 max-w-3xl font-medium"
-        v-motion
-        :initial="{ y: 30, opacity: 0 }"
-        :enter="{ y: 0, opacity: 1, transition: { delay: 800, duration: 800 } }"
-      >
-        데이터 기반 맞춤형 분석부터 AI 코칭, 실전 모의고사까지
+      <!-- CTA 버튼 -->
+      <div class="flex flex-col sm:flex-row gap-4 pt-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500">
+         <button @click="router.push('/login')" 
+                 class="group relative px-8 py-4 bg-white text-slate-900 rounded-2xl font-black text-lg shadow-xl shadow-brand-500/20 hover:scale-105 hover:shadow-brand-500/40 transition-all duration-300 overflow-hidden">
+            <span class="relative z-10 flex items-center justify-center gap-2">
+               GitHub로 시작하기
+               <ArrowRight class="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </span>
+            <div class="absolute inset-0 bg-gradient-to-r from-brand-500/0 via-brand-500/10 to-brand-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out"></div>
+         </button>
+         
+         <button @click="emit('next')"
+                 class="px-8 py-4 bg-white/5 text-white border border-white/10 rounded-2xl font-bold text-lg hover:bg-white/10 backdrop-blur-sm transition-all hover:scale-105">
+            더 알아보기
+         </button>
       </div>
 
-      <!-- Button -->
-      <button
-        @click="handleLogin"
-        class="mt-16 px-10 py-4 bg-[#3396F4] hover:bg-[#2B7FD4] text-white text-xl font-bold rounded-2xl shadow-md transition-colors"
-        v-motion
-        :initial="{ scale: 0, opacity: 0 }"
-        :enter="{ scale: 1, opacity: 1, transition: { delay: 1000, duration: 500, type: 'spring' } }"
-        :hover="{ scale: 1.05 }"
-        :tapped="{ scale: 0.95 }"
-      >
-        시작하기 →
-      </button>
-
-      <!-- Badges -->
-      <div
-        class="mt-12 flex flex-wrap gap-3 justify-center"
-        v-motion
-        :initial="{ y: 30, opacity: 0 }"
-        :enter="{ y: 0, opacity: 1, transition: { delay: 1200, duration: 800 } }"
-      >
-        <div
-          v-for="(badge, i) in badges"
-          :key="i"
-          class="px-4 py-2 rounded-xl text-sm font-bold shadow-sm"
-          :class="badge.color"
-          v-motion
-          :initial="{ scale: 0 }"
-          :enter="{ scale: 1, transition: { delay: 1300 + i * 100, type: 'spring' } }"
-        >
-          {{ badge.text }}
-        </div>
-      </div>
     </div>
+
+    <!-- 하단 스크롤 유도 -->
+    <div class="absolute bottom-12 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 animate-bounce opacity-50">
+       <span class="text-xs font-bold text-slate-400 tracking-widest uppercase">Scroll</span>
+       <ChevronDown class="w-5 h-5 text-white" />
+    </div>
+
   </div>
 </template>
+
+<script setup>
+import { useRouter } from 'vue-router';
+import { ArrowRight, ChevronDown } from 'lucide-vue-next';
+
+const router = useRouter();
+const emit = defineEmits(['next']);
+</script>
+
+<style scoped>
+.animate-slow-zoom {
+  animation: zoom 20s infinite alternate ease-in-out;
+}
+.animate-pulse-slow {
+   animation: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes zoom {
+  from { transform: scale(1.05); }
+  to { transform: scale(1.15); }
+}
+</style>
