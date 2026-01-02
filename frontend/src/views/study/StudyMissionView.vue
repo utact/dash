@@ -96,6 +96,7 @@
                                 <div class="flex flex-wrap gap-2">
                                     <div v-if="isLeader" class="flex gap-1 mb-2 w-full">
                                       <button 
+                                        v-if="mission.status !== 'COMPLETED' && getDaysLeft(mission.deadline) >= 0"
                                         @click.stop="openEditModal(mission)"
                                         class="flex items-center gap-1 px-2 py-1 text-slate-400 hover:text-brand-500 hover:bg-brand-50 rounded-lg transition-all text-xs font-bold"
                                         title="미션 수정">
@@ -122,15 +123,16 @@
                                       </button>
                                     </div>
 
-                                    <div v-for="(problemId, idx) in mission.problemIds" :key="problemId"
-                                        class="px-3 py-1.5 rounded-xl font-bold text-sm transition-all flex items-center gap-1.5"
+                                    <a v-for="(problemId, idx) in mission.problemIds" :key="problemId"
+                                        :href="`https://www.acmicpc.net/problem/${problemId}`" target="_blank"
+                                        class="px-3 py-1.5 rounded-xl font-bold text-sm transition-all flex items-center gap-1.5 hover:opacity-80 hover:shadow-sm"
                                         :class="idx < mission.solvedCount 
                                             ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
                                             : 'bg-slate-50 text-slate-400 border border-slate-100'"
                                     >
                                     <div class="w-2 h-2 rounded-full" :class="idx < mission.solvedCount ? 'bg-emerald-500' : 'bg-slate-300'"></div>
                                     <span>{{ problemId }}</span>
-                                    </div>
+                                    </a>
                                 </div>
                             </div>
 
@@ -144,6 +146,10 @@
                                 </div>
 
                                 <div class="relative h-3 bg-slate-200 rounded-full mb-8 mx-2 overflow-visible">
+                                    <!-- 진행률 채움 바 -->
+                                    <div class="absolute top-0 left-0 h-full bg-brand-200 rounded-full transition-all duration-500 ease-out"
+                                         :style="{ width: `${Math.round((mission.memberProgressList?.reduce((acc, cur) => acc + cur.completedCount, 0) / (Math.max(mission.memberProgressList?.length * Math.max(mission.totalProblems, 1), 1))) * 100)}%` }">
+                                    </div>
                                     <!-- 참여자 (러너) -->
                                     <template v-for="(members, progress) in getGroupedMembers(mission.memberProgressList)" :key="progress">
                                         <div 

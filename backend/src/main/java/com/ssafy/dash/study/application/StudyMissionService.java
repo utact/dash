@@ -3,6 +3,7 @@ package com.ssafy.dash.study.application;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +43,26 @@ public class StudyMissionService {
      */
     public StudyMission createMissionManual(Long studyId, Integer week, String title,
             List<Integer> problemIds, LocalDate deadline) {
+        if (deadline != null && deadline.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("마감일은 과거 날짜일 수 없습니다.");
+        }
+
+        // Check if mission for the week already exists
+        Optional<StudyMission> existingMissionOpt = missionRepository.findByStudyIdAndWeek(studyId, week);
+        if (existingMissionOpt.isPresent()) {
+            StudyMission existingMission = existingMissionOpt.get();
+            // Merge problems
+            List<Integer> currentProblems = parseProblems(existingMission.getProblemIds());
+            List<Integer> mergedProblems = new ArrayList<>(currentProblems);
+            for (Integer pid : problemIds) {
+                if (!mergedProblems.contains(pid)) {
+                    mergedProblems.add(pid);
+                }
+            }
+            // Update metadata and problem list
+            return updateMission(existingMission.getId(), title, deadline, mergedProblems);
+        }
+
         String problemsJson = toJson(problemIds);
         StudyMission mission = StudyMission.create(studyId, week, title, problemsJson, "MANUAL", deadline);
         missionRepository.save(mission);
@@ -57,6 +78,23 @@ public class StudyMissionService {
      */
     public StudyMission createMissionFromCurriculum(Long studyId, Integer week, String title,
             List<Integer> problemIds, LocalDate deadline) {
+        if (deadline != null && deadline.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("마감일은 과거 날짜일 수 없습니다.");
+        }
+
+        Optional<StudyMission> existingMissionOpt = missionRepository.findByStudyIdAndWeek(studyId, week);
+        if (existingMissionOpt.isPresent()) {
+            StudyMission existingMission = existingMissionOpt.get();
+            List<Integer> currentProblems = parseProblems(existingMission.getProblemIds());
+            List<Integer> mergedProblems = new ArrayList<>(currentProblems);
+            for (Integer pid : problemIds) {
+                if (!mergedProblems.contains(pid)) {
+                    mergedProblems.add(pid);
+                }
+            }
+            return updateMission(existingMission.getId(), title, deadline, mergedProblems);
+        }
+
         String problemsJson = toJson(problemIds);
         StudyMission mission = StudyMission.create(studyId, week, title, problemsJson, "AI_RECOMMENDED", deadline);
         missionRepository.save(mission);
@@ -116,9 +154,9 @@ public class StudyMissionService {
     }
 
     /**
-     * 미션 정보 수정 (제목, 마감일)
+     * 미션 정보 수정 (제목, 마감일, 문제 목록)
      */
-    public StudyMission updateMission(Long missionId, String title, LocalDate deadline) {
+    public StudyMission updateMission(Long missionId, String title, LocalDate deadline, List<Integer> problemIds) {
         StudyMission mission = missionRepository.findById(missionId)
                 .orElseThrow(() -> new IllegalArgumentException("미션을 찾을 수 없습니다."));
 
@@ -126,7 +164,35 @@ public class StudyMissionService {
             mission.setTitle(title);
         }
         if (deadline != null) {
+            if (deadline.isBefore(LocalDate.now())) {
+                throw new IllegalArgumentException("마감일은 과거 날짜일 수 없습니다.");
+            }
             mission.setDeadline(deadline);
+        }
+
+        if (problemIds != null) {
+            List<Integer> currentProblems = parseProblems(mission.getProblemIds());
+            
+            // 1. Identify removed problems
+            List<Integer> removedProblems = new ArrayList<>(currentProblems);
+            removedProblems.removeAll(problemIds);
+
+            // 2. Identify added problems
+            List<Integer> addedProblems = new ArrayList<>(problemIds);
+            addedProblems.removeAll(currentProblems);
+
+            // 3. Update mission with NEW complete list (preserves order)
+            mission.setProblemIds(toJson(problemIds));
+
+            // 4. Process cleanup for removed problems
+            for (Integer pid : removedProblems) {
+                submissionRepository.deleteByMissionIdAndProblemId(missionId, pid);
+            }
+
+            // 5. Initialize submissions for added problems
+            if (!addedProblems.isEmpty()) {
+                initializeSubmissions(mission.getId(), mission.getStudyId(), addedProblems);
+            }
         }
 
         missionRepository.update(mission);
