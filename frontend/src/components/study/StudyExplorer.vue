@@ -18,6 +18,36 @@
     </div>
 
     <div v-else>
+      <!-- 검색 창 -->
+      <div class="mb-10 bg-slate-50 p-6 rounded-3xl border border-slate-100">
+        <label class="block text-sm font-bold text-slate-500 mb-3 ml-1 flex items-center justify-between">
+           <span>스터디 찾기</span>
+           <span v-if="studies.length === 1 && searchId" class="text-brand-600 cursor-pointer hover:underline" @click="resetSearch">
+              전체 목록 보기
+           </span>
+        </label>
+        <div class="relative">
+          <input 
+            v-model="searchId"
+            @keyup.enter="searchStudy"
+            type="number" 
+            placeholder="스터디 번지수(ID)를 입력하세요" 
+            class="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-20 py-4 font-medium text-slate-800 focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition-all shadow-sm placeholder:text-slate-400"
+          />
+          <Search class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+          
+          <button 
+            @click="searchStudy"
+            class="absolute right-2 top-2 bottom-2 bg-slate-900 text-white px-5 rounded-xl text-sm font-bold hover:bg-brand-600 transition-colors shadow-lg shadow-slate-200"
+          >
+            검색
+          </button>
+        </div>
+        <p v-if="searchError" class="text-red-500 text-sm mt-3 ml-1 flex items-center gap-1 font-medium animate-shake">
+            <AlertCircle class="w-4 h-4" /> {{ searchError }}
+        </p>
+      </div>
+
       <!-- 추천 스터디 섹션 -->
       <div v-if="recommendedStudies.length > 0" class="mb-12">
         <div class="flex items-center gap-2 mb-6">
@@ -239,7 +269,8 @@
 import { ref, onMounted, computed, defineProps, defineEmits } from 'vue';
 import axios from 'axios';
 import { useAuth } from '@/composables/useAuth';
-import { Trophy, Flame, Users, Search, Activity, ArrowRight, Send, Sparkles, Compass } from 'lucide-vue-next';
+
+import { Trophy, Flame, Users, Search, Activity, ArrowRight, Send, Sparkles, Compass, AlertCircle } from 'lucide-vue-next';
 
 const props = defineProps({
   isOnboarding: {
@@ -256,7 +287,50 @@ const studies = ref([]);
 const showModal = ref(false);
 const selectedStudy = ref(null);
 const applyMessage = ref('');
+
 const applying = ref(false);
+
+const searchId = ref('');
+const searchError = ref('');
+
+const fetchAllStudies = async () => {
+    loading.value = true;
+    searchError.value = '';
+    try {
+        const res = await axios.get('/api/studies');
+        studies.value = res.data;
+    } catch (e) {
+        console.error('스터디 목록 로드 실패', e);
+    } finally {
+        loading.value = false;
+    }
+};
+
+const searchStudy = async () => {
+    if (!searchId.value) {
+        await fetchAllStudies();
+        return;
+    }
+    
+    loading.value = true;
+    searchError.value = '';
+    
+    try {
+        const res = await axios.get(`/api/studies/${searchId.value}`);
+        studies.value = [res.data];
+    } catch (e) {
+        console.error('검색 실패', e);
+        studies.value = [];
+        searchError.value = '해당 번지수의 스터디를 찾을 수 없습니다.';
+    } finally {
+        loading.value = false;
+    }
+};
+
+const resetSearch = async () => {
+    searchId.value = '';
+    await fetchAllStudies();
+};
 
 const recommendedStudies = computed(() => {
   if (!user.value || !user.value.solvedacTier) return [];
@@ -272,15 +346,8 @@ const recommendedStudies = computed(() => {
   });
 });
 
-onMounted(async () => {
-  try {
-    const res = await axios.get('/api/studies');
-    studies.value = res.data;
-  } catch (e) {
-    console.error('스터디 목록 로드 실패', e);
-  } finally {
-    loading.value = false;
-  }
+onMounted(() => {
+  fetchAllStudies();
 });
 
 const openApplyModal = (study) => {
