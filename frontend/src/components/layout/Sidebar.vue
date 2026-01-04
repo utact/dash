@@ -395,11 +395,44 @@ const toggleProfileMenu = () => {
     if (profileMenuOpen.value) notificationsOpen.value = false;
 };
 
+// 브라우저 알림 권한 요청
+const requestNotificationPermission = async () => {
+    if (!("Notification" in window)) return;
+    if (Notification.permission === "default") {
+        await Notification.requestPermission();
+    }
+};
+
+const latestNotificationId = ref(null);
+const isFirstLoad = ref(true);
+
 const fetchNotifications = async () => {
   if (!user.value) return;
   try {
     const data = await getNotifications();
+    
+    // 신규 알림 체크 및 브라우저 알림 발송
+    if (!isFirstLoad.value && data.length > 0 && Notification.permission === "granted") {
+        const newNotifications = data.filter(n => !latestNotificationId.value || n.id > latestNotificationId.value);
+        newNotifications.forEach(n => {
+            if (!n.isRead) {
+                new Notification("DashHub Notification", {
+                    body: n.content,
+                    icon: '/favicon.ico' // 아이콘 경로
+                });
+            }
+        });
+    }
+
     notifications.value = data;
+    if (data.length > 0) {
+        // 가장 최신 ID 저장 (data는 보통 최신순 정렬됨을 가정)
+        const maxId = Math.max(...data.map(n => n.id));
+        if (!latestNotificationId.value || maxId > latestNotificationId.value) {
+            latestNotificationId.value = maxId;
+        }
+    }
+    isFirstLoad.value = false;
   } catch (e) {
     console.error('Failed to fetch notifications', e);
   }
@@ -534,6 +567,7 @@ let pollingInterval = null;
 const startPolling = () => {
   stopPolling();
   if (user.value) {
+    requestNotificationPermission(); // 권한 요청
     fetchNotifications();
     pollingInterval = setInterval(fetchNotifications, 15000); // 15초 간격
   }
