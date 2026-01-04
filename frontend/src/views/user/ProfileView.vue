@@ -55,6 +55,10 @@ const showDeleteConfirmModal = ref(false);
 const deleteInput = ref('');
 
 const openDeleteModal = () => {
+    if (userData.value.studyType === 'PERSONAL') {
+        alert("임시 스터디(Personal Study)는 직접 삭제할 수 없습니다.\n새로운 스터디를 생성하거나 다른 스터디에 가입하면 자동으로 정리됩니다.");
+        return;
+    }
     deleteInput.value = '';
     showDeleteConfirmModal.value = true;
 };
@@ -105,7 +109,8 @@ const userData = ref({
     repositoryName: '',
     webhookConfigured: false,
     studyId: null,
-    isStudyLeader: false
+    isStudyLeader: false,
+    studyType: null
 });
 
 const studyName = ref(null);
@@ -255,6 +260,11 @@ const handleLeaveStudy = async () => {
 };
 
 const handleDeleteStudy = async () => {
+    if (userData.value.studyType === 'PERSONAL') {
+        alert("임시 스터디(Personal Study)는 직접 삭제할 수 없습니다.\n새로운 스터디를 생성하거나 다른 스터디에 가입하면 자동으로 정리됩니다.");
+        return;
+    }
+
     if (!confirm("정말로 스터디를 해체하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 모든 미션과 기록이 삭제됩니다.")) return;
     // 이중 확인 (안전을 위해)
     if (!confirm("모든 스터디원이 탈퇴 처리되며, 스터디 정보가 영구적으로 삭제됩니다. 계속하시겠습니까?")) return;
