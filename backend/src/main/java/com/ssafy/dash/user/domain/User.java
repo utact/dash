@@ -15,6 +15,7 @@ public class User {
     private Long id;
     private String username;
     private String email;
+    private String role;
     private LocalDateTime createdAt;
     private String provider;
     private String providerId;
@@ -44,6 +45,7 @@ public class User {
         this.id = id;
         this.username = requireText(username, "username");
         this.email = requireText(email, "email");
+        this.role = "ROLE_USER";
         this.createdAt = requireTimestamp(createdAt);
         this.provider = provider;
         this.providerId = providerId;
