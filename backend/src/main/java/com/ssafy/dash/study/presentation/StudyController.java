@@ -12,6 +12,7 @@ import com.ssafy.dash.study.presentation.dto.request.AddMissionProblemsRequest;
 import com.ssafy.dash.study.presentation.dto.request.UpdateMissionRequest;
 import com.ssafy.dash.study.presentation.dto.request.UpdateMissionStatusRequest;
 import com.ssafy.dash.study.presentation.dto.response.StudyListResponse;
+import com.ssafy.dash.study.presentation.dto.response.CreateStudyResponse;
 import com.ssafy.dash.study.presentation.dto.response.StudyStatsResponse;
 import com.ssafy.dash.study.application.dto.result.StudyAnalysisResult;
 import com.ssafy.dash.study.application.dto.result.TeamFamilyStatResult;
@@ -65,13 +66,13 @@ public class StudyController {
 
     @Operation(summary = "스터디 생성", description = "새로운 스터디를 생성하고 자동으로 가입합니다.")
     @PostMapping
-    public ResponseEntity<Study> createStudy(
+    public ResponseEntity<CreateStudyResponse> createStudy(
             @Parameter(hidden = true) @AuthenticationPrincipal OAuth2User principal,
             @RequestBody CreateStudyRequest request) {
         if (principal instanceof CustomOAuth2User customUser) {
             Study study = studyService.createStudy(customUser.getUserId(), request.getName(), request.getDescription(),
                     request.getVisibility());
-            return ResponseEntity.ok(study);
+            return ResponseEntity.ok(CreateStudyResponse.from(study));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
