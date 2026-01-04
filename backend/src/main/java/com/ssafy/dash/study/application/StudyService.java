@@ -51,20 +51,12 @@ public class StudyService {
             if (currentStudy != null && currentStudy.getStudyType() == StudyType.GROUP) {
                 throw new IllegalStateException("User already belongs to a study");
             }
-            // PERSONAL 타입이면 아래에서 덮어쓰거나 처리?
-            // createStudy는 새로운 GROUP 스터디를 만드는 것이므로,
-            // PERSONAL 스터디를 가진 상태에서 새 스터디를 만들면 -> PERSONAL 스터디를 "삭제"하고 새 스터디로 이동?
-            // 혹은 새 스터디 만들기를 허용하지 않을 수도 있음. (규칙: 스터디장은 탈퇴불가)
-            // 여기서는 일단 기존 GROUP 스터디가 있으면 막는 것으로 유지.
-            // PERSONAL 스터디가 있으면? 새 스터디 만들면 PERSONAL 스터디는 사라져야 함.
-            if (currentStudy != null && currentStudy.getStudyType() == StudyType.PERSONAL) {
-                // 개인 연구실 정리 후 생성 진행
-                algorithmRecordRepository.migrateStudyId(currentStudy.getId(), null); // 임시로 null? 아니면 새 ID?
-                // 새 ID는 save된 후에 나옴.
-                // 따라서 createStudy 로직 중간에 마이그레이션이 필요함.
-                // save 후에 처리해야 함.
-            }
         }
+
+        // 대기 중인 가입 신청이 있으면 자동 취소
+        studyRepository.findPendingApplicationByUserId(userId).ifPresent(app -> {
+            studyRepository.deleteApplication(app.getId());
+        });
 
         Study study = Study.create(name, userId);
         study.setDescription(description);
@@ -193,23 +185,35 @@ public class StudyService {
             throw new SecurityException("Only creator can approve applications");
         }
 
-        application.approve();
-        studyRepository.updateApplicationStatus(application);
-
         // Add user to study
         User user = userRepository.findById(application.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        // Migration Check
+        // Validation: Check if user already belongs to a GROUP study
         if (user.getStudyId() != null) {
-            Study oldStudy = studyRepository.findById(user.getStudyId()).orElse(null);
-            if (oldStudy != null && oldStudy.getStudyType() == StudyType.PERSONAL) {
-                // Migrate records
-                algorithmRecordRepository.migrateStudyId(oldStudy.getId(), study.getId());
-                // Delete old study
-                studyRepository.delete(oldStudy.getId());
+            Study currentStudy = studyRepository.findById(user.getStudyId()).orElse(null);
+            if (currentStudy != null && currentStudy.getStudyType() == StudyType.GROUP) {
+                // User is already in a GROUP study - reject the application
+                studyRepository.deleteApplication(applicationId);
+
+                notificationService.send(
+                        user.getId(),
+                        String.format("'%s' 스터디 가입 신청이 자동 거절되었습니다.\n(이미 다른 스터디에 소속되어 있음)", study.getName()),
+                        "/",
+                        NotificationType.STUDY_RESULT);
+
+                throw new IllegalStateException("신청자가 이미 다른 스터디에 소속되어 있어 승인할 수 없습니다.");
+            }
+
+            // PERSONAL study - migrate records
+            if (currentStudy != null && currentStudy.getStudyType() == StudyType.PERSONAL) {
+                algorithmRecordRepository.migrateStudyId(currentStudy.getId(), study.getId());
+                studyRepository.delete(currentStudy.getId());
             }
         }
+
+        application.approve();
+        studyRepository.updateApplicationStatus(application);
 
         user.updateStudy(study.getId());
         userRepository.update(user);
