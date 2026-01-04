@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
 	id BIGINT AUTO_INCREMENT PRIMARY KEY,
 	username VARCHAR(100) NOT NULL,
 	email VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'ROLE_USER',
 	solvedac_handle VARCHAR(50) UNIQUE,
 	solvedac_tier INT,
 	solvedac_rating INT,
