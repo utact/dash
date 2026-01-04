@@ -102,4 +102,5 @@ public class User {
         return Objects.requireNonNull(value, "createdAt" + " must not be null");
     }
 
+
 }

@@ -7,6 +7,22 @@
         <!-- LEFT COLUMN: Main Content (로드맵 중심) -->
         <main class="flex-1 min-w-0 space-y-6 animate-in slide-in-from-left duration-500">
           
+          <!-- 승인 대기 배너 -->
+          <div v-if="isPendingApproval" class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3 shadow-sm animate-pulse">
+            <div class="bg-amber-100 p-2 rounded-lg text-amber-600">
+                <Clock class="w-5 h-5" stroke-width="2.5" />
+            </div>
+            <div>
+                <h3 class="font-bold text-amber-800 text-sm mb-1">
+                    <span class="font-black">[{{ pendingStudyName }}]</span> 스터디 승인 대기 중입니다
+                </h3>
+                <p class="text-xs text-amber-700 leading-relaxed font-medium">
+                    스터디장의 승인을 기다리고 있습니다. 승인이 완료되면 해당 스터디의 대시보드와 미션 기능을 이용할 수 있습니다.<br/>
+                    그 동안 <span class="font-bold underline">맞춤형 로드맵</span>을 통해 개인 학습을 진행해보세요!
+                </p>
+            </div>
+          </div>
+
           <!-- 맞춤형 학습 로드맵 -->
           <section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
             <h2 class="text-xs font-black text-slate-500 uppercase tracking-wide mb-5 flex items-center gap-2">
@@ -150,9 +166,9 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router'; // Updated
 import { 
-    RefreshCw, Trophy, Swords, Play, AlertTriangle, CheckCircle, BarChart3, Sparkles
+    RefreshCw, Trophy, Swords, Play, AlertTriangle, CheckCircle, BarChart3, Sparkles, Clock
 } from 'lucide-vue-next';
 import LearningRoadmap from '@/components/skill/LearningRoadmap.vue';
 import AlgorithmRadarChart from '@/components/charts/AlgorithmRadarChart.vue';
@@ -161,7 +177,11 @@ import { useAuth } from '@/composables/useAuth';
 import { aiApi } from '@/api/ai';
 
 const router = useRouter();
+const route = useRoute(); // ADDED
 const { user } = useAuth();
+
+const isPendingApproval = computed(() => !!user.value?.pendingStudyName);
+const pendingStudyName = computed(() => user.value?.pendingStudyName);
 
 // 상태
 const lectureModalOpen = ref(false);

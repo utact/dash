@@ -193,7 +193,12 @@ router.beforeEach(async (to, from, next) => {
   const studyRoutes = ['/dashboard', '/study/missions', '/study/analysis'];
   const isStudyRoute = studyRoutes.includes(to.path);
 
-  if (isStudyRoute && !user.value.studyId) {
+  if (isStudyRoute && !user.value.studyId && !to.meta.requiresAdmin) {
+    if (user.value.hasPendingApplication) {
+        // Redirect to Roadmap but can show a toast or banner there, or just let them wait
+        // Maybe redirect to /training/roadmap?pending=true
+        return next('/training/roadmap?pending=true');
+    }
     // If trying to access study routes without a study, redirect to Roadmap
     return next('/training/roadmap');
   }

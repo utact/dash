@@ -22,17 +22,22 @@ public record UserResult(
         Boolean webhookConfigured,
         Boolean isStudyLeader,
         String studyType,
-        String role) {
+        String role,
+        String pendingStudyName) {
 
     public static UserResult from(User user) {
-        return from(user, null, null);
+        return from(user, null, null, null);
     }
 
     public static UserResult from(User user, com.ssafy.dash.onboarding.domain.Onboarding onboarding) {
-        return from(user, onboarding, null);
+        return from(user, onboarding, null, null);
     }
 
     public static UserResult from(User user, com.ssafy.dash.onboarding.domain.Onboarding onboarding, Study study) {
+        return from(user, onboarding, study, null);
+    }
+
+    public static UserResult from(User user, com.ssafy.dash.onboarding.domain.Onboarding onboarding, Study study, String pendingStudyName) {
         String repoName = onboarding != null ? onboarding.getRepositoryName() : null;
         Boolean webhook = onboarding != null ? onboarding.isWebhookConfigured() : null;
         Boolean isLeader = study != null && study.getCreatorId() != null && study.getCreatorId().equals(user.getId());
@@ -54,7 +59,8 @@ public record UserResult(
                 webhook,
                 isLeader,
                 type,
-                user.getRole());
+                user.getRole(),
+                pendingStudyName);
     }
 
 }
