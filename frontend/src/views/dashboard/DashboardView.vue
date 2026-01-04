@@ -95,6 +95,22 @@
             <main class="flex-1 min-w-0 space-y-6">
                 <!-- 깔끔한 지표가 있는 헤더 섹션 -->
                 <div class="animate-fade-in-down">
+                    <!-- 승인 대기 배너 -->
+                    <div v-if="isPendingApproval" class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3 shadow-sm animate-pulse mb-6">
+                        <div class="bg-amber-100 p-2 rounded-lg text-amber-600">
+                            <Clock class="w-5 h-5" stroke-width="2.5" />
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-amber-800 text-sm mb-1">
+                                <span class="font-black">[{{ pendingStudyName }}]</span> 스터디 승인 대기 중입니다
+                            </h3>
+                            <p class="text-xs text-amber-700 leading-relaxed font-medium">
+                                현재 개인 연구실(Personal Study)을 이용 중이며, 스터디장의 승인을 기다리고 있습니다.<br/>
+                                승인이 완료되면 해당 스터디의 대시보드로 자동 전환됩니다.
+                            </p>
+                        </div>
+                    </div>
+
                     <!-- 주간 미션 섹션 -->
                     <div class="mb-6">
                         <div v-if="targetMission" 
@@ -413,7 +429,8 @@ import {
   BarChart2,
   Hexagon,
   Send,
-  UserX
+  UserX,
+  Clock // Added
 } from 'lucide-vue-next';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
@@ -454,6 +471,9 @@ const heatmapScrollRef = ref(null);
 
 const isObserving = computed(() => !!props.studyId);
 const currentStudyId = computed(() => props.studyId || user.value?.studyId);
+
+const isPendingApproval = computed(() => !!user.value?.pendingStudyName);
+const pendingStudyName = computed(() => user.value?.pendingStudyName);
 
 const exitObservation = () => {
     router.push('/study/ranking');

@@ -51,7 +51,16 @@ public class UserService {
             study = studyRepository.findById(u.getStudyId()).orElse(null);
         }
 
-        return UserResult.from(u, onboarding, study);
+        String pendingStudyName = null;
+        var pendingApp = studyRepository.findPendingApplicationByUserId(id).orElse(null);
+        if (pendingApp != null) {
+            Study targetStudy = studyRepository.findById(pendingApp.getStudyId()).orElse(null);
+            if (targetStudy != null) {
+                pendingStudyName = targetStudy.getName();
+            }
+        }
+
+        return UserResult.from(u, onboarding, study, pendingStudyName);
     }
 
     @Transactional(readOnly = true)
