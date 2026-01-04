@@ -1,6 +1,7 @@
 package com.ssafy.dash.config;
 
 import com.ssafy.dash.oauth.presentation.security.CustomOAuth2UserService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,9 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final com.ssafy.dash.common.ratelimit.GlobalRateLimitFilter globalRateLimitFilter;
+    
+    @Value("${app.frontend.url:http://localhost:5173}")
+    private String frontendUrl;
 
     public SecurityConfig(CustomOAuth2UserService customOAuth2UserService,
                           com.ssafy.dash.common.ratelimit.GlobalRateLimitFilter globalRateLimitFilter) {
@@ -64,7 +68,7 @@ public class SecurityConfig {
                                 .oauth2Login(oauth2 -> oauth2
                                                 .userInfoEndpoint(userInfo -> userInfo
                                                                 .userService(customOAuth2UserService))
-                                                .defaultSuccessUrl("http://localhost:5173/oauth2/redirect", true))
+                                                .defaultSuccessUrl(frontendUrl + "/oauth2/redirect", true))
                                 .logout(logout -> logout
                                                 .logoutUrl("/logout")
                                                 .invalidateHttpSession(true)
@@ -79,7 +83,7 @@ public class SecurityConfig {
         @Bean
         public CorsConfigurationSource corsConfigurationSource() {
                 CorsConfiguration configuration = new CorsConfiguration();
-                configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:8080"));
+                configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:8080", frontendUrl)); // 로컬 + 운영
                 configuration.setAllowedMethods(Collections.singletonList("*"));
                 configuration.setAllowedHeaders(Collections.singletonList("*"));
                 configuration.setAllowCredentials(true);

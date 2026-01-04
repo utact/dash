@@ -25,6 +25,7 @@ services:
       MYSQL_URL: jdbc:mysql://mysql:3306/dash_db?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
       MYSQL_USERNAME: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      FRONTEND_URL: ${FRONTEND_URL}
       AI_SERVER_URL: http://ai:8000
       GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
       GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET}
