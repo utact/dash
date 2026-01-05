@@ -22,15 +22,22 @@
           <h1 class="text-3xl font-extrabold text-slate-900 mb-4 leading-tight">{{ post.title }}</h1>
           <div class="flex flex-wrap items-center gap-4 text-sm text-slate-500">
             <div class="flex items-center gap-2">
-              <img v-if="post.authorProfileImageUrl" 
-                   :src="post.authorProfileImageUrl" 
-                   class="w-8 h-8 rounded-full object-cover border border-brand-100" />
-              <div v-else class="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center text-brand-600 font-bold border border-brand-100">
-                 {{ post.authorName?.charAt(0).toUpperCase() || 'U' }}
-              </div>
-              <span class="text-slate-700 font-medium">
-                {{ post.authorName && !['Unknown', 'Unknown User'].includes(post.authorName) ? post.authorName : '탈퇴한 회원' }}
-              </span>
+              <template v-if="post.authorRole === 'ROLE_ADMIN'">
+                  <div class="px-3 py-1 bg-slate-900 rounded-full text-white shadow-sm border border-slate-700">
+                      <span class="text-xs font-black tracking-widest">ADMIN</span>
+                  </div>
+              </template>
+              <template v-else>
+                  <img v-if="post.authorProfileImageUrl" 
+                       :src="post.authorProfileImageUrl" 
+                       class="w-8 h-8 rounded-full object-cover border border-brand-100" />
+                  <div v-else class="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center text-brand-600 font-bold border border-brand-100">
+                     {{ post.authorName?.charAt(0).toUpperCase() || 'U' }}
+                  </div>
+                  <span class="text-slate-700 font-medium">
+                    {{ post.authorName && !['Unknown', 'Unknown User'].includes(post.authorName) ? post.authorName : '탈퇴한 회원' }}
+                  </span>
+              </template>
               
 
             </div>
