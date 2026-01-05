@@ -54,6 +54,8 @@ services:
     image: containrrr/watchtower
     container_name: dash-watchtower
     restart: always
+    environment:
+      - DOCKER_API_VERSION=1.44
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --interval 30 --cleanup
@@ -70,7 +72,7 @@ services:
       - PROXIED=true
     networks:
       - dash-network
-  
+
   frontend:
     image: ghcr.io/${GITHUB_REPOSITORY}/frontend:latest
     container_name: dash-frontend
@@ -84,6 +86,7 @@ services:
 
 volumes:
   mysql_data:
+
 
 networks:
   dash-network:
