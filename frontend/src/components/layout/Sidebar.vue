@@ -309,7 +309,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { 
     Github, Shield, LayoutGrid, MessageSquare, School, FileText, 
     PieChart, Target, Trophy, Bell, UserCircle, LogOut, X, Menu, Network, Compass,
-    CheckCircle2, AlertCircle, MessageCircle, HelpCircle, Star, Loader2, Lock
+    CheckCircle2, AlertCircle, MessageCircle, HelpCircle, Star, Loader2, Lock, Users
 } from "lucide-vue-next";
 
 import { useAuth } from "@/composables/useAuth";
