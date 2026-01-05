@@ -1,4 +1,4 @@
-package com.ssafy.dash.github.infrastructure;
+package com.ssafy.dash.github.infrastructure.persistence;
 
 import java.util.Optional;
 
