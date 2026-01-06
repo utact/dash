@@ -118,7 +118,7 @@
   <update id="migrateUserRecords">
     UPDATE algorithm_records
     SET study_id = #{newStudyId}
-    WHERE user_id = #{userId} AND study_id = #{oldStudyId}
+    WHERE user_id = #{userId}
   </update>
 
   <select id="selectHeatmapDataByStudyId" resultType="com.ssafy.dash.dashboard.application.dto.response.HeatmapRawData">
