@@ -355,7 +355,7 @@ const navGroups = computed(() => {
     title: '커뮤니티',
     items: [
       { label: '게시판', path: '/boards', icon: MessageSquare, color: 'bg-violet-500' }, // Reordered: Board first/second? User said "Explorer -> Board -> Social" order is weird. usually Board is main community.
-      { label: '스터디 탐험', path: '/study/ranking', icon: Compass, color: 'bg-yellow-500' }, // Renamed from '둘러보기' (Explorer). Reordered.
+      { label: '스터디 라운지', path: '/study/ranking', icon: Compass, color: 'bg-yellow-500' }, // Renamed from '스터디 탐험'.
       { label: '소셜', path: '/social', icon: Users, color: 'bg-pink-500' },
     ]
   },
