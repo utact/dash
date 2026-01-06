@@ -100,8 +100,12 @@ public class StudyService {
 
         // 이제 기존 PERSONAL 스터디는 안전하게 삭제할 수 있습니다. (유저가 더 이상 참조하지 않으므로)
         if (oldStudy != null && oldStudy.getStudyType() == StudyType.PERSONAL) {
-            algorithmRecordService.migrateStudyId(oldStudy.getId(), study.getId());
-            studyRepository.delete(oldStudy.getId());
+             // 기존 Personal Study ID가 있으면 해당 ID의 기록을 모두 이동
+             algorithmRecordService.migrateStudyId(oldStudy.getId(), study.getId());
+             studyRepository.delete(oldStudy.getId());
+        } else if (oldStudy == null) {
+            // 이전에 스터디가 없었더라도(null -> Group), 유저의 모든 고아 기록을 새 스터디로 이동
+            algorithmRecordService.migrateUserRecords(user.getId(), null, study.getId());
         }
 
         return study;
@@ -230,10 +234,14 @@ public class StudyService {
                 throw new IllegalStateException("신청자가 이미 다른 스터디에 소속되어 있어 승인할 수 없습니다.");
             }
 
-            // PERSONAL 스터디인 경우 - 기록 마이그레이션
-            if (currentStudy != null && currentStudy.getStudyType() == StudyType.PERSONAL) {
-                algorithmRecordService.migrateStudyId(currentStudy.getId(), study.getId());
-                // studyRepository.delete(currentStudy.getId()); // 유저 업데이트 이후로 이동됨
+            // PERSONAL 스터디인 경우 - 기록 마이그레이션 (개인 스터디이거나, 스터디가 없던 상태일 수 있음)
+            if (currentStudy == null || currentStudy.getStudyType() == StudyType.PERSONAL) {
+                // 이전 스터디 ID가 뭐든간에(null 포함) 현재 가입하는 스터디로 모든 기록을 이동
+                algorithmRecordService.migrateUserRecords(
+                    user.getId(), 
+                    currentStudy != null ? currentStudy.getId() : null, 
+                    study.getId()
+                );
             }
         }
 
