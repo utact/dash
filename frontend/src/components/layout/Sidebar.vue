@@ -319,7 +319,7 @@ import { studyApi } from "@/api/study";
 
 const emits = defineEmits(['scroll']);
 
-const { user, loginWithGithub, logout, refresh } = useAuth();
+const { user, logout, refresh } = useAuth();
 const route = useRoute();
 const router = useRouter();
 const mobileMenuOpen = ref(false);
@@ -628,10 +628,11 @@ const goToProfile = () => {
     profileMenuOpen.value = false;
     window.location.href = "/profile";
 };
+// Removed duplicate useAuth call
+// ...
 const handleLogout = async () => {
   if (!confirm("로그아웃 하시겠습니까?")) return;
-  try { await authApi.logout(); } catch (e) { console.error(e); }
-  finally { window.location.href = "/"; }
+  await logout();
 };
 
 const formatTimeAgo = (dateStr) => {
