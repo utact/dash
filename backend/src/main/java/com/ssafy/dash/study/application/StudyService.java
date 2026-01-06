@@ -48,13 +48,10 @@ public class StudyService {
             return studies;
         }
 
-        // 4. 유저가 소속된 스터디가 있다면 목록에서 제외
-        if (user.getStudyId() != null) {
-            return studies.stream()
-                    .filter(study -> !study.getId().equals(user.getStudyId()))
-                    .toList();
-        }
-
+        // 4. 본인 스터디 제외 로직 제거.
+        // 리더보드/전체 목록에 "내 스터디"가 표시되어야 합니다.
+        // "추천 스터디"에서의 제외는 프론트엔드에서 처리합니다.
+        
         return studies;
     }
 
