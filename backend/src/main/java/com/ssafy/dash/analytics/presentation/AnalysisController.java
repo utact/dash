@@ -4,7 +4,6 @@ import com.ssafy.dash.analytics.application.AnalyticsService;
 import com.ssafy.dash.analytics.application.BalanceAnalysisService;
 import com.ssafy.dash.analytics.application.DifficultyAnalysisService;
 import com.ssafy.dash.analytics.application.GrowthAnalysisService;
-import com.ssafy.dash.analytics.application.RuleBasedLearningPathService;
 import com.ssafy.dash.analytics.application.StatsSnapshotService;
 import com.ssafy.dash.analytics.application.UserSkillAnalysisService;
 import com.ssafy.dash.analytics.application.dto.response.*;
@@ -28,7 +27,6 @@ public class AnalysisController {
     private final UserSkillAnalysisService analysisService;
     private final BalanceAnalysisService balanceService;
     private final DifficultyAnalysisService difficultyService;
-    private final RuleBasedLearningPathService learningPathService;
     private final GrowthAnalysisService growthService;
     private final StatsSnapshotService snapshotService;
     private final AnalyticsService analyticsService;
@@ -91,13 +89,6 @@ public class AnalysisController {
     public ResponseEntity<DifficultyAnalysisDto> getDifficulty(@PathVariable Long userId) {
         DifficultyAnalysisDto difficulty = difficultyService.analyzeDifficulty(userId);
         return ResponseEntity.ok(difficulty);
-    }
-
-    @Operation(summary = "학습 경로 추천", description = "개인 맞춤형 학습 경로와 추천 문제를 제공합니다.")
-    @GetMapping("/learning-path")
-    public ResponseEntity<LearningPathDto> getLearningPath(@PathVariable Long userId) {
-        LearningPathDto learningPath = learningPathService.recommendLearningPath(userId);
-        return ResponseEntity.ok(learningPath);
     }
 
     // === Phase 3: 고급 분석 ===

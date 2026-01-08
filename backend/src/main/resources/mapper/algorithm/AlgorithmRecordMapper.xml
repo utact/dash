@@ -102,8 +102,8 @@
     SELECT DISTINCT problem_number
     FROM algorithm_records
     WHERE user_id = #{userId}
-      AND runtime_ms IS NOT NULL
-      AND memory_kb IS NOT NULL
+      AND (record_type = 'SOLVED_AC_SYNC' 
+           OR (runtime_ms IS NOT NULL AND memory_kb IS NOT NULL))
   </select>
 
   <select id="selectLatestSuccessfulByUserAndProblem" resultType="AlgorithmRecord">
@@ -156,5 +156,12 @@
     GROUP BY DATE_FORMAT(r.committed_at, '%Y-%m-%d'), u.id
     ORDER BY date ASC
   </select>
+
+  <insert id="insertSolvedProblemIfNotExists">
+    INSERT IGNORE INTO algorithm_records 
+      (user_id, problem_number, title, difficulty, record_type, created_at, updated_at)
+    VALUES 
+      (#{userId}, #{problemNumber}, #{title}, #{level}, 'SOLVED_AC_SYNC', NOW(), NOW())
+  </insert>
 
 </mapper>
