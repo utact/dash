@@ -29,6 +29,7 @@ public class SolvedacSyncService {
     private final UserClassStatRepository classStatRepository;
     private final UserTagStatRepository tagStatRepository;
     private final LearningPathCacheMapper cacheMapper;
+    private final SolvedacProblemSyncer problemSyncer;
 
     /**
      * 사용자 Solved.ac 핸들 등록 및 초기 데이터 동기화
@@ -72,7 +73,10 @@ public class SolvedacSyncService {
         // 6. Top 100 평균 레벨 계산
         syncTop100Stats(userId, handle);
 
-        // 7. 학습 경로 캐시 무효화 (데이터 변경됨)
+        // 7. 전체 푼 문제 동기화 (문제 추천 제외용, 비동기 호출)
+        problemSyncer.syncAllSolvedProblems(userId, handle);
+
+        // 8. 학습 경로 캐시 무효화 (데이터 변경됨)
         cacheMapper.deleteByUserId(userId);
         log.info("Invalidated learning path cache for user {}", userId);
 
@@ -171,4 +175,5 @@ public class SolvedacSyncService {
             // Top 100 실패해도 전체 동기화는 계속 진행
         }
     }
+
 }

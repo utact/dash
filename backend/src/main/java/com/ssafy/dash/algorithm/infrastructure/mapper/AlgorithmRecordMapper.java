@@ -39,6 +39,14 @@ public interface AlgorithmRecordMapper {
     void migrateUserRecords(Long userId, Long oldStudyId, Long newStudyId);
 
     List<com.ssafy.dash.dashboard.application.dto.response.HeatmapRawData> selectHeatmapDataByStudyId(Long studyId);
-    
+
     List<com.ssafy.dash.dashboard.application.dto.response.HeatmapRawData> selectHeatmapDataByUserId(Long userId);
+
+    /**
+     * Solved.ac에서 동기화한 푼 문제 삽입 (중복 무시)
+     */
+    void insertSolvedProblemIfNotExists(@org.apache.ibatis.annotations.Param("userId") Long userId,
+            @org.apache.ibatis.annotations.Param("problemNumber") String problemNumber,
+            @org.apache.ibatis.annotations.Param("title") String title,
+            @org.apache.ibatis.annotations.Param("level") int level);
 }
