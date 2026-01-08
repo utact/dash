@@ -24,6 +24,10 @@ public class LearningPathRequest {
     private List<TagStats> weaknessTags; // 약점 태그 목록
     private List<ClassStats> classStats; // 클래스 통계
 
+    // 거품 탐지 데이터
+    private Integer bubbleIndex; // 티어 - Top100 평균 (양수면 거품)
+    private Integer avgTop100Level; // Top 100 문제 평균 난이도
+
     @Getter
     @Builder
     @NoArgsConstructor
@@ -34,6 +38,7 @@ public class LearningPathRequest {
         private Integer bojTagId; // 백준 태그 ID (정수형)
         private int solved; // 푼 문제 수
         private int total; // 전체 문제 수
+        private int rating; // 태그 레이팅 점수
     }
 
     @Getter
