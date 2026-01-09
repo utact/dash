@@ -78,8 +78,13 @@ const determineInitialStep = () => {
 
   // 2. 스터디 확인
   if (!hasStudy) {
-    // 분석 데이터가 있거나 스터디 신청 중이면 분석 단계 스킵 -> 스터디 단계로
-    if (hasAnalysis || hasPendingStudy) {
+    // 스터디 신청 대기 중이면 스터디 찾기 단계도 스킵 -> 익스텐션 단계로
+    if (hasPendingStudy) {
+      currentStepIndex.value = 3; // extension 단계로 바로 이동
+      return;
+    }
+    // 분석 데이터가 있으면 분석 단계 스킵 -> 스터디 단계로
+    if (hasAnalysis) {
       currentStepIndex.value = 2; // study 단계로 바로 이동
       return;
     }
