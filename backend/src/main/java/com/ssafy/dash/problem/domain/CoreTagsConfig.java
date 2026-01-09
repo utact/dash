@@ -9,8 +9,8 @@ import java.util.Set;
  * [Priority 매핑 규칙 - 프로그래머스 고득점 Kit 기준]
  * - Priority 1 (빈출: 높음) -> Tier S (Weight 3.0)
  * - Priority 2 (빈출: 보통) -> Tier A (Weight 2.0)
- * - Priority 3 (빈출: 낮음) -> Tier B+ (Weight 1.5)
- * - Priority 4 (Kit 미포함) -> Tier B (Weight 1.0)
+ * - Priority 3 (빈출: 낮음) -> Tier B (Weight 1.5)
+ * - Priority 4 (Kit 미포함) -> Tier C (Weight 1.0)
  */
 public final class CoreTagsConfig {
 
@@ -32,8 +32,8 @@ public final class CoreTagsConfig {
         boolean isBasic = BASIC_TAGS.contains(tagKey);
 
         if (priority == null) {
-            // Priority가 없으면 -> Non-Core, Tier B
-            return new TagMetadata(familyKey, "B", 1.0, false, isBasic, 99);
+            // Priority가 없으면 -> Non-Core, Tier C
+            return new TagMetadata(familyKey, "C", 1.0, false, isBasic, 99);
         }
 
         String tier;
@@ -49,12 +49,12 @@ public final class CoreTagsConfig {
                 tier = "A";
                 weight = 2.0;
                 break;
-            case 3: // 낮음
-                tier = "B+";
+            case 3: // 낮음 (기존 B+ -> B)
+                tier = "B";
                 weight = 1.5;
                 break;
-            default: // 그 외 (심화 등)
-                tier = "B";
+            default: // 그 외 (기존 B -> C)
+                tier = "C";
                 weight = 1.0;
                 break;
         }
