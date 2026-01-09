@@ -41,6 +41,7 @@ public class AiLearningPathService {
         private final LearningPathCacheMapper cacheMapper;
         private final ObjectMapper objectMapper;
         private final com.ssafy.dash.analytics.application.SolvedacSyncService solvedacSyncService;
+        private final com.ssafy.dash.problem.application.TagService tagService;
 
         /**
          * AI 개인화 학습 경로 생성 (대시보드용 종합 데이터 반환)
@@ -71,6 +72,9 @@ public class AiLearningPathService {
                                         cacheMapper.update(userId, updatedJson, today);
                                 }
 
+                                // 4. Force Korean Names (Display Name) - Apply to cache as well
+                                translateTagsToKorean(response);
+
                                 return response;
                         } catch (Exception e) {
                                 log.warn("Failed to parse or patch cached data, regenerating: {}", e.getMessage());
@@ -98,7 +102,37 @@ public class AiLearningPathService {
                         log.error("Failed to save cache: {}", e.getMessage());
                 }
 
+                // 4. Force Korean Names (Display Name)
+                translateTagsToKorean(response);
+
                 return response;
+        }
+
+        private void translateTagsToKorean(LearningDashboardResponse response) {
+                if (response == null || response.getAiAnalysis() == null)
+                        return;
+
+                LearningPathResponse analysis = response.getAiAnalysis();
+
+                // 1. Recommended Tags
+                if (analysis.getRecommendedTags() != null) {
+                        List<String> translated = analysis.getRecommendedTags().stream()
+                                        .map(tag -> tagService.getKoreanName(tag))
+                                        .toList();
+                        analysis.setRecommendedTags(translated);
+                }
+
+                // 2. Phases Focus Tags
+                if (analysis.getPhases() != null) {
+                        for (LearningPathResponse.LearningPhase phase : analysis.getPhases()) {
+                                if (phase.getFocusTags() != null) {
+                                        List<String> translated = phase.getFocusTags().stream()
+                                                        .map(tag -> tagService.getKoreanName(tag))
+                                                        .toList();
+                                        phase.setFocusTags(translated);
+                                }
+                        }
+                }
         }
 
         /**
