@@ -70,6 +70,19 @@
                                 {{ getFormattedTierName(problem.level) }}
                            </span>
                       </div>
+
+                      <!-- 이미 푼 멤버 표시 -->
+                      <div v-if="problem.solvedMembers && problem.solvedMembers.length > 0" class="mt-3 flex items-center gap-2">
+                           <div class="flex -space-x-1.5">
+                               <template v-for="member in problem.solvedMembers.slice(0, 5)" :key="member.id">
+                                   <img :src="member.avatarUrl" :title="member.username" class="w-5 h-5 rounded-full border border-white ring-1 ring-emerald-50 bg-slate-100 object-cover" />
+                               </template>
+                               <div v-if="problem.solvedMembers.length > 5" class="w-5 h-5 rounded-full bg-emerald-50 border border-white flex items-center justify-center text-[8px] font-bold text-emerald-600">
+                                   +{{ problem.solvedMembers.length - 5 }}
+                               </div>
+                           </div>
+                           <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded-md">멘토 가능</span>
+                      </div>
                     </a>
                     <!-- 팀장 전용: 미션 등록 버튼 -->
                     <button v-if="isLeader"
