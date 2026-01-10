@@ -16,6 +16,9 @@
       :partner-decoration="dmPartnerInfo.partnerDecoration"
       @close="closeDM"
     />
+
+    <!-- Floating Message Panel (Instagram-style) -->
+    <FloatingMessagePanel />
   </template>
 </template>
 
@@ -30,6 +33,7 @@ import MobileRestrictionView from "@/views/MobileRestrictionView.vue";
 // Global Modals
 import UserProfileModal from "@/components/social/UserProfileModal.vue";
 import DirectMessageModal from "@/components/social/DirectMessageModal.vue";
+import FloatingMessagePanel from "@/components/social/FloatingMessagePanel.vue";
 import { useDirectMessageModal } from "@/composables/useDirectMessageModal";
 
 const route = useRoute();
