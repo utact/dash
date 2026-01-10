@@ -1,13 +1,22 @@
 <template>
   <div class="space-y-6" :class="{ 'h-full': isOnboarding }">
     <!-- 헤더 (온보딩 여부에 따라 표시) -->
-    <div v-if="!isOnboarding" class="mb-8 flex items-start justify-between">
+    <div v-if="!isOnboarding" class="mb-8 flex items-center justify-between">
       <div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 mb-2">
            <Compass class="w-7 h-7 text-brand-500" stroke-width="2.5" fill="currentColor" />
            <h1 class="text-xl font-black text-slate-800">스터디 찾기</h1>
         </div>
+        <p class="text-slate-500 font-medium">관심 있는 스터디를 찾아보세요</p>
       </div>
+      <button
+          v-if="user?.studyType === 'PERSONAL'"
+          @click="showCreateModal = true"
+          class="flex items-center gap-2 px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold transition-all shadow-md shadow-brand-200 hover:-translate-y-0.5 shrink-0"
+        >
+          <Plus :size="18" stroke-width="3" />
+          스터디 만들기
+      </button>
     </div>
 
     <!-- 로딩 -->
@@ -17,8 +26,8 @@
     </div>
 
     <div v-else :class="{ 'flex flex-col h-full overflow-hidden': isOnboarding }">
-      <!-- 검색 창 (BoardList 스타일) -->
-      <div class="animate-fade-in-up mb-8">
+      <!-- 검색 창 (BoardList 스타일) - 온보딩에서만 표시 -->
+      <div v-if="isOnboarding" class="animate-fade-in-up mb-8">
           <div class="flex gap-3">
             <div class="flex-1 relative">
               <Search :size="18" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -43,17 +52,6 @@
             >
               초기화
             </button>
-            
-            <template v-if="user?.studyType === 'PERSONAL' && !isOnboarding">
-                <div class="w-px h-full bg-slate-200 mx-1"></div>
-                <button
-                  @click="showCreateModal = true"
-                  class="flex items-center gap-2 px-5 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold transition-all shadow-md shadow-brand-200 hover:-translate-y-0.5 shrink-0"
-                >
-                  <Plus :size="18" stroke-width="3" />
-                  스터디 만들기
-                </button>
-            </template>
           </div>
           
           <p v-if="searchError" class="text-red-500 text-sm mt-2 ml-2 flex items-center gap-1 font-medium animate-shake">
