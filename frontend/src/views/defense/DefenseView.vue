@@ -62,8 +62,6 @@
       <div class="flex-1 min-w-0 space-y-8">
         
         <!-- Header -->
-        <!-- Header -->
-        <!-- Header -->
         <div class="mb-8">
           <div class="flex items-center gap-3 mb-2">
             <Shield class="w-7 h-7 text-brand-500" stroke-width="2.5" fill="currentColor" />
