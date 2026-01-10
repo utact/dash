@@ -74,7 +74,7 @@
                        <!-- 이미 푼 멤버 표시 -->
                        <div v-if="problem.solvedMembers && problem.solvedMembers.length > 0" 
                             class="mt-3 flex items-center gap-2 cursor-pointer group/members"
-                            @click.stop="toggleMemberPopup(problem.problemId, $event)">
+                            @click.prevent.stop="toggleMemberPopup(problem.problemId, $event)">
                             <div class="flex -space-x-1.5">
                                <template v-for="member in problem.solvedMembers.slice(0, 5)" :key="member.id">
                                    <img :src="member.avatarUrl" :title="member.username" class="w-5 h-5 rounded-full border border-white ring-1 ring-emerald-50 bg-slate-100 object-cover" />
@@ -88,7 +88,7 @@
                     </a>
                     <!-- 팀장 전용: 미션 등록 버튼 -->
                     <button v-if="isLeader"
-                            @click.stop="registerAsMission(problem)"
+                            @click.prevent.stop="registerAsMission(problem)"
                             class="absolute top-3 right-3 px-2 py-1 bg-brand-500 hover:bg-brand-600 text-white text-[10px] font-bold rounded-lg shadow-md transition-all opacity-0 group-hover:opacity-100 flex items-center gap-1">
                       <Pin class="w-3 h-3" /> 미션 등록
                     </button>
