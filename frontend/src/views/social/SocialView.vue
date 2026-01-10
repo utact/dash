@@ -58,6 +58,43 @@
                 </div>
             </div>
 
+            <!-- Tab: Messages (쪽지함) -->
+            <div v-if="activeTab === 'messages'" class="space-y-4">
+                <div v-if="loadingConversations" class="flex justify-center py-20"><Loader2 class="animate-spin text-brand-500"/></div>
+                <div v-else-if="conversations.length === 0" class="text-center py-20 text-slate-400">
+                    <MessageCircle :size="48" class="mx-auto mb-4 opacity-20"/>
+                    <p>아직 주고받은 쪽지가 없어요.</p>
+                </div>
+                <div v-else class="space-y-3">
+                    <div v-for="conv in conversations" :key="conv.partnerId" 
+                         @click="openDM(conv.partnerId, conv.partnerName, conv.partnerAvatar, conv.partnerDecorationClass)"
+                         class="flex items-center justify-between p-4 rounded-2xl border border-slate-100 hover:bg-brand-50 hover:border-brand-200 cursor-pointer transition-all group">
+                        <div class="flex items-center gap-4 flex-1 min-w-0">
+                            <div class="relative">
+                                <img :src="(conv.partnerAvatar && !conv.partnerAvatar.includes('dicebear')) ? conv.partnerAvatar : '/images/profiles/default-profile.png'" 
+                                     class="w-12 h-12 rounded-full border border-slate-200 bg-white object-cover"/>
+                                <div v-if="conv.unreadCount > 0" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+                                    {{ conv.unreadCount > 9 ? '9+' : conv.unreadCount }}
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <NicknameRenderer 
+                                        :nickname="conv.partnerName" 
+                                        :decorationClass="conv.partnerDecorationClass"
+                                        :show-avatar="false"
+                                        class="text-base"
+                                    />
+                                    <span class="text-xs text-slate-400">{{ formatTime(conv.lastMessageTime) }}</span>
+                                </div>
+                                <p class="text-sm text-slate-500 truncate">{{ conv.lastMessagePreview || '메시지 없음' }}</p>
+                            </div>
+                        </div>
+                        <ChevronRight :size="20" class="text-slate-300 group-hover:text-brand-500 transition-colors" />
+                    </div>
+                </div>
+            </div>
+
             <!-- Tab: Requests -->
             <div v-if="activeTab === 'requests'" class="space-y-4">
                 <div v-if="loading" class="flex justify-center py-20"><Loader2 class="animate-spin text-brand-500"/></div>
@@ -158,17 +195,18 @@
 import { ref, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { socialApi } from '@/api/social';
-import { Loader2, Users, Bell, Search, UserPlus, MessageCircle, UserMinus, CheckCircle2 } from 'lucide-vue-next';
+import { Loader2, Users, Bell, Search, UserPlus, MessageCircle, UserMinus, CheckCircle2, ChevronRight } from 'lucide-vue-next';
 import NicknameRenderer from '@/components/common/NicknameRenderer.vue';
 import { useDirectMessageModal } from '@/composables/useDirectMessageModal';
 
 const route = useRoute();
-const activeTab = ref('friends');
+const activeTab = ref('messages');
 const loading = ref(false);
 
 const friends = ref([]);
 const requests = ref([]);
 const tabs = ref([
+    { id: 'messages', label: '쪽지함', count: 0 },
     { id: 'friends', label: '내 친구', count: 0 },
     { id: 'requests', label: '친구 요청', count: 0 },
     { id: 'search', label: '친구 찾기', count: 0 },
@@ -178,6 +216,10 @@ const tabs = ref([
 const searchQuery = ref('');
 const searchLoading = ref(false);
 const searchResults = ref(null);
+
+// 쪽지함 (Conversations)
+const conversations = ref([]);
+const loadingConversations = ref(false);
 
 // 쪽지 (DM)
 const { open: openGlobalDM } = useDirectMessageModal();
@@ -192,13 +234,44 @@ const loadData = async () => {
         friends.value = friendsRes.data;
         requests.value = requestsRes.data;
         
-        // 카운트 업데이트
-        tabs.value[0].count = friends.value.length;
-        tabs.value[1].count = requests.value.length;
+        // 카운트 업데이트 (새 탭 배열: messages, friends, requests, search)
+        tabs.value[1].count = friends.value.length; // 내 친구
+        tabs.value[2].count = requests.value.length; // 친구 요청
     } catch (e) {
         console.error(e);
     } finally {
         loading.value = false;
+    }
+};
+
+const loadConversations = async () => {
+    loadingConversations.value = true;
+    try {
+        const res = await socialApi.getConversations();
+        conversations.value = res.data;
+        // 새 메시지 카운트 (안 읽은 메시지 있는 대화 수)
+        tabs.value[0].count = conversations.value.filter(c => c.unreadCount > 0).length;
+    } catch (e) {
+        console.error(e);
+    } finally {
+        loadingConversations.value = false;
+    }
+};
+
+const formatTime = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now - date;
+    const oneDay = 24 * 60 * 60 * 1000;
+    
+    if (diff < oneDay) {
+        return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    } else if (diff < 7 * oneDay) {
+        const days = Math.floor(diff / oneDay);
+        return `${days}일 전`;
+    } else {
+        return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
     }
 };
 
@@ -318,12 +391,16 @@ watch(() => route.query.partnerId, async (val) => {
 }, { immediate: true });
 
 onMounted(async () => {
-    await loadData();
+    await Promise.all([loadData(), loadConversations()]);
     checkQueryForDM(); 
 });
 
 watch(activeTab, () => {
-    if (activeTab.value !== 'search') loadData();
+    if (activeTab.value === 'messages') {
+        loadConversations();
+    } else if (activeTab.value !== 'search') {
+        loadData();
+    }
 });
 
 </script>

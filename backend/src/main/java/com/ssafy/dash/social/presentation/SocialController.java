@@ -73,6 +73,12 @@ public class SocialController {
 
     // --- 메시징 (Messaging) ---
 
+    @GetMapping("/conversations")
+    public ResponseEntity<List<com.ssafy.dash.social.application.dto.result.ConversationResult>> getConversations(
+            @AuthenticationPrincipal CustomOAuth2User userPrincipal) {
+        return ResponseEntity.ok(socialService.getConversations(userPrincipal.getUserId()));
+    }
+
     @GetMapping("/messages/{partnerId}")
     public ResponseEntity<List<MessageResult>> getConversation(
             @AuthenticationPrincipal CustomOAuth2User userPrincipal,

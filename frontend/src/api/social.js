@@ -8,11 +8,12 @@ export const socialApi = {
     acceptFriendRequest: (requestId) => http.post(`/social/friends/accept/${requestId}`),
     rejectFriendRequest: (requestId) => http.post(`/social/friends/reject/${requestId}`),
     deleteFriend: (friendId) => http.delete(`/social/friends/${friendId}`),
-    
+
     // Search
     searchUsers: (query) => http.get('/social/users/search', { params: { query } }),
-    
+
     // Messages
+    getConversations: () => http.get('/social/conversations'),
     getConversation: (partnerId) => http.get(`/social/messages/${partnerId}`),
     sendMessage: (receiverId, content) => http.post('/social/messages', { receiverId, content }),
 };

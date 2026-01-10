@@ -187,4 +187,32 @@ public class SocialService {
         }).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<com.ssafy.dash.social.application.dto.result.ConversationResult> getConversations(Long userId) {
+        List<Long> partnerIds = directMessageRepository.findRecentChatPartners(userId);
+
+        return partnerIds.stream().map(partnerId -> {
+            User partner = userRepository.findById(partnerId).orElse(null);
+            if (partner == null)
+                return null;
+
+            List<DirectMessage> messages = directMessageRepository.findConversation(userId, partnerId);
+            DirectMessage lastMessage = messages.isEmpty() ? null : messages.get(messages.size() - 1);
+
+            String lastMessagePreview = lastMessage != null ? aesEncryptor.decrypt(lastMessage.getContent()) : null;
+            int unreadCount = (int) messages.stream()
+                    .filter(m -> m.getReceiverId().equals(userId) && !m.isRead())
+                    .count();
+
+            return com.ssafy.dash.social.application.dto.result.ConversationResult.of(
+                    partner.getId(),
+                    partner.getUsername(),
+                    partner.getAvatarUrl(),
+                    partner.getEquippedDecorationClass(),
+                    lastMessagePreview,
+                    lastMessage != null ? lastMessage.getCreatedAt() : null,
+                    unreadCount);
+        }).filter(java.util.Objects::nonNull).collect(Collectors.toList());
+    }
+
 }
