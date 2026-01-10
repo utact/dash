@@ -92,13 +92,13 @@
                               <div class="flex items-center gap-2 mb-3">
                   <!-- 아바타 영역 전체 클릭 가능 -->
                   <div @click="toggleMemberPopup(study.id, $event)" class="flex items-center -space-x-2 cursor-pointer relative">
-                     <template v-for="member in (study.memberPreviews || []).slice(0, 11)" :key="member.userId">
+                     <template v-for="member in (study.memberPreviews || []).slice(0, 5)" :key="member.userId">
                         <div class="relative group/avatar">
                            <NicknameRenderer :username="member.username" :avatar-url="member.avatarUrl" avatar-class="w-7 h-7 border-2 border-white shadow-sm hover:ring-2 hover:ring-violet-300" text-class="hidden" :show-avatar="true" />
                            <div class="absolute left-1/2 -translate-x-1/2 -top-8 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded-lg opacity-0 group-hover/avatar:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">{{ member.username }}</div>
                         </div>
                      </template>
-                     <div v-if="study.memberCount > 11" class="w-7 h-7 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-600 hover:bg-slate-300 transition-colors">···</div>
+                     <div v-if="study.memberCount > 5" class="w-7 h-7 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-600 hover:bg-slate-300 transition-colors">+{{ study.memberCount - 5 }}</div>
                   </div>
                   <span class="text-xs font-medium text-slate-400 ml-1">{{ study.memberCount }}명</span>
                </div>
@@ -221,13 +221,13 @@
                               <div class="flex items-center gap-2 mb-3">
                   <!-- 아바타 영역 전체 클릭 가능 -->
                   <div @click="toggleMemberPopup(study.id, $event)" class="flex items-center -space-x-2 cursor-pointer relative">
-                     <template v-for="member in (study.memberPreviews || []).slice(0, 11)" :key="member.userId">
+                     <template v-for="member in (study.memberPreviews || []).slice(0, 5)" :key="member.userId">
                         <div class="relative group/avatar">
                            <NicknameRenderer :username="member.username" :avatar-url="member.avatarUrl" avatar-class="w-7 h-7 border-2 border-white shadow-sm hover:ring-2 hover:ring-brand-300" text-class="hidden" :show-avatar="true" />
                            <div class="absolute left-1/2 -translate-x-1/2 -top-8 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded-lg opacity-0 group-hover/avatar:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">{{ member.username }}</div>
                         </div>
                      </template>
-                     <div v-if="study.memberCount > 11" class="w-7 h-7 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-600 hover:bg-slate-300 transition-colors">···</div>
+                     <div v-if="study.memberCount > 5" class="w-7 h-7 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-600 hover:bg-slate-300 transition-colors">+{{ study.memberCount - 5 }}</div>
                   </div>
                   <span class="text-xs font-medium text-slate-400 ml-1">{{ study.memberCount }}명</span>
                </div>
