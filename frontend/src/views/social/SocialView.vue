@@ -42,16 +42,9 @@
                             />
                         </template>
 
-                        <!-- 더 불러오기 -->
-                        <div v-if="hasMore" class="flex justify-center py-6">
-                            <button 
-                                @click="loadMore" 
-                                :disabled="feedLoading"
-                                class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold transition-colors disabled:opacity-50"
-                            >
-                                <Loader2 v-if="feedLoading" class="animate-spin inline mr-2" :size="16" />
-                                더 보기
-                            </button>
+                        <!-- 무한 스크롤 트리거 -->
+                        <div v-if="hasMore" ref="loadMoreTrigger" class="flex justify-center py-8">
+                            <Loader2 class="animate-spin text-slate-400" :size="24" />
                         </div>
                     </div>
                 </main>
@@ -187,7 +180,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { socialApi } from '@/api/social';
 import { Loader2, Users, Search, Bell, MessageCircle, Rss, Check, X } from 'lucide-vue-next';
@@ -256,11 +249,9 @@ const loadFeed = async (reset = false) => {
     }
 };
 
-const loadMore = () => {
-    if (!feedLoading.value && hasMore.value) {
-        loadFeed();
-    }
-};
+// 무한 스크롤 상태
+const loadMoreTrigger = ref(null);
+let observer = null;
 
 // 친구 데이터 로드
 const loadFriends = async () => {
@@ -342,5 +333,21 @@ const handleViewBattle = (item) => {
 onMounted(() => {
     loadFeed(true);
     loadFriends();
+    
+    // 무한 스크롤 옵저버
+    observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !feedLoading.value && hasMore.value) {
+            loadFeed();
+        }
+    }, { rootMargin: '200px' });
+});
+
+// 트리거 요소 감시
+watch(loadMoreTrigger, (el) => {
+    if (el && observer) observer.observe(el);
+});
+
+onBeforeUnmount(() => {
+    if (observer) observer.disconnect();
 });
 </script>
