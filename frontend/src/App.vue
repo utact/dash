@@ -1,58 +1,29 @@
 <template>
-  <MobileRestrictionView v-if="isMobile" />
-  <template v-else>
     <Sidebar @scroll="scrollToSection" />
-    <div class="bg-slate-50 min-h-screen transition-all duration-300" :class="{ 'md:ml-64': isSidebarVisible }">
+    <div class="bg-slate-50 min-h-screen transition-all duration-300 pb-16 md:pb-0" :class="mainContentClass">
         <router-view />
     </div>
 
     <!-- Global Modals -->
     <UserProfileModal />
-    <DirectMessageModal 
-      v-if="isDMOpen && dmPartnerInfo"
-      :partner-id="dmPartnerInfo.partnerId"
-      :partner-name="dmPartnerInfo.partnerName"
-      :partner-avatar="dmPartnerInfo.partnerAvatar"
-      :partner-decoration="dmPartnerInfo.partnerDecoration"
-      :partner-is-deleted="dmPartnerInfo.partnerIsDeleted || false"
-      @close="closeDM"
-    />
-  </template>
+
+    <!-- Floating Message Panel (Instagram-style) -->
+    <FloatingMessagePanel />
 </template>
 
 
 <script setup>
-import { computed, ref, onMounted, onUnmounted } from "vue";
+import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
 import Sidebar from "./components/layout/Sidebar.vue";
-import MobileRestrictionView from "@/views/MobileRestrictionView.vue";
 
 // Global Modals
 import UserProfileModal from "@/components/social/UserProfileModal.vue";
-import DirectMessageModal from "@/components/social/DirectMessageModal.vue";
-import { useDirectMessageModal } from "@/composables/useDirectMessageModal";
+import FloatingMessagePanel from "@/components/social/FloatingMessagePanel.vue";
 
 const route = useRoute();
 const { user } = useAuth();
-const isMobile = ref(false);
-
-const { isOpen: isDMOpen, partnerInfo: dmPartnerInfo, close: closeDM } = useDirectMessageModal();
-
-const checkMobile = () => {
-  if (typeof window !== "undefined") {
-    isMobile.value = window.innerWidth < 768;
-  }
-};
-
-onMounted(() => {
-  checkMobile();
-  window.addEventListener('resize', checkMobile);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('resize', checkMobile);
-});
 
 const isSidebarVisible = computed(() => {
   if (typeof window === "undefined") return false;
@@ -60,6 +31,12 @@ const isSidebarVisible = computed(() => {
   if (route.path && route.path.startsWith("/onboarding")) return false;
   if (route.path === '/' && !user.value) return false;
   return true;
+});
+
+// Responsive margin: xl=full sidebar, lg/md=icon sidebar, mobile=no sidebar
+const mainContentClass = computed(() => {
+  if (!isSidebarVisible.value) return '';
+  return 'xl:ml-64 lg:ml-20 md:ml-20';
 });
 
 const scrollToSection = (id) => {

@@ -31,7 +31,8 @@
 
     <div v-else :class="{ 'flex flex-col h-full overflow-hidden': isOnboarding }">
       <!-- 검색 창 -->
-      <div class="shrink-0 bg-slate-50/90 backdrop-blur-md p-6 rounded-3xl border border-slate-100 z-10 sticky top-0 shadow-sm"
+      <!-- 검색 창 (온보딩 모드에서만 표시) -->
+      <div v-if="isOnboarding" class="shrink-0 bg-slate-50/90 backdrop-blur-md p-6 rounded-3xl border border-slate-100 z-10 sticky top-0 shadow-sm"
            :class="{ 'mb-4': isOnboarding, 'mb-10 top-0': !isOnboarding }">
         <label class="block text-sm font-bold text-slate-500 mb-3 ml-1 flex items-center justify-between">
            <span>스터디 찾기</span>
@@ -92,13 +93,13 @@
                               <div class="flex items-center gap-2 mb-3">
                   <!-- 아바타 영역 전체 클릭 가능 -->
                   <div @click="toggleMemberPopup(study.id, $event)" class="flex items-center -space-x-2 cursor-pointer relative">
-                     <template v-for="member in (study.memberPreviews || []).slice(0, 11)" :key="member.userId">
+                     <template v-for="member in (study.memberPreviews || []).slice(0, 5)" :key="member.userId">
                         <div class="relative group/avatar">
                            <NicknameRenderer :username="member.username" :avatar-url="member.avatarUrl" avatar-class="w-7 h-7 border-2 border-white shadow-sm hover:ring-2 hover:ring-violet-300" text-class="hidden" :show-avatar="true" />
                            <div class="absolute left-1/2 -translate-x-1/2 -top-8 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded-lg opacity-0 group-hover/avatar:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">{{ member.username }}</div>
                         </div>
                      </template>
-                     <div v-if="study.memberCount > 11" class="w-7 h-7 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-600 hover:bg-slate-300 transition-colors">···</div>
+                     <div v-if="study.memberCount > 5" class="w-7 h-7 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-600 hover:bg-slate-300 transition-colors">+{{ study.memberCount - 5 }}</div>
                   </div>
                   <span class="text-xs font-medium text-slate-400 ml-1">{{ study.memberCount }}명</span>
                </div>
@@ -221,13 +222,13 @@
                               <div class="flex items-center gap-2 mb-3">
                   <!-- 아바타 영역 전체 클릭 가능 -->
                   <div @click="toggleMemberPopup(study.id, $event)" class="flex items-center -space-x-2 cursor-pointer relative">
-                     <template v-for="member in (study.memberPreviews || []).slice(0, 11)" :key="member.userId">
+                     <template v-for="member in (study.memberPreviews || []).slice(0, 5)" :key="member.userId">
                         <div class="relative group/avatar">
                            <NicknameRenderer :username="member.username" :avatar-url="member.avatarUrl" avatar-class="w-7 h-7 border-2 border-white shadow-sm hover:ring-2 hover:ring-brand-300" text-class="hidden" :show-avatar="true" />
                            <div class="absolute left-1/2 -translate-x-1/2 -top-8 bg-slate-800 text-white text-[10px] font-bold px-2 py-1 rounded-lg opacity-0 group-hover/avatar:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">{{ member.username }}</div>
                         </div>
                      </template>
-                     <div v-if="study.memberCount > 11" class="w-7 h-7 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-600 hover:bg-slate-300 transition-colors">···</div>
+                     <div v-if="study.memberCount > 5" class="w-7 h-7 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-600 hover:bg-slate-300 transition-colors">+{{ study.memberCount - 5 }}</div>
                   </div>
                   <span class="text-xs font-medium text-slate-400 ml-1">{{ study.memberCount }}명</span>
                </div>
@@ -458,7 +459,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { useAuth } from '@/composables/useAuth';
@@ -470,6 +471,10 @@ const props = defineProps({
   isOnboarding: {
     type: Boolean,
     default: false
+  },
+  externalSearchKeyword: {
+    type: String,
+    default: ''
   }
 });
 
@@ -487,6 +492,14 @@ const applying = ref(false);
 
 const searchKeyword = ref('');
 const searchError = ref('');
+
+// 외부 검색 키워드 동기화
+watch(() => props.externalSearchKeyword, (newVal) => {
+    if (newVal !== searchKeyword.value) {
+        searchKeyword.value = newVal;
+        searchStudy();
+    }
+});
 
 const pendingApp = ref(null);
 

@@ -1,12 +1,13 @@
 <template>
-    <div v-if="isOpen && targetUserInfo" class="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="close"></div>
-        
-        <div class="relative bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 p-6 text-center">
+    <Teleport to="body">
+        <div v-if="isOpen && targetUserInfo" class="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="close"></div>
             
-            <button @click="close" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 bg-slate-50 rounded-full hover:bg-slate-100 transition-colors">
-                <X :size="20"/>
-            </button>
+            <div class="relative bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden p-6 text-center">
+                
+                <button @click="close" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 bg-slate-50 rounded-full hover:bg-slate-100 transition-colors">
+                    <X :size="20"/>
+                </button>
 
             <!-- Profile Info -->
             <div class="flex flex-col items-center mb-6">
@@ -67,37 +68,38 @@
 
                 <!-- Case: Pending / Strings attached -->
                 <button 
-                    v-else-if="friendshipStatus === 'PENDING' || requested"
-                    disabled
-                    class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl text-sm font-bold cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                    <CheckCircle2 :size="18"/> 친구 요청 보냄
-                </button>
+                        v-else-if="friendshipStatus === 'PENDING' || requested"
+                        disabled
+                        class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl text-sm font-bold cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        <CheckCircle2 :size="18"/> 친구 요청 보냄
+                    </button>
 
-                <!-- Case: Not Friend -->
-                <button 
-                    v-else
-                    @click="sendFriendRequest"
-                    class="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10"
-                >
-                    <UserPlus :size="18"/> 친구 신청
-                </button>
+                    <!-- Case: Not Friend -->
+                    <button 
+                        v-else
+                        @click="sendFriendRequest"
+                        class="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10"
+                    >
+                        <UserPlus :size="18"/> 친구 신청
+                    </button>
+                </div>
+
             </div>
-
         </div>
-    </div>
+    </Teleport>
 </template>
 
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { useUserProfileModal } from '@/composables/useUserProfileModal';
-import { useDirectMessageModal } from '@/composables/useDirectMessageModal';
+import { useFloatingChat } from '@/composables/useFloatingChat';
 import { useAuth } from '@/composables/useAuth';
 import { socialApi } from '@/api/social';
 import { X, Crown, MessageCircle, UserPlus, CheckCircle2, Users, Loader2, AlertCircle } from 'lucide-vue-next';
 
 const { isOpen, targetUserInfo, close } = useUserProfileModal();
-const { open: openDirectMessage } = useDirectMessageModal();
+const { openChat: openDirectMessage } = useFloatingChat();
 const { user: currentUser } = useAuth();
 
 const loading = ref(false);
@@ -111,6 +113,12 @@ const isMe = computed(() => {
 // Fetch friendship status when modal opens
 watch([isOpen, targetUserInfo], async ([newOpen, newUserInfo]) => {
     if (newOpen && newUserInfo && !isMe.value) {
+        // 이미 친구 상태 정보가 있으면 API 호출 스킵
+        if (newUserInfo.friendshipStatus) {
+            friendshipStatus.value = newUserInfo.friendshipStatus;
+            return;
+        }
+
         // Init state
         loading.value = true;
         friendshipStatus.value = null;
@@ -163,7 +171,7 @@ const openDM = () => {
     };
     
     close(); // Close profile modal
-    openDirectMessage(partner); // Open DM modal
+    openDirectMessage(partner); // Open floating chat
 };
 
 </script>
