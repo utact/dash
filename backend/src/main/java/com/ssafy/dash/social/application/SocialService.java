@@ -8,6 +8,7 @@ import com.ssafy.dash.social.domain.Friendship;
 import com.ssafy.dash.social.domain.FriendshipRepository;
 import com.ssafy.dash.user.domain.User;
 import com.ssafy.dash.user.domain.UserRepository;
+import com.ssafy.dash.common.encrypt.AesEncryptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ public class SocialService {
     private final DirectMessageRepository directMessageRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final AesEncryptor aesEncryptor;
 
     // --- 친구 관계 (Friendship) ---
 
@@ -119,7 +121,8 @@ public class SocialService {
             throw new IllegalArgumentException("Cannot message yourself");
         }
 
-        DirectMessage dm = DirectMessage.create(senderId, receiverId, content);
+        String encryptedContent = aesEncryptor.encrypt(content);
+        DirectMessage dm = DirectMessage.create(senderId, receiverId, encryptedContent);
         directMessageRepository.save(dm);
 
         // 수신자에게 알림 전송
@@ -141,7 +144,18 @@ public class SocialService {
         return directMessageRepository.findConversation(userId, partnerId).stream()
                 .map(dm -> {
                     User sender = dm.getSenderId().equals(userId) ? me : partner;
-                    return com.ssafy.dash.social.application.dto.result.MessageResult.from(dm, sender, userId);
+                    String decryptedContent = aesEncryptor.decrypt(dm.getContent());
+
+                    return new com.ssafy.dash.social.application.dto.result.MessageResult(
+                            dm.getId(),
+                            sender.getId(),
+                            sender.getUsername(),
+                            sender.getAvatarUrl(),
+                            sender.getEquippedDecorationClass(),
+                            decryptedContent,
+                            dm.isRead(),
+                            dm.getCreatedAt(),
+                            sender.getId().equals(userId));
                 })
                 .collect(Collectors.toList());
     }
