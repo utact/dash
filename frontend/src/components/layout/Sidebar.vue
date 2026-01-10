@@ -308,8 +308,8 @@ import { ref, computed, onMounted, onBeforeUnmount, watch } from "vue";
 import { useRoute, useRouter } from 'vue-router';
 import { 
     Github, Shield, LayoutGrid, MessageSquare, School, FileText, 
-    PieChart, Target, Trophy, Bell, UserCircle, LogOut, X, Network, Compass,
-    CheckCircle2, AlertCircle, MessageCircle, Loader2, Lock, Users, Send
+    PieChart, Target, Trophy, Bell, UserCircle, LogOut, X, Menu, Network, Compass,
+    CheckCircle2, AlertCircle, MessageCircle, HelpCircle, Star, Loader2, Lock, Users, ShoppingBag
 } from "lucide-vue-next";
 
 import { useAuth } from "@/composables/useAuth";
@@ -362,28 +362,29 @@ const navGroups = computed(() => {
     ]
   },
   {
-    title: '개인 학습',
+    title: '실전 훈련',
     items: [
       { label: '랜덤 디펜스', path: '/defense', icon: Shield, color: 'bg-slate-500' },
       { label: '모의고사', path: '/mockexam', icon: FileText, color: 'bg-blue-500' },
+    ]
+  },
+  {
+    title: '성장 및 보상',
+    items: [
       { label: '스킬 트리', path: '/training/skilltree', icon: Network, color: 'bg-indigo-500' },
       { label: '로드맵', path: '/training/roadmap', icon: School, color: 'bg-amber-500' },
+      { label: '상점', path: '/shop', icon: ShoppingBag, color: 'bg-orange-500' },
     ]
   },
   {
     title: '커뮤니티',
     items: [
       { label: '전국 게시판', path: '/boards', icon: MessageSquare, color: 'bg-violet-500' },
-      { label: '스터디 라운지', path: '/study/ranking', icon: Compass, color: 'bg-yellow-500' },
+      { label: '스터디 찾기', path: '/study/ranking', icon: Compass, color: 'bg-yellow-500' },
       { label: '소셜', path: '/social', icon: Users, color: 'bg-pink-500' },
     ]
   },
-  ...(user.value?.role === 'ROLE_ADMIN' ? [{
-    title: '관리자',
-    items: [
-       { label: '대시보드', path: '/admin', icon: Shield, color: 'bg-slate-900' },
-    ]
-  }] : [])
+
 ]});
 
 // Mobile navigation items (simplified)

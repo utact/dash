@@ -1,5 +1,8 @@
 <template>
-  <div class="min-h-screen bg-white text-slate-800 pb-20">
+  <!-- Main Layout Wrapper matching DashboardView -->
+  <div class="flex h-screen overflow-hidden bg-white font-['Pretendard']">
+    <div class="w-full overflow-y-auto [scrollbar-gutter:stable]">
+      <div class="min-h-screen bg-white pb-20">
     
     <!-- 활성화된 디펜스 오버레이 (전체화면 고정) -->
     <div v-if="status.defenseProblemId && !loading" class="fixed inset-0 z-50 bg-slate-50 flex items-center justify-center p-4">
@@ -59,12 +62,11 @@
       <div class="flex-1 min-w-0 space-y-8">
         
         <!-- Header -->
-        <h1 class="text-2xl font-black text-slate-800 flex items-center gap-3">
-          <div class="w-10 h-10 bg-brand-100 rounded-xl flex items-center justify-center">
-            <Shield class="w-6 h-6 text-brand-600" fill="currentColor" />
-          </div>
-          랜덤 디펜스
-        </h1>
+        <!-- Header -->
+        <div class="flex items-center gap-3">
+          <Shield class="w-7 h-7 text-brand-500" stroke-width="2.5" fill="currentColor" />
+          <h1 class="text-xl font-black text-slate-800">랜덤 디펜스</h1>
+        </div>
 
         <!-- Loading -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-20">
@@ -111,7 +113,7 @@
       </div>
 
       <!-- 사이드바 -->
-      <aside class="w-[380px] hidden xl:flex flex-col sticky top-8 h-fit space-y-6">
+      <aside class="w-[380px] shrink-0 hidden xl:flex flex-col gap-6 sticky top-8 h-fit">
         
         <!-- 연승 기록 -->
         <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
@@ -179,6 +181,8 @@
             다음 도전 ➡
           </button>
         </div>
+      </div>
+    </div>
       </div>
     </div>
   </div>

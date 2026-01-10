@@ -1,16 +1,19 @@
 <template>
-  <div class="min-h-screen bg-white text-slate-800 pb-20">
+  <!-- Main Layout Wrapper matching DashboardView -->
+  <div class="flex h-screen overflow-hidden bg-white font-['Pretendard']">
+    <div class="w-full overflow-y-auto [scrollbar-gutter:stable]">
+      <div class="min-h-screen bg-white pb-20">
     <!-- Main Layout Container -->
     <div class="flex justify-center p-4 md:p-8">
       <div class="flex gap-8 max-w-screen-xl w-full items-start">
         
         <!-- 왼쪽 칼럼: 메인 콘텐츠 -->
-        <main class="flex-1 min-w-0 space-y-6 animate-in slide-in-from-left duration-500">
+        <main class="flex-1 min-w-0 space-y-8 animate-in slide-in-from-left duration-500">
           
           <!-- Page Header (외부) -->
           <div class="flex items-center gap-3">
-            <Sword class="w-7 h-7 text-brand-500" stroke-width="2.5" fill="currentColor" />
-            <h1 class="text-xl font-black text-slate-800">알고리즘 스킬트리</h1>
+            <Network class="w-7 h-7 text-brand-500" stroke-width="2.5" fill="currentColor" />
+            <h1 class="text-xl font-black text-slate-800">스킬 트리</h1>
           </div>
 
           <!-- 스킬 트리 컴포넌트 -->
@@ -20,22 +23,24 @@
         <!-- 오른쪽 칼럼: 사이드바 -->
         <aside class="hidden lg:flex w-[380px] shrink-0 flex-col gap-6 sticky top-8 h-fit">
           
-          <!-- 1. 통계 열 -->
-          <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-around">
-            <!-- 티어 -->
-            <div class="flex items-center gap-2 group cursor-pointer" title="Current Tier">
-              <img :src="`https://static.solved.ac/tier_small/${userTier}.svg`" class="w-8 h-8 object-contain" />
-              <span class="text-sm font-black text-slate-700">{{ userTierName }}</span>
-            </div>
-
-            <div class="w-px h-8 bg-slate-100"></div>
-
-            <!-- 해결한 문제 수 -->
-            <div class="flex items-center gap-2 group cursor-pointer" title="Solved Problems">
-              <CheckCircle class="w-6 h-6 text-leaf" stroke-width="2.5" fill="currentColor" />
-              <span class="text-xl font-black text-slate-700">{{ user?.solvedCount || 0 }}</span>
-            </div>
-          </div>
+          <!-- 1. 통계 열 (UserQuickStats) -->
+          <UserQuickStats 
+            :items="[
+              { 
+                image: `https://static.solved.ac/tier_small/${userTier}.svg`,
+                value: userTierName,
+                tooltip: 'Current Tier',
+                textClass: 'text-sm'
+              },
+              { 
+                icon: CheckCircle, 
+                value: (user?.solvedCount || 0).toLocaleString(), 
+                tooltip: 'Solved Problems',
+                iconClass: 'text-leaf',
+                fill: 'currentColor'
+              }
+            ]"
+          />
 
           <!-- 2. 범례 (간결 & 아름다움) -->
           <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
@@ -103,15 +108,18 @@
       </div>
     </div>
   </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { CheckCircle, Info, TrendingUp, Zap, Map, Sword } from 'lucide-vue-next';
+import { CheckCircle, Info, TrendingUp, Zap, Map, Sword, Network } from 'lucide-vue-next';
 import SkillTreeView from '@/components/skill/SkillTreeView.vue';
 import { useAuth } from '@/composables/useAuth';
 import { tagApi } from '@/api/tags';
+import UserQuickStats from '@/components/common/UserQuickStats.vue';
 
 const router = useRouter();
 const { user } = useAuth();
