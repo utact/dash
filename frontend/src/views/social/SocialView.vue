@@ -186,11 +186,11 @@ import { socialApi } from '@/api/social';
 import { Loader2, Users, Search, Bell, MessageCircle, Rss, Check, X } from 'lucide-vue-next';
 import TierBadge from '@/components/common/TierBadge.vue';
 import FeedItem from '@/components/social/FeedItem.vue';
-import { useDirectMessageModal } from '@/composables/useDirectMessageModal';
+import { useFloatingChat } from '@/composables/useFloatingChat';
 import { useUserProfileModal } from '@/composables/useUserProfileModal';
 
 const router = useRouter();
-const { open: openGlobalDM } = useDirectMessageModal();
+const { openChat: openGlobalDM } = useFloatingChat();
 const { open: openProfile } = useUserProfileModal();
 
 // 피드 상태

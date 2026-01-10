@@ -5,15 +5,7 @@
     </div>
 
     <!-- Global Modals -->
-    <UserProfileModal />
-    <DirectMessageModal 
-      v-if="isDMOpen && dmPartnerInfo"
-      :partner-id="dmPartnerInfo.partnerId"
-      :partner-name="dmPartnerInfo.partnerName"
-      :partner-avatar="dmPartnerInfo.partnerAvatar"
-      :partner-decoration="dmPartnerInfo.partnerDecoration"
-      @close="closeDM"
-    />
+
 
     <!-- Floating Message Panel (Instagram-style) -->
     <FloatingMessagePanel />
@@ -28,14 +20,10 @@ import Sidebar from "./components/layout/Sidebar.vue";
 
 // Global Modals
 import UserProfileModal from "@/components/social/UserProfileModal.vue";
-import DirectMessageModal from "@/components/social/DirectMessageModal.vue";
 import FloatingMessagePanel from "@/components/social/FloatingMessagePanel.vue";
-import { useDirectMessageModal } from "@/composables/useDirectMessageModal";
 
 const route = useRoute();
 const { user } = useAuth();
-
-const { isOpen: isDMOpen, partnerInfo: dmPartnerInfo, close: closeDM } = useDirectMessageModal();
 
 const isSidebarVisible = computed(() => {
   if (typeof window === "undefined") return false;

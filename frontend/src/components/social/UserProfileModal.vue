@@ -86,13 +86,13 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { useUserProfileModal } from '@/composables/useUserProfileModal';
-import { useDirectMessageModal } from '@/composables/useDirectMessageModal';
+import { useFloatingChat } from '@/composables/useFloatingChat';
 import { useAuth } from '@/composables/useAuth';
 import { socialApi } from '@/api/social';
 import { X, Crown, MessageCircle, UserPlus, CheckCircle2, Users, Loader2 } from 'lucide-vue-next';
 
 const { isOpen, targetUserInfo, close } = useUserProfileModal();
-const { open: openDirectMessage } = useDirectMessageModal();
+const { openChat: openDirectMessage } = useFloatingChat();
 const { user: currentUser } = useAuth();
 
 const loading = ref(false);
@@ -163,7 +163,7 @@ const openDM = () => {
     };
     
     close(); // Close profile modal
-    openDirectMessage(partner); // Open DM modal
+    openDirectMessage(partner); // Open floating chat
 };
 
 </script>

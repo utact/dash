@@ -5,7 +5,7 @@
         <Transition name="scale">
             <button
                 v-if="!isOpen"
-                @click="togglePanel"
+                @click="toggle"
                 class="w-12 h-12 md:w-14 md:h-14 bg-brand-600 hover:bg-brand-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group hover:scale-105"
             >
                 <MessageCircle :size="20" class="md:hidden group-hover:scale-110 transition-transform" />
@@ -38,7 +38,7 @@
                         <button @click="openFullView" class="p-1.5 hover:bg-white/20 rounded-lg transition-colors" title="전체보기">
                             <Maximize2 :size="16" />
                         </button>
-                        <button @click="togglePanel" class="p-1.5 hover:bg-white/20 rounded-lg transition-colors" title="닫기">
+                        <button @click="toggle" class="p-1.5 hover:bg-white/20 rounded-lg transition-colors" title="닫기">
                             <X :size="16" />
                         </button>
                     </div>
@@ -60,7 +60,7 @@
                         <button @click="openFullView" class="p-1.5 hover:bg-slate-200 rounded-lg transition-colors text-slate-500" title="전체보기">
                             <Maximize2 :size="16" />
                         </button>
-                        <button @click="togglePanel" class="p-1.5 hover:bg-slate-200 rounded-lg transition-colors text-slate-500" title="닫기">
+                        <button @click="toggle" class="p-1.5 hover:bg-slate-200 rounded-lg transition-colors text-slate-500" title="닫기">
                             <X :size="16" />
                         </button>
                     </div>
@@ -169,21 +169,21 @@ import { useRouter, useRoute } from 'vue-router';
 import { MessageCircle, X, Maximize2, Loader2, ChevronLeft, Send } from 'lucide-vue-next';
 import { socialApi } from '@/api/social';
 import { useAuth } from '@/composables/useAuth';
+import { useFloatingChat } from '@/composables/useFloatingChat';
 
 const router = useRouter();
 const route = useRoute();
 const { user } = useAuth();
+const { isOpen, activeChat, toggle } = useFloatingChat();
 
 // user가 있으면 인증됨
 const isAuthenticated = computed(() => !!user.value);
 
-const isOpen = ref(false);
 const loading = ref(false);
 const conversations = ref([]);
 
 // Chat view state
 const viewMode = ref('list'); // 'list' or 'chat'
-const activeChat = ref(null);
 const messages = ref([]);
 const messagesLoading = ref(false);
 const newMessage = ref('');
@@ -196,15 +196,27 @@ const totalUnread = computed(() => {
     return conversations.value.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
 });
 
-const togglePanel = () => {
-    isOpen.value = !isOpen.value;
-    if (isOpen.value) {
-        viewMode.value = 'list';
-        loadConversations();
+// Watch isOpen to handle polling
+watch(isOpen, (newVal) => {
+    if (newVal) {
+        if (!activeChat.value) {
+            viewMode.value = 'list';
+            loadConversations();
+        }
     } else {
         stopChatPolling();
     }
-};
+});
+
+// Watch activeChat to switch to chat view
+watch(activeChat, (newVal) => {
+    if (newVal) {
+        viewMode.value = 'chat';
+        messages.value = [];
+        fetchMessages();
+        startChatPolling();
+    }
+});
 
 const loadConversations = async () => {
     if (!isAuthenticated.value) return;
