@@ -24,7 +24,6 @@
         <Shield :size="24" stroke-width="2.5" />
         <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs group-hover:ml-2 transition-all duration-300">관리자</span>
     </router-link>
-  </template>
 </template>
 
 
