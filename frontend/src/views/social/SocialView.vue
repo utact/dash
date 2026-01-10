@@ -34,20 +34,24 @@
                 <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div v-for="item in friends" :key="item.id" class="p-4 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-white hover:border-brand-200 hover:shadow-md transition-all group">
                         <div class="flex items-center gap-4">
-                            <img :src="(item.friend.avatarUrl && !item.friend.avatarUrl.includes('dicebear')) ? item.friend.avatarUrl : '/images/profiles/default-profile.png'" class="w-12 h-12 rounded-full border border-slate-200 bg-white object-cover"/>
-                            <div class="flex-1 min-w-0">
-                                <NicknameRenderer 
-                                    :nickname="item.friend.username" 
-                                    :decorationClass="item.friend.equippedDecorationClass"
-                                    :role="item.friend.role"
-                                    :show-avatar="false"
-                                    class="text-base"
-                                />
-                                <div class="text-xs text-slate-400 truncate">{{ item.friend.email }}</div>
+                            <img 
+                                :src="item.friend.isDeleted ? 'https://avatars.githubusercontent.com/u/0' : ((item.friend.avatarUrl && !item.friend.avatarUrl.includes('dicebear')) ? item.friend.avatarUrl : '/images/profiles/default-profile.png')" 
+                                class="w-12 h-12 rounded-full border border-slate-200 bg-white object-cover shrink-0"
+                                :class="{ 'grayscale opacity-60': item.friend.isDeleted }"
+                            />
+                            <div class="flex-1 min-w-0 overflow-hidden">
+                                <div class="font-bold text-base truncate" :class="item.friend.isDeleted ? 'text-slate-400' : 'text-slate-800'">
+                                    {{ item.friend.isDeleted ? '탈퇴한 회원' : item.friend.username }}
+                                </div>
+                                <div class="text-xs text-slate-400 truncate">{{ item.friend.isDeleted ? '' : item.friend.email }}</div>
                             </div>
                         </div>
                         <div class="mt-4 flex gap-2">
-                             <button @click="openDM(item.friend.id, item.friend.username, item.friend.avatarUrl, item.friend.equippedDecorationClass)" class="flex-1 py-2 bg-brand-500 text-white rounded-xl text-sm font-bold hover:bg-brand-600 transition-colors flex items-center justify-center gap-2">
+                             <button 
+                                @click="openDM(item.friend.id, item.friend.username, item.friend.avatarUrl, item.friend.equippedDecorationClass, item.friend.isDeleted)" 
+                                class="flex-1 py-2 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2"
+                                :class="item.friend.isDeleted ? 'bg-slate-200 text-slate-400 hover:bg-slate-300' : 'bg-brand-500 text-white hover:bg-brand-600'"
+                             >
                                 <MessageCircle :size="16"/> 쪽지
                              </button>
                              <button @click="deleteFriend(item.friend.id)" class="px-3 py-2 bg-slate-200 text-slate-500 rounded-xl hover:bg-rose-100 hover:text-rose-500 transition-colors">
@@ -156,13 +160,14 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { socialApi } from '@/api/social';
 import { Loader2, Users, Bell, Search, UserPlus, MessageCircle, UserMinus, CheckCircle2 } from 'lucide-vue-next';
 import NicknameRenderer from '@/components/common/NicknameRenderer.vue';
 import { useDirectMessageModal } from '@/composables/useDirectMessageModal';
 
 const route = useRoute();
+const router = useRouter();
 const activeTab = ref('friends');
 const loading = ref(false);
 
@@ -259,12 +264,13 @@ const deleteFriend = async (friendId) => {
     }
 };
 
-const openDM = (id, name, avatar, decoration) => {
+const openDM = (id, name, avatar, decoration, isDeleted = false) => {
     openGlobalDM({
         partnerId: id,
         partnerName: name,
         partnerAvatar: avatar,
-        partnerDecoration: decoration || ''
+        partnerDecoration: decoration || '',
+        partnerIsDeleted: isDeleted || false
     });
 };
 
@@ -277,28 +283,21 @@ const checkQueryForDM = async () => {
         // 1. 친구 목록에서 찾아보기
         const friend = friends.value.find(f => f.friend.id === partnerId);
         if (friend) {
+            // 친구인 경우 DM 모달 열기
             openGlobalDM({
                 partnerId: friend.friend.id,
                 partnerName: friend.friend.username,
                 partnerAvatar: friend.friend.avatarUrl,
-                partnerDecoration: friend.friend.equippedDecorationClass || ''
+                partnerDecoration: friend.friend.equippedDecorationClass || '',
+                partnerIsDeleted: friend.friend.isDeleted || false
             });
         } else {
-            // 2. 없으면 검색 API 등을 통해 사용자 정보 가져오기 
-            try {
-                if (!loading.value) { 
-                     // 정보가 없으므로 최소한의 정보로 염
-                     openGlobalDM({
-                        partnerId: partnerId,
-                        partnerName: 'User', // 로드 전 임시
-                        partnerAvatar: null,
-                        partnerDecoration: ''
-                     });
-                }
-            } catch (e) {
-                console.error(e);
-            }
+            // 친구가 아닌 경우 별도 처리 없이 안내 후 목록 보여줌
+             alert('현재 친구 목록에 없는 사용자입니다.');
         }
+
+        // 쿼리 파라미터 제거하여 URL 정리
+        router.replace({ query: { ...route.query, partnerId: undefined } });
     }
 };
 

@@ -14,6 +14,7 @@
       :partner-name="dmPartnerInfo.partnerName"
       :partner-avatar="dmPartnerInfo.partnerAvatar"
       :partner-decoration="dmPartnerInfo.partnerDecoration"
+      :partner-is-deleted="dmPartnerInfo.partnerIsDeleted || false"
       @close="closeDM"
     />
   </template>

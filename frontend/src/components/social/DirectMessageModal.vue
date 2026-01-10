@@ -7,17 +7,16 @@
             <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-3">
                     <img 
-                        :src="partnerAvatar || '/images/profiles/default-profile.png'" 
+                        :src="isPartnerDeleted ? 'https://avatars.githubusercontent.com/u/0' : (partnerInfo.avatar || '/images/profiles/default-profile.png')" 
                         class="w-10 h-10 rounded-full border border-brand-100 object-cover bg-white"
-                        :alt="partnerName"
+                        :class="{ 'grayscale opacity-60': isPartnerDeleted }"
+                        :alt="partnerInfo.name"
                     />
                     <div>
-                        <NicknameRenderer 
-                            :nickname="partnerName" 
-                            :decorationClass="partnerDecoration"
-                            class="text-base"
-                        />
-                        <p class="text-xs text-brand-500 font-bold">Online</p>
+                        <div class="font-bold text-base" :class="isPartnerDeleted ? 'text-slate-400' : 'text-slate-800'">
+                            {{ isPartnerDeleted ? '탈퇴한 회원' : partnerInfo.name }}
+                        </div>
+                        <p v-if="!isPartnerDeleted" class="text-xs text-brand-500 font-bold">Online</p>
                     </div>
                 </div>
                 <button @click="$emit('close')" class="p-2 text-slate-400 hover:text-slate-600 bg-white rounded-xl shadow-sm hover:shadow-md transition-all">
@@ -56,7 +55,13 @@
             
             <!-- Input Area -->
             <div class="p-4 bg-white border-t border-slate-100 shrink-0">
-                <form @submit.prevent="sendMessage" class="flex items-center gap-2">
+                <!-- 탈퇴 회원 채팅방 -->
+                <div v-if="isPartnerDeleted" class="p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-center gap-2">
+                    <AlertCircle :size="18" class="text-rose-500 shrink-0"/>
+                    <p class="text-sm text-rose-600 font-bold">탈퇴한 회원에게는 메시지를 보낼 수 없습니다.</p>
+                </div>
+                <!-- 일반 입력창 -->
+                <form v-else @submit.prevent="sendMessage" class="flex items-center gap-2">
                     <input 
                         v-model="newMessage" 
                         type="text" 
@@ -66,7 +71,7 @@
                     />
                     <button 
                         type="submit" 
-                        class="p-3 bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/30 hover:bg-brand-600 disabled:opacity-50 transition-all flex items-center justify-center"
+                        class="p-3 bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/30 hover:bg-brand-600 transition-all flex items-center justify-center"
                         :disabled="!newMessage.trim() || sending"
                     >
                         <Send :size="20" :class="sending ? 'opacity-0' : ''"/>
@@ -81,14 +86,19 @@
 <script setup>
 import { ref, onMounted, nextTick, onBeforeUnmount } from 'vue';
 import { socialApi } from '@/api/social';
-import { X, Send, Loader2 } from 'lucide-vue-next';
+import { userApi } from '@/api/user';
+import { X, Send, Loader2, AlertCircle } from 'lucide-vue-next';
 import NicknameRenderer from '@/components/common/NicknameRenderer.vue';
 
 const props = defineProps({
     partnerId: Number,
     partnerName: String,
     partnerAvatar: String,
-    partnerDecoration: String
+    partnerDecoration: String,
+    partnerIsDeleted: {
+        type: Boolean,
+        default: false
+    }
 });
 
 const emit = defineEmits(['close']);
@@ -99,6 +109,14 @@ const newMessage = ref('');
 const sending = ref(false);
 const messagesContainer = ref(null);
 
+// 실시간 탈퇴 여부
+const isPartnerDeleted = ref(props.partnerIsDeleted);
+const partnerInfo = ref({
+    name: props.partnerName,
+    avatar: props.partnerAvatar,
+    decoration: props.partnerDecoration
+});
+
 const scrollToBottom = () => {
     nextTick(() => {
         if (messagesContainer.value) {
@@ -107,20 +125,41 @@ const scrollToBottom = () => {
     });
 };
 
+// 상대방 정보 조회 (탈퇴 여부 확인)
+const fetchPartnerInfo = async () => {
+    try {
+        const res = await userApi.getById(props.partnerId);
+        const user = res.data;
+        isPartnerDeleted.value = user.isDeleted || false;
+        partnerInfo.value = {
+            name: user.username || props.partnerName,
+            avatar: user.avatarUrl || props.partnerAvatar,
+            decoration: user.equippedDecorationClass || props.partnerDecoration
+        };
+    } catch (e) {
+        console.error('Failed to fetch partner info:', e);
+        isPartnerDeleted.value = props.partnerIsDeleted;
+    }
+};
+
 const fetchMessages = async () => {
+    const isInitialLoad = loading.value;
     try {
         const res = await socialApi.getConversation(props.partnerId);
         messages.value = res.data;
-        if (loading.value) scrollToBottom();
     } catch(e) {
         console.error(e);
     } finally {
         loading.value = false;
+        // 최초 로드 시 맨 아래로 스크롤
+        if (isInitialLoad) {
+            scrollToBottom();
+        }
     }
 };
 
 const sendMessage = async () => {
-    if (!newMessage.value.trim() || sending.value) return;
+    if (!newMessage.value.trim() || sending.value || isPartnerDeleted.value) return;
     
     const content = newMessage.value;
     newMessage.value = ''; // 낙관적 업데이트 (Optimistic clear)
@@ -133,7 +172,9 @@ const sendMessage = async () => {
     } catch(e) {
         console.error(e);
         newMessage.value = content; // 실패 시 복구
-        alert('전송 실패');
+        // 탈퇴 회원 에러 메시지 확인
+        const errorMsg = e.response?.data?.message || '전송 실패';
+        alert(errorMsg);
     } finally {
         sending.value = false;
     }
@@ -164,7 +205,9 @@ const showDateSeparator = (index, msgs) => {
 };
 let pollInterval;
 
-onMounted(() => {
+onMounted(async () => {
+    // 상대방 정보 먼저 조회 (탈퇴 여부 확인)
+    await fetchPartnerInfo();
     fetchMessages();
     pollInterval = setInterval(fetchMessages, 3000); // 3초마다 새 메시지 폴링
 });
