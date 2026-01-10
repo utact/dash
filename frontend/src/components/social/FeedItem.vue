@@ -22,27 +22,18 @@
 
         <!-- 콘텐츠: 타입별 -->
         <!-- SOLVED -->
-        <div v-if="item.type === 'SOLVED'" class="space-y-3">
+        <div v-if="item.type === 'SOLVED'">
             <p class="text-slate-600">
-                <span class="font-bold text-slate-800">#{{ item.problemId }} {{ item.problemTitle }}</span> 문제를 풀었어요!
+                <span class="font-bold text-slate-800">#{{ item.problemId }} {{ item.problemTitle }}</span> 문제를 풀었어요! 🎉
             </p>
-            <button 
-                @click="$emit('view-code', item)"
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-brand-50 hover:text-brand-600 text-slate-600 rounded-lg text-sm font-bold transition-colors"
-            >
-                <Code :size="14" />
-                코드 보기
-            </button>
         </div>
 
         <!-- STREAK -->
-        <div v-else-if="item.type === 'STREAK'" class="space-y-2">
-            <div class="flex items-center gap-2">
-                <div class="text-3xl">🔥</div>
-                <div>
-                    <p class="text-slate-800 font-bold">연속 {{ item.streakDays }}일 달성!</p>
-                    <p class="text-sm text-slate-500">꾸준히 문제를 풀고 있어요</p>
-                </div>
+        <div v-else-if="item.type === 'STREAK'" class="flex items-center gap-2">
+            <div class="text-3xl">🔥</div>
+            <div>
+                <p class="text-slate-800 font-bold">연속 {{ item.streakDays }}일 달성!</p>
+                <p class="text-sm text-slate-500">꾸준히 문제를 풀고 있어요</p>
             </div>
         </div>
 
@@ -105,7 +96,7 @@ const props = defineProps({
     }
 });
 
-defineEmits(['view-code', 'view-battle', 'accept-challenge', 'decline-challenge']);
+defineEmits(['view-battle', 'accept-challenge', 'decline-challenge']);
 
 const getAvatar = (url) => {
     if (url && !url.includes('dicebear')) return url;

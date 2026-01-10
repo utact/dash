@@ -38,7 +38,6 @@
                                 v-for="item in feedItems" 
                                 :key="item.id" 
                                 :item="item"
-                                @view-code="handleViewCode"
                                 @view-battle="handleViewBattle"
                             />
                         </template>
@@ -334,10 +333,6 @@ const openDM = (friend) => {
 
 const openUserProfile = (user) => {
     openProfile(user.id);
-};
-
-const handleViewCode = (item) => {
-    router.push(`/dashboard?problemId=${item.problemId}`);
 };
 
 const handleViewBattle = (item) => {
