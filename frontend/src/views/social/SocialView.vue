@@ -1,425 +1,271 @@
 <template>
     <div class="min-h-screen bg-white text-slate-800 pb-20">
-        <!-- 메인 레이아웃 컨테이너 -->
         <div class="flex justify-center p-4 md:p-8">
             <div class="flex gap-8 max-w-screen-xl w-full items-start">
 
-                <!-- 왼쪽 컬럼: 메인 콘텐츠 -->
+                <!-- 메인: 친구 피드 -->
                 <main class="flex-1 min-w-0 space-y-6">
                     <!-- Header -->
-                    <div class="mb-8">
+                    <div class="mb-6">
                         <h1 class="text-2xl font-black text-slate-800 flex items-center gap-3 mb-2">
                             <div class="w-10 h-10 bg-pink-500 rounded-xl flex items-center justify-center">
                                 <Users class="w-6 h-6 text-white" :stroke-width="2.5" />
                             </div>
                             소셜
                         </h1>
-                        <p class="text-slate-500 ml-[52px]">친구들과 함께 공부하고 소통해보세요</p>
+                        <p class="text-slate-500 ml-[52px]">친구들의 활동을 확인하고 함께 성장해요</p>
                     </div>
 
-                    <!-- Tab Switcher -->
-                    <div class="flex bg-slate-100 p-1 rounded-xl font-bold w-fit">
-                        <button 
-                            v-for="tab in mainTabs" 
-                            :key="tab.id"
-                            @click="activeTab = tab.id"
-                            class="px-5 py-2.5 rounded-lg text-sm transition-all"
-                            :class="activeTab === tab.id ? 'bg-white text-brand-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'"
-                        >
-                            {{ tab.label }}
-                            <span v-if="tab.showBadge && tab.count > 0" class="ml-1 px-1.5 py-0.5 bg-rose-500 text-white text-[10px] rounded-full">{{ tab.count }}</span>
-                        </button>
-                    </div>
-
-                    <!-- Content -->
-                    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm min-h-[500px] p-6">
-                        
-                        <!-- Tab: Messages (쪽지함) with Inline Chat -->
-                        <div v-if="activeTab === 'messages'">
-                            <!-- 대화 목록 뷰 -->
-                            <div v-if="chatViewMode === 'list'" class="space-y-4">
-                                <div v-if="loadingConversations" class="flex justify-center py-20"><Loader2 class="animate-spin text-brand-500"/></div>
-                                <div v-else-if="conversations.length === 0" class="text-center py-20 text-slate-400">
-                                    <MessageCircle :size="48" class="mx-auto mb-4 opacity-20"/>
-                                    <p>아직 주고받은 쪽지가 없어요.</p>
-                                </div>
-                                <div v-else class="space-y-3">
-                                    <div v-for="conv in conversations" :key="conv.partnerId" 
-                                         @click="openInlineChat(conv)"
-                                         class="flex items-center justify-between p-4 rounded-2xl border border-slate-100 hover:bg-brand-50 hover:border-brand-200 cursor-pointer transition-all group">
-                                        <div class="flex items-center gap-4 flex-1 min-w-0">
-                                            <div class="relative">
-                                                <img :src="getAvatar(conv.partnerAvatar)" 
-                                                     class="w-12 h-12 rounded-full border border-slate-200 bg-white object-cover"/>
-                                                <div v-if="conv.unreadCount > 0" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
-                                                    {{ conv.unreadCount > 9 ? '9+' : conv.unreadCount }}
-                                                </div>
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <div class="flex items-center gap-2">
-                                                    <NicknameRenderer 
-                                                        :nickname="conv.partnerName" 
-                                                        :decorationClass="conv.partnerDecorationClass"
-                                                        :show-avatar="false"
-                                                        class="text-base"
-                                                    />
-                                                    <span class="text-xs text-slate-400">{{ formatTime(conv.lastMessageTime) }}</span>
-                                                </div>
-                                                <p class="text-sm text-slate-500 truncate">{{ conv.lastMessagePreview || '메시지 없음' }}</p>
-                                            </div>
-                                        </div>
-                                        <ChevronRight :size="20" class="text-slate-300 group-hover:text-brand-500 transition-colors" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 인라인 채팅 뷰 -->
-                            <div v-else class="flex flex-col h-[600px]">
-                                <!-- 채팅 헤더 -->
-                                <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
-                                    <button @click="goBackToList" class="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500">
-                                        <ChevronLeft :size="20" />
-                                    </button>
-                                    <img :src="getAvatar(activeChat?.partnerAvatar)" class="w-10 h-10 rounded-full border border-slate-200"/>
-                                    <div>
-                                        <NicknameRenderer 
-                                            :nickname="activeChat?.partnerName" 
-                                            :decorationClass="activeChat?.partnerDecoration"
-                                            :show-avatar="false"
-                                            class="text-base font-bold"
-                                        />
-                                    </div>
-                                </div>
-
-                                <!-- 메시지 목록 -->
-                                <div class="flex-1 overflow-y-auto py-4 space-y-3" ref="messagesContainer">
-                                    <div v-if="messagesLoading" class="flex justify-center py-10">
-                                        <Loader2 class="animate-spin text-brand-500" />
-                                    </div>
-                                    <template v-else>
-                                        <template v-for="(msg, index) in messages" :key="msg.id">
-                                            <!-- Date Separator -->
-                                            <div v-if="showDateSeparator(index)" class="w-full flex justify-center my-4">
-                                                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-                                                    {{ formatDate(msg.createdAt) }}
-                                                </span>
-                                            </div>
-
-                                            <!-- Message Item -->
-                                            <div 
-                                                class="flex flex-col"
-                                                :class="msg.isMine ? 'items-end' : 'items-start'"
-                                            >
-                                                <div 
-                                                    class="max-w-[70%] px-4 py-2.5 rounded-2xl text-sm shadow-sm leading-relaxed whitespace-pre-wrap"
-                                                    :class="msg.isMine ? 'bg-brand-500 text-white rounded-tr-sm' : 'bg-slate-100 text-slate-700 rounded-tl-sm'"
-                                                >
-                                                    {{ msg.content }}
-                                                </div>
-                                                <span class="text-[10px] text-slate-400 mt-1 px-1">{{ formatMsgTime(msg.createdAt) }}</span>
-                                            </div>
-                                        </template>
-                                    </template>
-                                </div>
-
-                                <!-- 입력 영역 -->
-                                <div class="pt-4 border-t border-slate-100">
-                                    <form @submit.prevent="sendMessage" class="flex items-center gap-2">
-                                        <input 
-                                            v-model="newMessage" 
-                                            type="text" 
-                                            placeholder="메시지를 입력하세요..." 
-                                            class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all text-sm"
-                                            :disabled="sending"
-                                        />
-                                        <button 
-                                            type="submit" 
-                                            class="p-3 bg-brand-500 text-white rounded-xl hover:bg-brand-600 disabled:opacity-50 transition-all"
-                                            :disabled="!newMessage.trim() || sending"
-                                        >
-                                            <Send :size="20" />
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
+                    <!-- 피드 영역 -->
+                    <div class="space-y-4">
+                        <!-- 로딩 -->
+                        <div v-if="feedLoading && feedItems.length === 0" class="flex justify-center py-20">
+                            <Loader2 class="animate-spin text-brand-500" :size="32" />
                         </div>
 
-                        <!-- Tab: Friends -->
-                        <div v-if="activeTab === 'friends'" class="space-y-4">
-                            <div v-if="loading" class="flex justify-center py-20"><Loader2 class="animate-spin text-brand-500"/></div>
-                            <div v-else-if="friends.length === 0" class="text-center py-20 text-slate-400">
-                                <Users :size="48" class="mx-auto mb-4 opacity-20"/>
-                                <p>아직 친구가 없어요. 오른쪽에서 친구를 찾아보세요!</p>
+                        <!-- 빈 피드 -->
+                        <div v-else-if="feedItems.length === 0" class="text-center py-20">
+                            <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <Rss :size="32" class="text-slate-300" />
                             </div>
-                            <div v-else class="space-y-3">
-                                <div v-for="item in friends" :key="item.id" 
-                                     class="flex items-center justify-between p-4 rounded-2xl border border-slate-100 hover:bg-slate-50 hover:border-slate-200 transition-all group">
-                                    <div class="flex items-center gap-4 flex-1 min-w-0">
-                                        <img :src="getAvatar(item.friend.avatarUrl)" 
-                                             class="w-12 h-12 rounded-full border-2 border-white shadow-sm bg-white object-cover"/>
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex items-center gap-2">
-                                                <NicknameRenderer 
-                                                    :nickname="item.friend.username" 
-                                                    :decorationClass="item.friend.equippedDecorationClass"
-                                                    :role="item.friend.role"
-                                                    :show-avatar="false"
-                                                    class="text-base font-semibold"
-                                                />
-                                            </div>
-                                            <div class="flex items-center gap-2 mt-1 flex-wrap">
-                                                <TierBadge v-if="item.friend.solvedacTier" :tier="item.friend.solvedacTier" size="xs" />
-                                                <span v-if="item.friend.studyName" class="text-xs text-slate-500 flex items-center gap-1">
-                                                    <BookOpen :size="12" /> {{ item.friend.studyName }}
-                                                </span>
-                                                <span v-else-if="item.friend.studyId" class="text-xs text-slate-400">스터디 소속</span>
-                                                <span v-if="item.friend.solvedCount" class="text-xs text-emerald-600 flex items-center gap-1">
-                                                    <CheckCircle2 :size="12" /> {{ item.friend.solvedCount }}문제
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                         <button @click="openDM(item.friend.id, item.friend.username, item.friend.avatarUrl, item.friend.equippedDecorationClass)" 
-                                                 class="p-2.5 bg-brand-500 text-white rounded-xl hover:bg-brand-600 transition-colors" title="쪽지 보내기">
-                                            <MessageCircle :size="18"/>
-                                         </button>
-                                         <button @click="deleteFriend(item.friend.id)" 
-                                                 class="p-2.5 bg-slate-100 text-slate-400 rounded-xl hover:bg-rose-100 hover:text-rose-500 transition-colors" title="친구 삭제">
-                                            <UserMinus :size="18"/>
-                                         </button>
-                                    </div>
-                                </div>
-                            </div>
+                            <p class="text-slate-400 font-medium mb-2">아직 친구 활동이 없어요</p>
+                            <p class="text-sm text-slate-400">친구를 추가하고 활동을 확인해보세요!</p>
                         </div>
 
-                        <!-- Tab: Requests -->
-                        <div v-if="activeTab === 'requests'" class="space-y-4">
-                            <div v-if="loading" class="flex justify-center py-20"><Loader2 class="animate-spin text-brand-500"/></div>
-                            <div v-else-if="requests.length === 0" class="text-center py-20 text-slate-400">
-                                <Bell :size="48" class="mx-auto mb-4 opacity-20"/>
-                                <p>받은 친구 요청이 없습니다.</p>
-                            </div>
-                            <div v-else class="space-y-3">
-                                <div v-for="req in requests" :key="req.id" class="flex items-center justify-between p-4 rounded-2xl border border-slate-100 hover:bg-slate-50">
-                                    <div class="flex items-center gap-4">
-                                         <img :src="(req.friend.avatarUrl && !req.friend.avatarUrl.includes('dicebear')) ? req.friend.avatarUrl : '/images/profiles/default-profile.png'" class="w-10 h-10 rounded-full border border-slate-200 bg-white object-cover"/>
-                                         <div>
-                                            <NicknameRenderer 
-                                                :nickname="req.friend.username" 
-                                                :decorationClass="req.friend.equippedDecorationClass" 
-                                                :role="req.friend.role"
-                                                :show-avatar="false"
-                                                class="text-base"
-                                            />
-                                            <div class="text-xs text-slate-400">님이 친구 신청을 보냈습니다.</div>
-                                         </div>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <button @click="acceptRequest(req.id)" class="px-4 py-2 bg-brand-500 text-white rounded-xl text-sm font-bold hover:bg-brand-600 transition-colors">수락</button>
-                                        <button @click="rejectRequest(req.id)" class="px-4 py-2 bg-slate-200 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-300 transition-colors">거절</button>
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- 피드 아이템 목록 -->
+                        <template v-else>
+                            <FeedItem 
+                                v-for="item in feedItems" 
+                                :key="item.id" 
+                                :item="item"
+                                @view-code="handleViewCode"
+                                @view-battle="handleViewBattle"
+                            />
+                        </template>
+
+                        <!-- 더 불러오기 -->
+                        <div v-if="hasMore" class="flex justify-center py-6">
+                            <button 
+                                @click="loadMore" 
+                                :disabled="feedLoading"
+                                class="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold transition-colors disabled:opacity-50"
+                            >
+                                <Loader2 v-if="feedLoading" class="animate-spin inline mr-2" :size="16" />
+                                더 보기
+                            </button>
                         </div>
                     </div>
                 </main>
 
-                <!-- 오른쪽 컬럼: 사이드바 (탭별 동적 콘텐츠) -->
-                <aside class="hidden lg:flex w-[380px] shrink-0 flex-col gap-6 sticky top-8 h-fit">
-                    <!-- 친구 검색 (모든 탭 공통) -->
-                    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
-                        <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                            <div class="w-8 h-8 bg-violet-500 rounded-lg flex items-center justify-center">
-                                <Search :size="16" class="text-white" />
+                <!-- 우측 사이드바: 친구 관리 -->
+                <aside class="hidden lg:flex w-[360px] shrink-0 flex-col gap-5 sticky top-8 h-fit">
+                    
+                    <!-- 친구 찾기 + 친구 목록 통합 -->
+                    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                        <!-- 검색 헤더 -->
+                        <div class="p-5 border-b border-slate-100">
+                            <h2 class="text-sm font-black text-slate-800 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <Search :size="14" class="text-slate-400" />
+                                친구 찾기
+                            </h2>
+                            <div class="flex gap-2">
+                                <input 
+                                    v-model="searchQuery" 
+                                    @keyup.enter="handleSearch"
+                                    type="text" 
+                                    placeholder="이메일 또는 닉네임" 
+                                    class="flex-1 px-3 py-2.5 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition-all font-medium text-slate-700 bg-slate-50 focus:bg-white text-sm"
+                                />
+                                <button 
+                                    @click="handleSearch"
+                                    class="px-4 py-2.5 bg-slate-900 text-white rounded-xl font-bold hover:bg-brand-600 transition-colors text-sm"
+                                >
+                                    검색
+                                </button>
                             </div>
-                            친구 찾기
-                        </h2>
-                        <div class="relative mb-4">
-                            <Search :size="18" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input 
-                                v-model="searchQuery" 
-                                @keyup.enter="handleSearch"
-                                type="text" 
-                                placeholder="이메일 또는 닉네임" 
-                                class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition-all font-medium text-slate-700 bg-slate-50 focus:bg-white"
-                            />
-                        </div>
-                        <button 
-                            @click="handleSearch"
-                            class="w-full py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-brand-600 transition-colors"
-                        >
-                            검색
-                        </button>
 
-                        <!-- 검색 결과 -->
-                        <div v-if="searchLoading" class="flex justify-center py-6"><Loader2 class="animate-spin text-brand-500"/></div>
-                        <div v-else-if="searchResults" class="mt-4 space-y-3 max-h-[300px] overflow-y-auto">
-                            <div v-if="searchResults.length === 0" class="text-center py-6 text-slate-400 text-sm">
-                                검색 결과가 없습니다.
+                            <!-- 검색 결과 -->
+                            <div v-if="searchLoading" class="flex justify-center py-4 mt-3">
+                                <Loader2 class="animate-spin text-brand-500" :size="20" />
                             </div>
-                            <div v-for="user in searchResults" :key="user.id" class="flex items-center justify-between p-3 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors">
-                                <div class="flex items-center gap-3 flex-1 min-w-0">
-                                    <img :src="getAvatar(user.avatarUrl)" class="w-9 h-9 rounded-full border border-slate-200 bg-white object-cover"/>
-                                    <div class="min-w-0">
-                                        <div class="flex items-center gap-1">
-                                            <NicknameRenderer 
-                                                :nickname="user.username" 
-                                                :decorationClass="user.equippedDecorationClass"
-                                                :role="user.role"
-                                                :show-avatar="false"
-                                                class="text-sm"
-                                            />
-                                            <TierBadge v-if="user.solvedacTier" :tier="user.solvedacTier" size="xs" :show-roman="false" />
+                            <div v-else-if="searchResults && searchResults.length > 0" class="mt-3 space-y-2 max-h-[200px] overflow-y-auto">
+                                <div v-for="user in searchResults" :key="user.id" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <img :src="getAvatar(user.avatarUrl)" class="w-8 h-8 rounded-full border border-slate-200"/>
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-sm font-bold text-slate-700 truncate">{{ user.username }}</span>
+                                                <TierBadge v-if="user.solvedacTier" :tier="user.solvedacTier" size="xs" :show-roman="false" />
+                                            </div>
                                         </div>
                                     </div>
+                                    <button 
+                                        v-if="user.friendshipStatus !== 'ACCEPTED'"
+                                        @click="sendRequest(user)" 
+                                        :disabled="user.friendshipStatus === 'PENDING' || user.requested"
+                                        class="px-2.5 py-1 text-[10px] font-bold rounded-lg transition-colors"
+                                        :class="user.friendshipStatus === 'PENDING' || user.requested 
+                                            ? 'bg-slate-200 text-slate-400 cursor-not-allowed' 
+                                            : 'bg-brand-500 text-white hover:bg-brand-600'"
+                                    >
+                                        {{ user.friendshipStatus === 'PENDING' || user.requested ? '요청됨' : '친구 추가' }}
+                                    </button>
+                                    <span v-else class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">친구</span>
                                 </div>
-                                <div v-if="user.friendshipStatus === 'ACCEPTED'" class="px-2 py-1 bg-slate-100 text-slate-400 text-[10px] font-bold rounded-md flex items-center gap-1">
-                                    <Users :size="12"/> 친구
-                                </div>
-                                <button
-                                    v-else-if="user.friendshipStatus === 'PENDING' || user.requested"
-                                    disabled
-                                    class="px-2 py-1 bg-slate-200 text-slate-500 text-[10px] font-bold rounded-md cursor-not-allowed flex items-center gap-1"
-                                >
-                                    <CheckCircle2 :size="12"/> 요청됨
-                                </button>
-                                <button 
-                                    v-else
-                                    @click="sendRequest(user)" 
-                                    class="px-2 py-1 bg-slate-900 text-white text-[10px] font-bold rounded-md hover:bg-brand-600 transition-colors flex items-center gap-1"
-                                >
-                                    <UserPlus :size="12"/> 신청
-                                </button>
+                            </div>
+                            <div v-else-if="searchResults && searchResults.length === 0" class="mt-3 text-center py-3 text-slate-400 text-sm">
+                                검색 결과가 없습니다
                             </div>
                         </div>
-                    </div>
 
-                    <!-- 탭별 동적 콘텐츠 -->
-                    <!-- 쪽지함 탭: 팁 -->
-                    <div v-if="activeTab === 'messages'" class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-3xl p-6 border border-blue-100">
-                        <h3 class="font-bold text-slate-700 text-sm mb-2 flex items-center gap-2">
-                            <div class="w-6 h-6 bg-blue-500 rounded-lg flex items-center justify-center text-white">
-                                <MessageCircle :size="12" />
-                            </div>
-                            쪽지 TIP
-                        </h3>
-                        <p class="text-xs text-slate-500 leading-relaxed">
-                            친구에게 코드 질문이나 풀이 힌트를 요청해보세요!
-                            함께 공부하면 더 빨리 성장할 수 있어요.
-                        </p>
-                    </div>
-
-                    <!-- 친구 탭: 통계 -->
-                    <div v-if="activeTab === 'friends'" class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-6 border border-emerald-100">
-                        <h3 class="font-bold text-slate-700 text-sm mb-3 flex items-center gap-2">
-                            <div class="w-6 h-6 bg-emerald-500 rounded-lg flex items-center justify-center text-white">
-                                <Users :size="12" />
-                            </div>
-                            친구 통계
-                        </h3>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="bg-white rounded-xl p-3 text-center shadow-sm">
-                                <div class="text-2xl font-black text-emerald-600">{{ friends.length }}</div>
-                                <div class="text-[10px] text-slate-400 font-bold">총 친구</div>
-                            </div>
-                            <div class="bg-white rounded-xl p-3 text-center shadow-sm">
-                                <div class="text-2xl font-black text-teal-600">{{ avgTier }}</div>
-                                <div class="text-[10px] text-slate-400 font-bold">평균 티어</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 친구 요청 탭: 가이드 -->
-                    <div v-if="activeTab === 'requests'" class="bg-gradient-to-br from-pink-50 to-violet-50 rounded-3xl p-6 border border-pink-100">
-                        <h3 class="font-bold text-slate-700 text-sm mb-2 flex items-center gap-2">
-                            <div class="w-6 h-6 bg-pink-500 rounded-lg flex items-center justify-center text-white">
+                        <!-- 친구 요청 -->
+                        <div v-if="requests.length > 0" class="p-5 border-b border-slate-100 bg-rose-50/50">
+                            <h3 class="text-xs font-black text-rose-600 uppercase tracking-wide mb-3 flex items-center gap-2">
                                 <Bell :size="12" />
+                                친구 요청 ({{ requests.length }})
+                            </h3>
+                            <div class="space-y-2">
+                                <div v-for="req in requests" :key="req.id" class="flex items-center justify-between p-2.5 rounded-xl bg-white border border-rose-100">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <img :src="getAvatar(req.requester.avatarUrl)" class="w-8 h-8 rounded-full border border-slate-200"/>
+                                        <span class="text-sm font-bold text-slate-700 truncate">{{ req.requester.username }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5">
+                                        <button @click="acceptRequest(req.id)" class="p-1.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors">
+                                            <Check :size="14" />
+                                        </button>
+                                        <button @click="rejectRequest(req.id)" class="p-1.5 bg-slate-200 text-slate-500 rounded-lg hover:bg-rose-100 hover:text-rose-500 transition-colors">
+                                            <X :size="14" />
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            친구 요청
-                        </h3>
-                        <p class="text-xs text-slate-500 leading-relaxed">
-                            친구 요청을 수락하면 서로의 풀이를 볼 수 있고,
-                            쪽지를 주고받을 수 있어요!
-                        </p>
-                        <div v-if="requests.length > 0" class="mt-3 text-sm font-bold text-pink-600">
-                            📬 {{ requests.length }}개의 요청이 대기 중
+                        </div>
+
+                        <!-- 내 친구 목록 -->
+                        <div class="p-5">
+                            <h3 class="text-xs font-black text-slate-500 uppercase tracking-wide mb-3 flex items-center gap-2">
+                                <Users :size="12" />
+                                내 친구 ({{ friends.length }})
+                            </h3>
+                            <div v-if="friendsLoading" class="flex justify-center py-4">
+                                <Loader2 class="animate-spin text-brand-500" :size="20" />
+                            </div>
+                            <div v-else-if="friends.length === 0" class="text-center py-4 text-slate-400 text-sm">
+                                아직 친구가 없어요
+                            </div>
+                            <div v-else class="space-y-1.5 max-h-[300px] overflow-y-auto">
+                                <div 
+                                    v-for="item in friends" 
+                                    :key="item.id" 
+                                    class="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 transition-colors group cursor-pointer"
+                                    @click="openUserProfile(item.friend)"
+                                >
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <img :src="getAvatar(item.friend.avatarUrl)" class="w-8 h-8 rounded-full border border-slate-200"/>
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-sm font-bold text-slate-700 truncate">{{ item.friend.username }}</span>
+                                                <TierBadge v-if="item.friend.solvedacTier" :tier="item.friend.solvedacTier" size="xs" :show-roman="false" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        @click.stop="openDM(item.friend)" 
+                                        class="p-1.5 text-slate-400 hover:text-brand-500 hover:bg-brand-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                                    >
+                                        <MessageCircle :size="16" />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </aside>
 
+                </aside>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount, computed, nextTick } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter } from 'vue-router';
 import { socialApi } from '@/api/social';
-import { Loader2, Users, Bell, Search, UserPlus, MessageCircle, UserMinus, CheckCircle2, ChevronRight, ChevronLeft, Send, BookOpen } from 'lucide-vue-next';
-import NicknameRenderer from '@/components/common/NicknameRenderer.vue';
+import { Loader2, Users, Search, Bell, MessageCircle, Rss, Check, X } from 'lucide-vue-next';
 import TierBadge from '@/components/common/TierBadge.vue';
+import FeedItem from '@/components/social/FeedItem.vue';
 import { useDirectMessageModal } from '@/composables/useDirectMessageModal';
+import { useUserProfileModal } from '@/composables/useUserProfileModal';
 
-const route = useRoute();
-const activeTab = ref('messages');
-const loading = ref(false);
+const router = useRouter();
+const { open: openGlobalDM } = useDirectMessageModal();
+const { open: openProfile } = useUserProfileModal();
 
+// 피드 상태
+const feedItems = ref([]);
+const feedLoading = ref(false);
+const hasMore = ref(true);
+const page = ref(0);
+
+// 친구 상태
 const friends = ref([]);
+const friendsLoading = ref(false);
 const requests = ref([]);
 
-// 메인 탭 (검색 제외 - 사이드바로 이동)
-const mainTabs = computed(() => [
-    { id: 'messages', label: '쪽지함', count: conversations.value.filter(c => c.unreadCount > 0).length, showBadge: true },
-    { id: 'friends', label: '내 친구', count: 0, showBadge: false },
-    { id: 'requests', label: '친구 요청', count: requests.value.length, showBadge: true },
-]);
-
-// 친구 평균 티어 계산
-const avgTier = computed(() => {
-    const tieredFriends = friends.value.filter(f => f.friend?.solvedacTier);
-    if (tieredFriends.length === 0) return '-';
-    const sum = tieredFriends.reduce((acc, f) => acc + f.friend.solvedacTier, 0);
-    const avg = Math.round(sum / tieredFriends.length);
-    return getTierName(avg);
-});
-
-const getTierName = (tier) => {
-    if (!tier || tier === 0) return '-';
-    if (tier <= 5) return 'B' + (6 - tier);
-    if (tier <= 10) return 'S' + (11 - tier);
-    if (tier <= 15) return 'G' + (16 - tier);
-    if (tier <= 20) return 'P' + (21 - tier);
-    if (tier <= 25) return 'D' + (26 - tier);
-    if (tier <= 30) return 'R' + (31 - tier);
-    return 'M';
-};
-
-// 검색 (Search)
+// 검색 상태
 const searchQuery = ref('');
 const searchLoading = ref(false);
 const searchResults = ref(null);
 
-// 쪽지함 (Conversations)
-const conversations = ref([]);
-const loadingConversations = ref(false);
+// 헬퍼
+const getAvatar = (url) => {
+    if (url && !url.includes('dicebear')) return url;
+    return '/images/profiles/default-profile.png';
+};
 
-// 인라인 채팅 상태
-const chatViewMode = ref('list'); // 'list' or 'chat'
-const activeChat = ref(null);
-const messages = ref([]);
-const messagesLoading = ref(false);
-const newMessage = ref('');
-const sending = ref(false);
-const messagesContainer = ref(null);
-let chatPollInterval = null;
+// 피드 로드
+const loadFeed = async (reset = false) => {
+    if (reset) {
+        page.value = 0;
+        feedItems.value = [];
+        hasMore.value = true;
+    }
+    
+    feedLoading.value = true;
+    try {
+        const res = await socialApi.getFeed(page.value);
+        const items = res.data.content || res.data || [];
+        
+        if (items.length === 0) {
+            hasMore.value = false;
+        } else {
+            feedItems.value = [...feedItems.value, ...items];
+            page.value++;
+        }
+    } catch (e) {
+        console.error('Failed to load feed:', e);
+        // API 아직 없으면 mock 데이터
+        if (page.value === 0) {
+            feedItems.value = [
+                { id: 1, type: 'SOLVED', userName: '김코딩', userAvatar: null, userTier: 15, problemId: 1234, problemTitle: '토마토', createdAt: new Date().toISOString() },
+                { id: 2, type: 'STREAK', userName: '박알고', userAvatar: null, userTier: 12, streakDays: 7, createdAt: new Date().toISOString() },
+            ];
+        }
+        hasMore.value = false;
+    } finally {
+        feedLoading.value = false;
+    }
+};
 
-// 쪽지 (DM) - 모달용 (친구 목록에서 사용)
-const { open: openGlobalDM } = useDirectMessageModal();
+const loadMore = () => {
+    if (!feedLoading.value && hasMore.value) {
+        loadFeed();
+    }
+};
 
-const loadData = async () => {
-    loading.value = true;
+// 친구 데이터 로드
+const loadFriends = async () => {
+    friendsLoading.value = true;
     try {
         const [friendsRes, requestsRes] = await Promise.all([
             socialApi.getFriends(),
@@ -428,258 +274,78 @@ const loadData = async () => {
         friends.value = friendsRes.data;
         requests.value = requestsRes.data;
     } catch (e) {
-        console.error(e);
+        console.error('Failed to load friends:', e);
     } finally {
-        loading.value = false;
+        friendsLoading.value = false;
     }
 };
 
-const loadConversations = async () => {
-    loadingConversations.value = true;
-    try {
-        const res = await socialApi.getConversations();
-        conversations.value = res.data;
-    } catch (e) {
-        console.error(e);
-    } finally {
-        loadingConversations.value = false;
-    }
-};
-
-const formatTime = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = now - date;
-    const oneDay = 24 * 60 * 60 * 1000;
-    
-    if (diff < oneDay) {
-        return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-    } else if (diff < 7 * oneDay) {
-        const days = Math.floor(diff / oneDay);
-        return `${days}일 전`;
-    } else {
-        return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
-    }
-};
-
-// 인라인 채팅 함수들
-const getAvatar = (url) => {
-    if (url && !url.includes('dicebear')) return url;
-    return '/images/profiles/default-profile.png';
-};
-
-const openInlineChat = (conv) => {
-    activeChat.value = {
-        partnerId: conv.partnerId,
-        partnerName: conv.partnerName,
-        partnerAvatar: conv.partnerAvatar,
-        partnerDecoration: conv.partnerDecorationClass || ''
-    };
-    chatViewMode.value = 'chat';
-    messages.value = [];
-    fetchMessages();
-    startChatPolling();
-};
-
-const goBackToList = () => {
-    chatViewMode.value = 'list';
-    activeChat.value = null;
-    stopChatPolling();
-    loadConversations();
-};
-
-const fetchMessages = async () => {
-    if (!activeChat.value) return;
-    if (messages.value.length === 0) messagesLoading.value = true;
-    try {
-        const res = await socialApi.getConversation(activeChat.value.partnerId);
-        messages.value = res.data;
-        if (messagesLoading.value) scrollToBottom();
-    } catch (e) {
-        console.error(e);
-    } finally {
-        messagesLoading.value = false;
-    }
-};
-
-const sendMessage = async () => {
-    if (!newMessage.value.trim() || sending.value || !activeChat.value) return;
-    
-    const content = newMessage.value;
-    newMessage.value = '';
-    sending.value = true;
-    
-    try {
-        await socialApi.sendMessage(activeChat.value.partnerId, content);
-        await fetchMessages();
-        scrollToBottom();
-    } catch (e) {
-        console.error(e);
-        newMessage.value = content;
-        alert('전송 실패');
-    } finally {
-        sending.value = false;
-    }
-};
-
-const scrollToBottom = () => {
-    nextTick(() => {
-        if (messagesContainer.value) {
-            messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-        }
-    });
-};
-
-const startChatPolling = () => {
-    stopChatPolling();
-    chatPollInterval = setInterval(fetchMessages, 3000);
-};
-
-const stopChatPolling = () => {
-    if (chatPollInterval) {
-        clearInterval(chatPollInterval);
-        chatPollInterval = null;
-    }
-};
-
-const formatMsgTime = (iso) => {
-    const d = new Date(iso);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-};
-
-const formatDate = (iso) => {
-    const d = new Date(iso);
-    return d.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
-};
-
-const showDateSeparator = (index) => {
-    if (index === 0) return true;
-    const currentMsgDate = new Date(messages.value[index].createdAt).toLocaleDateString();
-    const prevMsgDate = new Date(messages.value[index - 1].createdAt).toLocaleDateString();
-    return currentMsgDate !== prevMsgDate;
-};
-
+// 검색
 const handleSearch = async () => {
     if (!searchQuery.value.trim()) return;
     searchLoading.value = true;
     try {
         const res = await socialApi.searchUsers(searchQuery.value);
         searchResults.value = res.data;
-    } catch(e) {
+    } catch (e) {
         console.error(e);
     } finally {
         searchLoading.value = false;
     }
 };
 
+// 친구 요청
 const sendRequest = async (user) => {
-    if (!confirm('친구 신청을 보내시겠습니까?')) return;
     try {
         await socialApi.sendFriendRequest(user.id);
         user.requested = true;
-        alert('친구 신청을 보냈습니다.');
-    } catch(e) {
-        alert(e.response?.data?.message || '실패했습니다.');
+    } catch (e) {
+        alert(e.response?.data?.message || '요청 실패');
     }
 };
 
 const acceptRequest = async (requestId) => {
     try {
         await socialApi.acceptFriendRequest(requestId);
-        loadData();
-    } catch(e) {
+        loadFriends();
+    } catch (e) {
         console.error(e);
     }
 };
 
 const rejectRequest = async (requestId) => {
-    if (!confirm('거절하시겠습니까?')) return;
     try {
         await socialApi.rejectFriendRequest(requestId);
-        loadData();
-    } catch(e) {
+        loadFriends();
+    } catch (e) {
         console.error(e);
     }
 };
 
-const deleteFriend = async (friendId) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
-    try {
-        await socialApi.deleteFriend(friendId);
-        loadData();
-    } catch(e) {
-        console.error(e);
-    }
-};
-
-const openDM = (id, name, avatar, decoration) => {
+// 액션
+const openDM = (friend) => {
     openGlobalDM({
-        partnerId: id,
-        partnerName: name,
-        partnerAvatar: avatar,
-        partnerDecoration: decoration || ''
+        partnerId: friend.id,
+        partnerName: friend.username,
+        partnerAvatar: friend.avatarUrl,
+        partnerDecoration: friend.equippedDecorationClass || ''
     });
 };
 
-// 라우트 쿼리 핸들러 (예: 알림 클릭 시)
-const checkQueryForDM = async () => {
-    const pid = route.query.partnerId;
-    if (pid) {
-        const partnerId = parseInt(pid);
-        const friend = friends.value.find(f => f.friend.id === partnerId);
-        if (friend) {
-            openGlobalDM({
-                partnerId: friend.friend.id,
-                partnerName: friend.friend.username,
-                partnerAvatar: friend.friend.avatarUrl,
-                partnerDecoration: friend.friend.equippedDecorationClass || ''
-            });
-        } else {
-            openGlobalDM({
-                partnerId: partnerId,
-                partnerName: 'User',
-                partnerAvatar: null,
-                partnerDecoration: ''
-            });
-        }
-    }
+const openUserProfile = (user) => {
+    openProfile(user.id);
 };
 
-watch(() => route.query.tab, (val) => {
-    if (val && ['messages', 'friends', 'requests'].includes(val)) {
-        activeTab.value = val;
-    }
-}, { immediate: true });
+const handleViewCode = (item) => {
+    router.push(`/dashboard?problemId=${item.problemId}`);
+};
 
-watch(() => route.query.partnerId, async (val) => {
-    if (val) {
-        if (friends.value.length === 0 && !loading.value) {
-            await loadData();
-        }
-        checkQueryForDM();
-    }
-}, { immediate: true });
+const handleViewBattle = (item) => {
+    router.push(`/battle/${item.battleId}`);
+};
 
-onMounted(async () => {
-    await Promise.all([loadData(), loadConversations()]);
-    checkQueryForDM(); 
-});
-
-watch(activeTab, () => {
-    // 탭 변경 시 인라인 채팅 초기화
-    if (chatViewMode.value === 'chat') {
-        goBackToList();
-    }
-    
-    if (activeTab.value === 'messages') {
-        loadConversations();
-    } else {
-        loadData();
-    }
-});
-
-onBeforeUnmount(() => {
-    stopChatPolling();
+onMounted(() => {
+    loadFeed(true);
+    loadFriends();
 });
 </script>
