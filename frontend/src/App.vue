@@ -5,7 +5,7 @@
     </div>
 
     <!-- Global Modals -->
-
+    <UserProfileModal />
 
     <!-- Floating Message Panel (Instagram-style) -->
     <FloatingMessagePanel />
