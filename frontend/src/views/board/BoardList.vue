@@ -1,18 +1,33 @@
 <template>
-  <div class="min-h-screen bg-white text-slate-800">
-
-    <!-- 메인 레이아웃 컨테이너 -->
+  <!-- Main Layout Wrapper matching DashboardView -->
+  <div class="flex h-screen overflow-hidden bg-white font-['Pretendard']">
+    <div class="w-full overflow-y-auto [scrollbar-gutter:stable]">
+      <div class="min-h-screen bg-white pb-20">
+    <!-- Main Layout Container -->
     <div class="flex justify-center p-4 md:p-8">
       <div class="flex gap-8 max-w-screen-xl w-full items-start">
 
         <!-- 왼쪽 컬럼: 메인 콘텐츠 -->
         <main class="flex-1 min-w-0 space-y-6">
 
-          <!-- 헤더: 제목 + 글쓰기 버튼 -->
-          <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-black text-slate-800 flex items-center gap-3">
-              <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center">
-                <MessageCircle class="w-6 h-6 text-white" :stroke-width="2.5" />
+          <!-- Header -->
+          <div class="flex items-center gap-3 mb-8">
+             <MessageSquare class="w-7 h-7 text-brand-500" stroke-width="2.5" fill="currentColor" />
+             <h1 class="text-xl font-black text-slate-800">전국 게시판</h1>
+          </div>
+
+          <!-- 검색 바 -->
+          <div class="animate-fade-in-up sticky top-6 z-40 bg-white/90 backdrop-blur-md p-1 -mx-1 rounded-2xl">
+            <div class="flex gap-3">
+              <div class="flex-1 relative">
+                <Search :size="18" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input 
+                  v-model="searchProblemNumber"
+                  @keyup.enter="searchPosts"
+                  type="number"
+                  placeholder="문제 번호로 검색 (예: 1234)"
+                  class="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent shadow-sm"
+                />
               </div>
               전국 게시판
             </h1>
@@ -186,13 +201,15 @@
 
       </div>
     </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { PenSquare, Inbox, ThumbsUp, MessageCircle, Search, Flame, Lightbulb, Code2, UserX } from 'lucide-vue-next';
+import { PenSquare, Inbox, ThumbsUp, MessageCircle, Search, Flame, Lightbulb, Code2, UserX, MessageSquare } from 'lucide-vue-next';
 import NicknameRenderer from '@/components/common/NicknameRenderer.vue';
 import { boardApi } from '@/api/board';
 

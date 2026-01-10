@@ -220,22 +220,18 @@ const onStudyJoined = async () => {
 }
 
 /* Transitions */
-.slide-up-enter-active,
-.slide-up-leave-active {
+.slide-up-enter-active {
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.slide-up-enter-from,
-.slide-up-leave-to {
+.slide-up-enter-from {
   opacity: 0;
   transform: translateY(20px);
 }
 
-.fade-enter-active,
-.fade-leave-active {
+.fade-enter-active {
   transition: opacity 0.3s ease;
 }
-.fade-enter-from,
-.fade-leave-to {
+.fade-enter-from {
   opacity: 0;
 }
 </style>

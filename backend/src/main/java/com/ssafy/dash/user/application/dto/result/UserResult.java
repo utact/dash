@@ -27,6 +27,7 @@ public record UserResult(
         String friendshipStatus,
         Boolean hasAnalysis,
         String equippedDecorationClass,
+        Integer logCount,
         Boolean isDeleted) {
 
     public static UserResult from(User user) {
@@ -69,6 +70,7 @@ public record UserResult(
                 null,
                 hasAnalysis,
                 user.getEquippedDecorationClass(),
+                user.getLogCount(),
                 user.isDeleted());
     }
 
@@ -94,6 +96,7 @@ public record UserResult(
                 friendshipStatus,
                 false,
                 user.getEquippedDecorationClass(),
+                user.getLogCount(),
                 user.isDeleted());
     }
 
