@@ -10,8 +10,8 @@
         <component 
             v-if="item.icon" 
             :is="item.icon" 
-            class="w-8 h-8 transition-colors"
-            :class="item.iconClass || 'text-slate-700'"
+            class="transition-colors"
+            :class="[item.sizeClass || 'w-6 h-6', item.iconClass || 'text-slate-700']"
             :stroke-width="2.5" 
             :fill="item.fill || 'none'"
         />

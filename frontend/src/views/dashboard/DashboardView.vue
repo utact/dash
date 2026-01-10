@@ -303,6 +303,7 @@
                             value: records.length.toLocaleString(), 
                             tooltip: 'Submissions',
                             iconClass: 'text-sky-400',
+                            sizeClass: 'w-5 h-5',
                             fill: 'currentColor'
                         }
                     ]"
