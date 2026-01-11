@@ -3,13 +3,13 @@
 <mapper namespace="com.ssafy.dash.board.infrastructure.mapper.BoardMapper">
 
   <insert id="insert" parameterType="Board" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO boards (title, content, user_id, algorithm_record_id, board_type, like_count, created_at, updated_at)
-    VALUES (#{title}, #{content}, #{userId}, #{algorithmRecordId}, #{boardType}, #{likeCount}, #{createdAt}, #{updatedAt})
+    INSERT INTO boards (title, content, user_id, algorithm_record_id, board_type, visibility, like_count, created_at, updated_at)
+    VALUES (#{title}, #{content}, #{userId}, #{algorithmRecordId}, #{boardType}, #{visibility}, #{likeCount}, #{createdAt}, #{updatedAt})
   </insert>
 
   <select id="selectById" resultType="Board" parameterType="long">
     SELECT 
-      b.id, b.title, b.content, b.user_id, b.algorithm_record_id, b.board_type, b.like_count, 
+      b.id, b.title, b.content, b.user_id, b.algorithm_record_id, b.board_type, b.visibility, b.like_count, 
       b.created_at, b.updated_at,
       u.username as author_name,
       u.role as author_role,
@@ -23,7 +23,7 @@
 
   <select id="selectByAlgorithmRecordId" resultType="Board" parameterType="long">
     SELECT 
-      b.id, b.title, b.content, b.user_id, b.algorithm_record_id, b.board_type, b.like_count, 
+      b.id, b.title, b.content, b.user_id, b.algorithm_record_id, b.board_type, b.visibility, b.like_count, 
       b.created_at, b.updated_at,
       u.username as author_name,
       u.role as author_role,
@@ -38,7 +38,7 @@
 
   <select id="selectAll" resultType="Board">
     SELECT 
-      b.id, b.title, b.content, b.user_id, b.algorithm_record_id, b.board_type, b.like_count, 
+      b.id, b.title, b.content, b.user_id, b.algorithm_record_id, b.board_type, b.visibility, b.like_count, 
       b.created_at, b.updated_at,
       u.username as author_name,
       u.role as author_role,
@@ -47,6 +47,7 @@
     FROM boards b
     LEFT JOIN users u ON b.user_id = u.id
     LEFT JOIN decorations d ON u.equipped_decoration_id = d.id
+    WHERE b.visibility = 'PUBLIC'
     ORDER BY b.id DESC
   </select>
 
