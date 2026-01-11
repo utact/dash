@@ -57,6 +57,7 @@ public class BoardService {
                 command.content(),
                 command.algorithmRecordId(),
                 command.boardType(),
+                command.visibility(),
                 now);
 
         boardRepository.save(board);

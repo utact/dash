@@ -133,7 +133,7 @@ class BoardControllerTest {
                 BoardResult updatedResult = new BoardResult(TestFixtures.TEST_BOARD_ID, req.getTitle(),
                                 req.getContent(),
                                 user.getId(), user.getUsername(), null, null, null, null, "GENERAL", 0, 0, false, null,
-                                null, false,
+                                null, false, "PUBLIC",
                                 FixtureTime.now(),
                                 FixtureTime.now());
 

@@ -21,6 +21,7 @@ public record BoardResult(
         String authorRole,
         String authorDecorationClass,
         Boolean authorIsDeleted,
+        String visibility,
         LocalDateTime createdAt,
         LocalDateTime updatedAt) {
 
@@ -44,6 +45,7 @@ public record BoardResult(
                 board.getAuthorRole(),
                 authorDecorationClass,
                 authorIsDeleted,
+                board.getVisibility(),
                 board.getCreatedAt(),
                 board.getUpdatedAt());
     }

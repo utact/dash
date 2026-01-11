@@ -17,33 +17,34 @@ public class Board {
     private String content;
     private Long userId;
     private Long algorithmRecordId; // 연결된 알고리즘 풀이 기록 ID (nullable)
+    private String visibility; // PUBLIC | PRIVATE
     private String boardType; // GENERAL | CODE_REVIEW
     private Integer likeCount; // 추천 수 (캐시)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // 조인 필드
-    private String authorName;
+    // Transient fields mapped by MyBatis
     private Integer commentCount;
     private String authorRole;
     private String authorDecorationClass;
 
     private Board(Long userId, String title, String content, Long algorithmRecordId,
-            String boardType, LocalDateTime createdAt, LocalDateTime updatedAt) {
+            String boardType, String visibility, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.userId = requirePositive(userId);
         this.title = requireText(title, "title");
         this.content = requireText(content, "content");
         this.algorithmRecordId = algorithmRecordId;
         this.boardType = boardType != null ? boardType : "GENERAL";
+        this.visibility = visibility != null ? visibility : "PUBLIC";
         this.likeCount = 0;
         this.createdAt = requireTimestamp(createdAt, "createdAt");
         this.updatedAt = requireTimestamp(updatedAt, "updatedAt");
     }
 
     public static Board create(Long userId, String title, String content,
-            Long algorithmRecordId, String boardType,
+            Long algorithmRecordId, String boardType, String visibility,
             LocalDateTime createdAt) {
-        return new Board(userId, title, content, algorithmRecordId, boardType, createdAt, createdAt);
+        return new Board(userId, title, content, algorithmRecordId, boardType, visibility, createdAt, createdAt);
     }
 
     public void applyUpdate(String title, String content, Long algorithmRecordId, LocalDateTime updatedAt) {
