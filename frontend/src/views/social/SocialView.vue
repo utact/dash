@@ -6,7 +6,7 @@
                     <div class="flex flex-col lg:flex-row gap-8 max-w-screen-xl w-full items-start">
                         
                         <!-- 메인: 친구 피드 -->
-                        <main class="flex-1 min-w-0 space-y-6">
+                        <main class="flex-1 min-w-0 space-y-6 w-full">
                             <!-- Header -->
                             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <div>
@@ -248,14 +248,20 @@ const loadFeed = async (reset = false) => {
         hasMore.value = true;
     }
     
+    // 이미 로딩 중이거나 더 이상 데이터가 없으면 중단
+    if (feedLoading.value || !hasMore.value) return;
+
     feedLoading.value = true;
     try {
-        const res = await socialApi.getFeed(page.value);
+        const pageSize = 20;
+        const res = await socialApi.getFeed(page.value, pageSize);
         const items = res.data.content || res.data || [];
         
-        if (items.length === 0) {
+        if (items.length < pageSize) {
             hasMore.value = false;
-        } else {
+        }
+
+        if (items.length > 0) {
             feedItems.value = [...feedItems.value, ...items];
             page.value++;
         }

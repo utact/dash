@@ -25,16 +25,19 @@ import com.ssafy.dash.board.presentation.dto.response.BoardResponse;
 import com.ssafy.dash.oauth.presentation.security.CustomOAuth2User;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/boards")
+@RequiredArgsConstructor
+@Tag(name = "Board", description = "게시판 API")
+@SuppressWarnings("null")
 public class BoardController {
 
     private final BoardService boardService;
-
-    public BoardController(BoardService boardService) {
-        this.boardService = boardService;
-    }
 
     @PostMapping
     public ResponseEntity<BoardResponse> create(

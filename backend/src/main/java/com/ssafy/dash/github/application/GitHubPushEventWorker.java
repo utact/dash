@@ -39,6 +39,7 @@ import java.util.Optional;
 
 @Component
 @ConditionalOnProperty(value = "github.push-worker.enabled", havingValue = "true", matchIfMissing = true)
+@SuppressWarnings("null")
 public class GitHubPushEventWorker {
 
     private static final Logger log = LoggerFactory.getLogger(GitHubPushEventWorker.class);
