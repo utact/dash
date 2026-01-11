@@ -2,23 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ssafy.dash.github.infrastructure.mapper.GitHubPushEventMapper">
 
-    <resultMap id="GitHubPushEventResultMap" type="GitHubPushEvent">
-        <id property="id" column="id" />
-        <result property="deliveryId" column="delivery_id" />
-        <result property="repositoryName" column="repository_name" />
-        <result property="reference" column="ref" />
-        <result property="headCommitSha" column="head_commit_sha" />
-        <result property="authorLogin" column="author_login" />
-        <result property="authorEmail" column="author_email" />
-        <result property="commitMessage" column="commit_message" />
-        <result property="filesJson" column="files_json" />
-        <result property="rawPayload" column="raw_payload" />
-        <result property="status" column="status" javaType="PushEventStatus" typeHandler="org.apache.ibatis.type.EnumTypeHandler" />
-        <result property="failureReason" column="failure_reason" />
-        <result property="createdAt" column="created_at" />
-        <result property="updatedAt" column="updated_at" />
-    </resultMap>
-
     <insert id="insert" parameterType="GitHubPushEvent" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO github_push_event (
             delivery_id,
@@ -44,14 +27,14 @@
             #{commitMessage},
             #{filesJson},
             #{rawPayload},
-            #{status, typeHandler=org.apache.ibatis.type.EnumTypeHandler},
+            #{status},
             #{failureReason},
             #{createdAt},
             #{updatedAt}
         )
     </insert>
 
-    <select id="selectByDeliveryId" parameterType="string" resultMap="GitHubPushEventResultMap">
+    <select id="selectByDeliveryId" parameterType="string" resultType="GitHubPushEvent">
         SELECT
             id,
             delivery_id,
@@ -71,7 +54,7 @@
         WHERE delivery_id = #{deliveryId}
     </select>
 
-    <select id="selectNextQueued" resultMap="GitHubPushEventResultMap">
+    <select id="selectNextQueued" resultType="GitHubPushEvent">
         SELECT
             id,
             delivery_id,

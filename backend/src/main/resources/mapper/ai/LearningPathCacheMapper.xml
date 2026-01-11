@@ -4,16 +4,9 @@
 
 <mapper namespace="com.ssafy.dash.ai.infrastructure.persistence.LearningPathCacheMapper">
 
-    <resultMap id="LearningPathCacheResultMap" type="com.ssafy.dash.ai.domain.LearningPathCache">
-        <id property="id" column="id"/>
-        <result property="userId" column="user_id"/>
-        <result property="analysisJson" column="analysis_json"/>
-        <result property="generatedAt" column="generated_at"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
-    </resultMap>
 
-    <select id="findByUserId" resultMap="LearningPathCacheResultMap">
+
+    <select id="findByUserId" resultType="com.ssafy.dash.ai.domain.LearningPathCache">
         SELECT id, user_id, analysis_json, generated_at, created_at, updated_at
         FROM learning_path_cache
         WHERE user_id = #{userId}

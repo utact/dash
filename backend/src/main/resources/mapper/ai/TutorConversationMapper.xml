@@ -4,15 +4,7 @@
 
 <mapper namespace="com.ssafy.dash.ai.infrastructure.TutorConversationMapper">
 
-    <resultMap id="conversationResultMap" type="com.ssafy.dash.ai.domain.TutorConversation">
-        <id property="id" column="id"/>
-        <result property="userId" column="user_id"/>
-        <result property="sessionId" column="session_id"/>
-        <result property="role" column="role"/>
-        <result property="content" column="content"/>
-        <result property="problemNumber" column="problem_number"/>
-        <result property="createdAt" column="created_at"/>
-    </resultMap>
+
 
     <!-- 대화 메시지 저장 -->
     <insert id="insert" parameterType="com.ssafy.dash.ai.domain.TutorConversation" 
@@ -22,7 +14,7 @@
     </insert>
 
     <!-- 세션의 최근 대화 조회 (오래된 순으로 정렬) -->
-    <select id="findRecentBySession" resultMap="conversationResultMap">
+    <select id="findRecentBySession" resultType="com.ssafy.dash.ai.domain.TutorConversation">
         SELECT * FROM (
             SELECT * FROM tutor_conversation
             WHERE user_id = #{userId} AND session_id = #{sessionId}
