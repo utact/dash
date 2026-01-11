@@ -1,375 +1,300 @@
 <template>
-    <!-- 로그인한 사용자에게만 표시 -->
-    <div v-if="isAuthenticated" class="fixed z-50 bottom-20 right-4 md:bottom-6 md:right-6">
-        <!-- 플로팅 버튼 -->
-        <Transition name="scale">
-            <button
-                v-if="!isOpen"
-                @click="toggle"
-                class="w-12 h-12 md:w-14 md:h-14 bg-brand-600 hover:bg-brand-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group hover:scale-105"
-            >
-                <MessageCircle :size="20" class="md:hidden group-hover:scale-110 transition-transform" />
-                <MessageCircle :size="24" class="hidden md:block group-hover:scale-110 transition-transform" />
-                <!-- 안읽음 뱃지 -->
-                <div 
-                    v-if="totalUnread > 0" 
-                    class="absolute -top-1 -right-1 min-w-[20px] h-[20px] md:min-w-[22px] md:h-[22px] bg-rose-500 text-white text-[10px] md:text-xs font-bold rounded-full flex items-center justify-center px-1 shadow-md"
-                >
-                    {{ totalUnread > 99 ? '99+' : totalUnread }}
-                </div>
-            </button>
-        </Transition>
+    <div class="fixed bottom-6 right-6 z-[50]">
+        <!-- 메인 플로팅 버튼 -->
+        <button 
+            @click="toggle"
+            class="w-14 h-14 bg-brand-500 hover:bg-brand-600 active:scale-95 text-white rounded-full shadow-lg shadow-brand-500/30 flex items-center justify-center transition-all duration-300 relative group"
+        >
+            <div class="relative">
+                <MessageCircle :size="26" stroke-width="2.5" :class="{ 'scale-0 opacity-0': isOpen, 'scale-100 opacity-100': !isOpen }" class="transition-all duration-300 absolute inset-0 m-auto" />
+                <X :size="26" stroke-width="2.5" :class="{ 'scale-100 opacity-100': isOpen, 'scale-0 opacity-0': !isOpen }" class="transition-all duration-300" />
+            </div>
+            
+            <!-- 안읽음 뱃지 -->
+            <div v-if="!isOpen && totalUnread > 0" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full ring-2 ring-white animate-pulse">
+                {{ totalUnread > 99 ? '99+' : totalUnread }}
+            </div>
+        </button>
 
-        <!-- 확장 패널 -->
+        <!-- 패널 -->
         <Transition name="slide-up">
-            <div 
-                v-if="isOpen"
-                class="fixed bottom-0 right-0 md:absolute md:bottom-0 md:right-0 w-full md:w-[380px] h-[85vh] md:h-auto bg-white md:rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col"
-                :style="{ maxHeight: viewMode === 'chat' || viewMode === 'groupChat' ? '85vh' : 'auto' }"
-            >
-                <!-- 헤더 - 대화 목록 -->
-                <div v-if="viewMode === 'list'" class="flex items-center justify-between p-4 border-b border-slate-100 bg-brand-600 text-white shrink-0">
-                    <div class="flex items-center gap-2">
-                        <MessageCircle :size="20" />
-                        <span class="font-bold">메시지</span>
-                        <span v-if="totalUnread > 0" class="px-2 py-0.5 bg-white/20 rounded-full text-xs">{{ totalUnread }}</span>
+            <div v-if="isOpen" class="absolute bottom-16 right-0 w-[380px] h-[600px] bg-white rounded-2xl shadow-2xl border border-slate-100 flex flex-col overflow-hidden origin-bottom-right">
+                
+                <!-- 상단 헤더 -->
+                <div class="h-14 shrink-0 bg-brand-500 px-4 flex items-center justify-between shadow-sm z-10">
+                    <div class="flex items-center gap-2 text-white overflow-hidden">
+                        <button v-if="viewMode !== 'list'" @click="goBack" class="p-1 hover:bg-white/20 rounded-full transition-colors">
+                            <ChevronLeft :size="20" />
+                        </button>
+                        <h2 class="font-bold text-lg truncate">
+                            {{ headerTitle }}
+                        </h2>
+                        <span v-if="viewMode === 'list' && totalUnread > 0" class="px-2 py-0.5 bg-white/20 rounded-full text-xs">{{ totalUnread }}</span>
                     </div>
                     <div class="flex items-center gap-1">
-                        <button @click="showCreateModal = true" class="p-1.5 hover:bg-white/20 rounded-lg transition-colors" title="새 대화">
-                            <Plus :size="16" />
+                        <button @click="openCreateModal" class="p-1.5 hover:bg-white/20 rounded-lg transition-colors" title="새 대화">
+                            <Plus :size="16" class="text-white" />
                         </button>
                         <button @click="openFullView" class="p-1.5 hover:bg-white/20 rounded-lg transition-colors" title="전체보기">
-                            <Maximize2 :size="16" />
-                        </button>
-                        <button @click="toggle" class="p-1.5 hover:bg-white/20 rounded-lg transition-colors" title="닫기">
-                            <X :size="16" />
+                            <Maximize2 :size="16" class="text-white" />
                         </button>
                     </div>
                 </div>
 
-                <!-- 헤더 - 1:1 채팅 뷰 -->
-                <div v-else-if="viewMode === 'chat'" class="flex items-center justify-between p-3 border-b border-slate-100 bg-slate-50 shrink-0">
-                    <div class="flex items-center gap-3">
-                        <button @click="goBack" class="p-1.5 hover:bg-slate-200 rounded-lg transition-colors text-slate-600">
-                            <ChevronLeft :size="20" />
-                        </button>
-                        <img 
-                            :src="getAvatar(activeChat?.partnerAvatar, isPartnerDeleted)" 
-                            class="w-9 h-9 rounded-full border border-slate-200 bg-white object-cover"
-                            :class="{ 'grayscale opacity-60': isPartnerDeleted }"
-                        />
-                        <span class="font-bold text-slate-800 text-sm" :class="{ 'text-slate-500': isPartnerDeleted }">
-                            {{ isPartnerDeleted ? '탈퇴한 회원' : activeChat?.partnerName }}
-                        </span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <button @click="toggle" class="p-1.5 hover:bg-slate-200 rounded-lg transition-colors text-slate-500" title="닫기">
-                            <X :size="16" />
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 헤더 - 그룹 채팅 뷰 -->
-                <div v-else-if="viewMode === 'groupChat'" class="flex items-center justify-between p-3 border-b border-slate-100 bg-indigo-50 shrink-0">
-                    <div class="flex items-center gap-3">
-                        <button @click="goBack" class="p-1.5 hover:bg-indigo-100 rounded-lg transition-colors text-indigo-600">
-                            <ChevronLeft :size="20" />
-                        </button>
-                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
-                            {{ activeGroupRoom?.members?.length || 0 }}
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-slate-800 text-sm">{{ activeGroupRoom?.name }}</h3>
-                            <p class="text-[10px] text-slate-400">{{ activeGroupRoom?.members?.length || 0 }}명</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <button @click="showGroupMembers = !showGroupMembers" class="p-1.5 hover:bg-indigo-100 rounded-lg transition-colors text-indigo-500" title="멤버">
-                            <Users :size="16" />
-                        </button>
-                        <button @click="toggle" class="p-1.5 hover:bg-indigo-100 rounded-lg transition-colors text-slate-500" title="닫기">
-                            <X :size="16" />
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 대화 목록 뷰 (1:1 + 그룹 통합) -->
-                <div v-if="viewMode === 'list'" class="max-h-[450px] overflow-y-auto">
-                    <div v-if="loading" class="flex justify-center py-10">
+                <!-- 1. 대화 목록 뷰 -->
+                <div v-if="viewMode === 'list'" class="flex-1 flex flex-col overflow-hidden bg-slate-50">
+                    <div v-if="loading" class="flex-1 flex items-center justify-center">
                         <Loader2 class="animate-spin text-brand-500" />
                     </div>
-                    <div v-else-if="allConversations.length === 0" class="text-center py-10 text-slate-400">
-                        <MessageCircle :size="32" class="mx-auto mb-2 opacity-30" />
+                    
+                    <div v-else-if="allConversations.length > 0" class="flex-1 overflow-y-auto">
+                        <div 
+                            v-for="conv in allConversations" 
+                            :key="conv.key"
+                            @click="conv.isGroup ? openGroupChat(conv) : openChat(conv)"
+                            class="p-4 bg-white hover:bg-slate-50 border-b border-slate-50 cursor-pointer transition-colors relative"
+                        >
+                            <div class="flex gap-3">
+                                <div class="relative shrink-0">
+                                    <img :src="getAvatar(conv.isGroup ? null : conv.partnerAvatar)" class="w-12 h-12 rounded-full object-cover border border-slate-100" />
+                                    <div v-if="conv.isGroup" class="absolute -bottom-1 -right-1 bg-indigo-500 text-white rounded-full p-0.5 border-2 border-white">
+                                        <Users :size="10" />
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between mb-0.5">
+                                        <h3 class="font-bold text-slate-800 text-sm truncate flex items-center gap-1">
+                                            {{ conv.name }}
+                                            <span v-if="conv.isGroup" class="text-xs font-normal text-slate-500">({{ conv.memberCount }})</span>
+                                        </h3>
+                                        <span class="text-[10px] text-slate-400 shrink-0">{{ formatTime(conv.lastMessageTime) }}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 truncate">{{ conv.lastMessagePreview || '대화가 없습니다.' }}</p>
+                                </div>
+                            </div>
+                            <!-- Unread Badge -->
+                            <div v-if="conv.unreadCount > 0" class="absolute right-4 bottom-4 min-w-[18px] h-[18px] bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+                                {{ conv.unreadCount }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-else class="flex-1 flex flex-col items-center justify-center text-slate-400 p-8">
+                        <MessageCircle :size="32" class="mb-2 opacity-30" />
                         <p class="text-sm">아직 대화가 없어요</p>
-                        <button @click="showCreateModal = true" class="mt-3 text-brand-500 text-sm font-bold hover:underline">
+                        <button @click="openCreateModal" class="mt-3 text-brand-500 text-sm font-bold hover:underline">
                             + 새 대화 시작하기
                         </button>
                     </div>
-                    <div v-else>
-                        <div 
-                            v-for="conv in allConversations" 
-                            :key="conv.key" 
-                            @click="conv.isGroup ? openGroupChat(conv) : openChat(conv)"
-                            class="flex items-center gap-3 p-4 hover:bg-slate-50 cursor-pointer transition-colors border-b border-slate-50 last:border-b-0"
-                        >
-                            <div class="relative">
-                                <!-- 그룹 채팅 아이콘 -->
-                                <div v-if="conv.isGroup" class="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
-                                    {{ conv.memberCount }}
-                                </div>
-                                <!-- 1:1 채팅 아바타 -->
-                                <img v-else
-                                    :src="getAvatar(conv.partnerAvatar)" 
-                                    class="w-11 h-11 rounded-full border border-slate-200 bg-white object-cover"
-                                />
-                                <div 
-                                    v-if="conv.unreadCount > 0" 
-                                    class="absolute -top-1 -right-1 min-w-[16px] h-[16px] bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1"
-                                >
-                                    {{ conv.unreadCount > 9 ? '9+' : conv.unreadCount }}
-                                </div>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2">
-                                    <span class="font-semibold text-slate-800 text-sm truncate">{{ conv.name }}</span>
-                                    <span v-if="conv.isGroup && conv.type === 'STUDY'" class="text-[9px] px-1.5 py-0.5 bg-indigo-100 text-indigo-600 rounded font-bold shrink-0">스터디</span>
-                                    <span v-else-if="conv.isGroup" class="text-[9px] px-1.5 py-0.5 bg-purple-100 text-purple-600 rounded font-bold shrink-0">그룹</span>
-                                </div>
-                                <p class="text-xs text-slate-500 truncate mt-0.5">{{ conv.lastMessagePreview || '메시지 없음' }}</p>
-                            </div>
-                            <span class="text-[10px] text-slate-400 shrink-0">{{ formatTime(conv.lastMessageTime) }}</span>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- 1:1 채팅 뷰 -->
-                <template v-if="viewMode === 'chat'">
-                    <!-- 메시지 목록 -->
-                    <div class="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50" ref="messagesContainer">
-                        <div v-if="messagesLoading" class="flex justify-center py-8">
-                            <Loader2 class="animate-spin text-brand-500" />
+                <!-- 2. 1:1 채팅 뷰 -->
+                <div v-else-if="viewMode === 'chat'" class="flex-1 flex flex-col overflow-hidden bg-white">
+                    <div 
+                        ref="messagesContainer"
+                        class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50"
+                    >
+                        <div v-if="messagesLoading" class="flex justify-center py-4">
+                            <Loader2 class="animate-spin text-slate-300" :size="20" />
                         </div>
+                        
                         <template v-else>
-                            <template v-for="(msg, index) in messages" :key="msg.id">
-                                <div v-if="showDateSeparator(index)" class="w-full flex justify-center my-4">
-                                    <span class="text-[10px] font-bold text-slate-500 bg-slate-200/80 px-3 py-1 rounded-full">
+                            <div v-for="(msg, index) in messages" :key="msg.id">
+                                <!-- 날짜 구분선 -->
+                                <div v-if="showDateSeparator(index)" class="flex items-center justify-center my-4">
+                                    <span class="text-[10px] bg-slate-100 text-slate-500 px-3 py-1 rounded-full font-medium">
                                         {{ formatDate(msg.createdAt) }}
                                     </span>
                                 </div>
-                                <div class="flex flex-col" :class="msg.isMine ? 'items-end' : 'items-start'">
-                                    <div 
-                                        class="max-w-[75%] px-3 py-2 rounded-2xl text-sm shadow-sm leading-relaxed whitespace-pre-wrap"
-                                        :class="msg.isMine ? 'bg-brand-500 text-white rounded-tr-sm' : 'bg-white text-slate-700 border border-slate-200 rounded-tl-sm'"
-                                    >
-                                        {{ msg.content }}
+
+                                <div 
+                                    class="flex gap-2 max-w-[85%]"
+                                    :class="msg.senderId === user.id ? 'ml-auto flex-row-reverse' : ''"
+                                >
+                                    <img 
+                                        v-if="msg.senderId !== user.id" 
+                                        :src="getAvatar(activeChat?.partnerAvatar, isPartnerDeleted)" 
+                                        class="w-8 h-8 rounded-full self-start border border-slate-100" 
+                                    />
+                                    
+                                    <div class="flex flex-col gap-1" :class="msg.senderId === user.id ? 'items-end' : 'items-start'">
+                                        <div 
+                                            class="px-3 py-2 rounded-2xl text-sm leading-relaxed shadow-sm break-keep"
+                                            :class="msg.senderId === user.id ? 'bg-brand-500 text-white rounded-br-none' : 'bg-white border border-slate-100 text-slate-700 rounded-bl-none'"
+                                        >
+                                            {{ msg.content }}
+                                        </div>
+                                        <span class="text-[10px] text-slate-400 px-1">
+                                            {{ formatMsgTime(msg.createdAt) }}
+                                        </span>
                                     </div>
-                                    <span class="text-[9px] text-slate-400 mt-0.5 px-1">{{ formatMsgTime(msg.createdAt) }}</span>
-                                </div>
-                            </template>
-                        </template>
-                    </div>
-
-                    <!-- 입력 영역 -->
-                    <div class="p-3 bg-white border-t border-slate-100 shrink-0">
-                        <div v-if="isPartnerDeleted" class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-center gap-2">
-                            <AlertCircle :size="16" class="text-rose-500 shrink-0"/>
-                            <p class="text-xs text-rose-600 font-bold">탈퇴한 회원에게는 메시지를 보낼 수 없습니다.</p>
-                        </div>
-                        <form v-else @submit.prevent="sendMessage" class="flex items-center gap-2">
-                            <input 
-                                v-model="newMessage" 
-                                type="text" 
-                                placeholder="메시지 입력..." 
-                                class="flex-1 px-3 py-2.5 bg-slate-100 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/30 transition-all text-sm"
-                                :disabled="sending"
-                            />
-                            <button 
-                                type="submit" 
-                                class="p-2.5 bg-brand-500 text-white rounded-xl hover:bg-brand-600 disabled:opacity-50 transition-all"
-                                :disabled="!newMessage.trim() || sending"
-                            >
-                                <Send :size="18" />
-                            </button>
-                        </form>
-                    </div>
-                </template>
-
-                <!-- 그룹 채팅 뷰 -->
-                <template v-if="viewMode === 'groupChat'">
-                    <!-- 멤버 목록 (토글) -->
-                    <Transition name="slide-down">
-                        <div v-if="showGroupMembers" class="p-3 bg-indigo-50 border-b border-indigo-100">
-                            <div class="flex flex-wrap gap-2">
-                                <div v-for="member in activeGroupRoom?.members" :key="member.userId" class="flex items-center gap-1.5 bg-white px-2 py-1 rounded-full border border-slate-200">
-                                    <img :src="getAvatar(member.avatarUrl)" class="w-5 h-5 rounded-full" />
-                                    <span class="text-xs font-medium text-slate-600">{{ member.username }}</span>
                                 </div>
                             </div>
-                        </div>
-                    </Transition>
-
-                    <!-- 메시지 목록 -->
-                    <div class="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50" ref="groupMessagesContainer">
-                        <div v-if="groupMessagesLoading" class="flex justify-center py-8">
-                            <Loader2 class="animate-spin text-indigo-500" />
-                        </div>
-                        <template v-else>
-                            <template v-for="msg in groupMessages" :key="msg.id">
-                                <div v-if="msg.isMe" class="flex justify-end">
-                                    <div class="flex flex-col items-end max-w-[75%]">
-                                        <div class="bg-indigo-500 text-white px-3 py-2 rounded-2xl rounded-br-sm text-sm whitespace-pre-wrap break-words">
-                                            {{ msg.content }}
-                                        </div>
-                                        <span class="text-[9px] text-slate-400 mt-0.5 px-1">{{ formatMsgTime(msg.createdAt) }}</span>
-                                    </div>
-                                </div>
-                                <div v-else class="flex gap-2">
-                                    <img :src="getAvatar(msg.senderAvatarUrl)" class="w-8 h-8 rounded-full shrink-0" />
-                                    <div class="flex flex-col max-w-[75%]">
-                                        <span class="text-[10px] text-slate-500 font-medium mb-0.5">{{ msg.senderUsername }}</span>
-                                        <div class="bg-white border border-slate-200 px-3 py-2 rounded-2xl rounded-tl-sm text-sm text-slate-700 whitespace-pre-wrap break-words">
-                                            {{ msg.content }}
-                                        </div>
-                                        <span class="text-[9px] text-slate-400 mt-0.5 px-1">{{ formatMsgTime(msg.createdAt) }}</span>
-                                    </div>
-                                </div>
-                            </template>
                         </template>
+
+                        <div v-if="isPartnerDeleted" class="flex justify-center my-4">
+                            <div class="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-lg opacity-70">
+                                <AlertCircle :size="14" class="text-slate-500" />
+                                <span class="text-xs text-slate-500">상대방이 탈퇴하여 대화를 보낼 수 없습니다.</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- 입력 영역 -->
+                    <!-- 입력창 -->
                     <div class="p-3 bg-white border-t border-slate-100 shrink-0">
-                        <form @submit.prevent="sendGroupMessage" class="flex items-center gap-2">
-                            <input 
-                                v-model="newGroupMessage" 
-                                type="text" 
-                                placeholder="메시지 입력..." 
-                                class="flex-1 px-3 py-2.5 bg-slate-100 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all text-sm"
-                                :disabled="groupSending"
-                            />
+                        <form @submit.prevent="sendMessage" class="relative flex items-end gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 focus-within:border-brand-300 focus-within:ring-2 focus-within:ring-brand-100 transition-all">
+                            <textarea 
+                                v-model="newMessage"
+                                @keydown.enter.prevent="sendMessage"
+                                placeholder="메시지를 입력하세요..." 
+                                class="flex-1 bg-transparent border-none focus:ring-0 text-sm p-1 max-h-20 resize-none placeholder:text-slate-400"
+                                rows="1"
+                                :disabled="sending || isPartnerDeleted"
+                            ></textarea>
                             <button 
                                 type="submit" 
-                                class="p-2.5 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 disabled:opacity-50 transition-all"
-                                :disabled="!newGroupMessage.trim() || groupSending"
+                                :disabled="!newMessage.trim() || sending || isPartnerDeleted"
+                                class="p-2 bg-brand-500 hover:bg-brand-600 active:scale-95 disabled:opacity-50 disabled:active:scale-100 text-white rounded-lg transition-all"
                             >
-                                <Send :size="18" />
+                                <Send :size="16" />
                             </button>
                         </form>
                     </div>
-                </template>
+                </div>
+
+                <!-- 3. 그룹 채팅 뷰 -->
+                <div v-else-if="viewMode === 'groupChat'" class="flex-1 flex flex-col overflow-hidden bg-white">
+                     <div 
+                        ref="groupMessagesContainer"
+                        class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50"
+                    >
+                        <div v-for="msg in groupMessages" :key="msg.id" 
+                            class="flex gap-2 max-w-[85%]"
+                            :class="msg.senderId === user.id ? 'ml-auto flex-row-reverse' : ''"
+                        >
+                            <img 
+                                v-if="msg.senderId !== user.id" 
+                                :src="getAvatar(msg.senderAvatarUrl)" 
+                                class="w-8 h-8 rounded-full self-start border border-slate-100" 
+                                :title="msg.senderUsername"
+                            />
+                            
+                            <div class="flex flex-col gap-1" :class="msg.senderId === user.id ? 'items-end' : 'items-start'">
+                                <span v-if="msg.senderId !== user.id" class="text-[10px] text-slate-500 ml-1 truncate max-w-[100px]">{{ msg.senderUsername }}</span>
+                                <div 
+                                    class="px-3 py-2 rounded-2xl text-sm leading-relaxed shadow-sm break-keep"
+                                    :class="msg.senderId === user.id ? 'bg-indigo-500 text-white rounded-br-none' : 'bg-white border border-slate-100 text-slate-700 rounded-bl-none'"
+                                >
+                                    {{ msg.content }}
+                                </div>
+                                <span class="text-[10px] text-slate-400 px-1">
+                                    {{ formatMsgTime(msg.createdAt) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 입력창 (그룹) -->
+                    <div class="p-3 bg-white border-t border-slate-100 shrink-0">
+                        <form @submit.prevent="sendGroupMessage" class="relative flex items-end gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 focus-within:border-indigo-300 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
+                            <textarea 
+                                v-model="newGroupMessage"
+                                @keydown.enter.prevent="sendGroupMessage"
+                                placeholder="메시지를 입력하세요..." 
+                                class="flex-1 bg-transparent border-none focus:ring-0 text-sm p-1 max-h-20 resize-none placeholder:text-slate-400"
+                                rows="1"
+                                :disabled="groupSending"
+                            ></textarea>
+                            <button 
+                                type="submit" 
+                                :disabled="!newGroupMessage.trim() || groupSending"
+                                class="p-2 bg-indigo-500 hover:bg-indigo-600 active:scale-95 disabled:opacity-50 disabled:active:scale-100 text-white rounded-lg transition-all"
+                            >
+                                <Send :size="16" />
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
             </div>
         </Transition>
 
-        <!-- 새 대화 생성 모달 -->
+        <!-- 새 대화 모달 (통합) -->
         <Transition name="fade">
             <div v-if="showCreateModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4" @click.self="showCreateModal = false">
                 <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"></div>
-                <div class="relative bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-                    <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+                <div class="relative bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[600px]">
+                    <div class="p-4 border-b border-slate-100 flex items-center justify-between shrink-0">
                         <h3 class="font-bold text-slate-800">새 대화 시작</h3>
                         <button @click="showCreateModal = false" class="p-1.5 hover:bg-slate-100 rounded-lg">
                             <X :size="18" class="text-slate-400" />
                         </button>
                     </div>
-                    
-                    <!-- 대화 타입 선택 -->
-                    <div v-if="createStep === 'type'" class="p-4 space-y-3">
-                        <button 
-                            @click="startDMCreate"
-                            class="w-full p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-left flex items-center gap-4"
-                        >
-                            <div class="w-12 h-12 rounded-full bg-brand-100 flex items-center justify-center">
-                                <MessageCircle :size="24" class="text-brand-600" />
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-800">1:1 대화</h4>
-                                <p class="text-xs text-slate-500">친구와 개인 대화</p>
-                            </div>
-                        </button>
-                        <button 
-                            @click="startGroupCreate"
-                            class="w-full p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-left flex items-center gap-4"
-                        >
-                            <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
-                                <Users :size="24" class="text-indigo-600" />
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-slate-800">그룹 대화</h4>
-                                <p class="text-xs text-slate-500">여러 친구와 함께</p>
-                            </div>
-                        </button>
-                    </div>
 
-                    <!-- 1:1 친구 선택 -->
-                    <div v-else-if="createStep === 'dm'" class="p-4">
-                        <div class="mb-3">
+                    <div class="p-4 flex flex-col min-h-0 flex-1">
+                        <!-- 검색 -->
+                        <div class="mb-4 shrink-0">
                             <input 
                                 v-model="friendSearch"
                                 type="text" 
-                                placeholder="친구 검색..."
-                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                                placeholder="이름으로 검색..."
+                                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all"
                             />
                         </div>
-                        <div class="max-h-64 overflow-y-auto border border-slate-200 rounded-lg">
-                            <div 
-                                v-for="friend in filteredFriends" 
-                                :key="friend.friend?.id" 
-                                @click="startDMWithFriend(friend.friend)"
-                                class="flex items-center gap-3 p-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-b-0"
-                            >
-                                <img :src="getAvatar(friend.friend?.avatarUrl)" class="w-10 h-10 rounded-full" />
-                                <span class="text-sm font-medium text-slate-700">{{ friend.friend?.username }}</span>
-                            </div>
-                            <div v-if="filteredFriends.length === 0" class="p-4 text-center text-sm text-slate-400">
-                                {{ friendSearch ? '검색 결과가 없습니다' : '친구가 없습니다' }}
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- 그룹 채팅 생성 -->
-                    <div v-else-if="createStep === 'group'" class="p-4 space-y-4">
-                        <div>
-                            <label class="text-xs font-bold text-slate-600 mb-1.5 block">채팅방 이름</label>
-                            <input 
-                                v-model="groupForm.name" 
-                                type="text" 
-                                placeholder="예: 알고리즘 잡담방"
-                                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                            />
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-600 mb-1.5 block">초대할 친구 ({{ groupForm.memberIds.length }}명 선택)</label>
-                            <div class="max-h-48 overflow-y-auto border border-slate-200 rounded-lg">
-                                <div 
-                                    v-for="friend in friends" 
-                                    :key="friend.friend?.id" 
-                                    @click="toggleGroupMember(friend.friend?.id)"
-                                    class="flex items-center gap-3 p-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-b-0"
-                                >
-                                    <input 
-                                        type="checkbox" 
-                                        :checked="groupForm.memberIds.includes(friend.friend?.id)"
-                                        class="w-4 h-4 text-indigo-500 rounded border-slate-300"
-                                        @click.stop
-                                    />
-                                    <img :src="getAvatar(friend.friend?.avatarUrl)" class="w-8 h-8 rounded-full" />
-                                    <span class="text-sm font-medium text-slate-700">{{ friend.friend?.username }}</span>
-                                </div>
-                                <div v-if="friends.length === 0" class="p-4 text-center text-sm text-slate-400">
-                                    친구가 없습니다
+                        <div class="flex-1 overflow-y-auto min-h-0 space-y-6 pr-1">
+
+
+                            <!-- 친구 목록 -->
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-500 mb-2 px-1 flex justify-between items-center">
+                                    친구 목록
+                                    <span v-if="selectedFriendIds.length > 0" class="text-indigo-600">{{ selectedFriendIds.length }}명 선택됨</span>
+                                </h4>
+                                <div class="space-y-1">
+                                    <div 
+                                        v-for="friend in filteredFriends" 
+                                        :key="friend.friend?.id" 
+                                        @click="toggleFriendSelection(friend.friend?.id)"
+                                        class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors"
+                                        :class="{ 'bg-indigo-50/50': selectedFriendIds.includes(friend.friend?.id) }"
+                                    >
+                                        <div class="relative w-10 h-10 shrink-0">
+                                            <img :src="getAvatar(friend.friend?.avatarUrl)" class="w-full h-full rounded-full object-cover border border-slate-200" />
+                                            <div 
+                                                v-if="selectedFriendIds.includes(friend.friend?.id)"
+                                                class="absolute -bottom-1 -right-1 w-5 h-5 bg-indigo-500 rounded-full border-2 border-white flex items-center justify-center"
+                                            >
+                                                <Check :size="12" class="text-white" stroke-width="3" />
+                                            </div>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="text-sm font-bold text-slate-700 truncate">{{ friend.friend?.username }}</div>
+                                            <div class="text-xs text-slate-500 truncate">{{ friend.friend?.tier || 'Unrated' }}</div>
+                                        </div>
+                                        <div 
+                                            class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors"
+                                            :class="selectedFriendIds.includes(friend.friend?.id) ? 'border-indigo-500 bg-indigo-500' : 'border-slate-300'"
+                                        >
+                                            <Check v-if="selectedFriendIds.includes(friend.friend?.id)" :size="12" class="text-white" stroke-width="3" />
+                                        </div>
+                                    </div>
+                                    <div v-if="filteredFriends.length === 0" class="py-10 text-center text-sm text-slate-400">
+                                        {{ friendSearch ? '검색 결과가 없습니다' : '친구가 없습니다' }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex justify-end gap-2 pt-2">
-                            <button @click="createStep = 'type'" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">
-                                뒤로
-                            </button>
+
+                        <!-- 하단 액션 버튼 -->
+                        <div class="pt-4 mt-auto border-t border-slate-100 shrink-0">
                             <button 
-                                @click="createGroupRoom"
-                                :disabled="!groupForm.name.trim() || groupForm.memberIds.length === 0 || creating"
-                                class="px-4 py-2 text-sm font-bold text-white bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 rounded-lg"
+                                @click="handleStartChat"
+                                :disabled="selectedFriendIds.length === 0 || creating"
+                                class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-500/20 disabled:shadow-none flex items-center justify-center gap-2"
                             >
-                                {{ creating ? '생성 중...' : '만들기' }}
+                                <Loader2 v-if="creating" class="animate-spin" :size="20" />
+                                <span v-else>{{ startButtonText }}</span>
                             </button>
                         </div>
                     </div>
@@ -382,7 +307,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { MessageCircle, X, Maximize2, Loader2, ChevronLeft, Send, AlertCircle, Plus, Users } from 'lucide-vue-next';
+import { MessageCircle, X, Maximize2, Loader2, ChevronLeft, Send, AlertCircle, Plus, Users, BookOpen, Check } from 'lucide-vue-next';
 import { socialApi } from '@/api/social';
 import { chatApi } from '@/api/chat';
 import { userApi } from '@/api/user';
@@ -420,13 +345,21 @@ const groupMessagesContainer = ref(null);
 
 // Create modal state
 const showCreateModal = ref(false);
-const createStep = ref('type'); // 'type', 'dm', 'group'
 const friends = ref([]);
 const friendSearch = ref('');
 const creating = ref(false);
-const groupForm = ref({ name: '', memberIds: [] });
+const selectedFriendIds = ref([]);
+const groupForm = ref({ name: '', memberIds: [] }); // 호환성 유지
 
 let chatPollInterval = null;
+
+// 헤더 타이틀
+const headerTitle = computed(() => {
+    if (viewMode.value === 'list') return '메시지';
+    if (viewMode.value === 'chat') return activeChat.value?.partnerName;
+    if (viewMode.value === 'groupChat') return activeGroupRoom.value?.name;
+    return '메시지';
+});
 
 // 1:1 + 그룹 통합 목록
 const allConversations = computed(() => {
@@ -466,10 +399,23 @@ const totalUnread = computed(() => {
     return allConversations.value.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
 });
 
+// 내 스터디 채팅방 목록
+const myStudyRooms = computed(() => {
+    return groupRooms.value.filter(room => room.type === 'STUDY');
+});
+
 const filteredFriends = computed(() => {
     if (!friendSearch.value) return friends.value;
     const q = friendSearch.value.toLowerCase();
     return friends.value.filter(f => f.friend?.username?.toLowerCase().includes(q));
+});
+
+// 버튼 텍스트
+const startButtonText = computed(() => {
+    const count = selectedFriendIds.value.length;
+    if (count === 0) return '대화 상대를 선택해주세요';
+    if (count === 1) return '1:1 대화 시작';
+    return `${count}명과 그룹 대화 시작`;
 });
 
 // Watch isOpen
@@ -507,14 +453,23 @@ const loadAllConversations = async () => {
     if (!isAuthenticated.value) return;
     loading.value = true;
     try {
-        const [dmRes, groupRes] = await Promise.all([
-            socialApi.getConversations(),
-            chatApi.getRooms()
-        ]);
-        conversations.value = dmRes.data;
-        groupRooms.value = groupRes.data;
-    } catch (e) {
-        console.error(e);
+        // DM 목록 로드
+        try {
+            const dmRes = await socialApi.getConversations();
+            conversations.value = dmRes.data;
+        } catch (e) {
+            console.error('Failed to load DM conversations:', e);
+            conversations.value = [];
+        }
+
+        // 그룹 채팅방 목록 로드
+        try {
+            const groupRes = await chatApi.getRooms();
+            groupRooms.value = groupRes.data;
+        } catch (e) {
+            console.error('Failed to load group rooms:', e);
+            groupRooms.value = [];
+        }
     } finally {
         loading.value = false;
     }
@@ -589,7 +544,7 @@ const sendMessage = async () => {
         scrollToBottom();
     } catch (e) {
         newMessage.value = content;
-        alert(e.response?.data?.message || '전송 실패');
+        console.error(e);
     } finally {
         sending.value = false;
     }
@@ -608,11 +563,13 @@ const sendGroupMessage = async () => {
         nextTick(() => scrollToBottomGroup());
     } catch (e) {
         newGroupMessage.value = content;
-        alert(e.response?.data?.message || '전송 실패');
+        console.error(e);
+        alert('메시지 전송 실패');
     } finally {
         groupSending.value = false;
     }
 };
+
 
 const scrollToBottom = () => {
     nextTick(() => {
@@ -630,21 +587,6 @@ const scrollToBottomGroup = () => {
     });
 };
 
-const startChatPolling = () => {
-    stopChatPolling();
-    chatPollInterval = setInterval(() => {
-        if (viewMode.value === 'chat' && activeChat.value) {
-            fetchMessages();
-        } else if (viewMode.value === 'groupChat' && activeGroupRoom.value) {
-            fetchGroupMessages();
-        }
-    }, 3000);
-};
-
-const startGroupPolling = () => {
-    startChatPolling(); // 같은 인터벌 사용
-};
-
 const fetchGroupMessages = async () => {
     if (!activeGroupRoom.value) return;
     try {
@@ -658,6 +600,21 @@ const fetchGroupMessages = async () => {
     }
 };
 
+const startChatPolling = () => {
+    stopChatPolling();
+    chatPollInterval = setInterval(() => {
+        if (viewMode.value === 'chat' && activeChat.value) {
+            fetchMessages();
+        } else if (viewMode.value === 'groupChat' && activeGroupRoom.value) {
+            fetchGroupMessages();
+        }
+    }, 3000);
+};
+
+const startGroupPolling = () => {
+    startChatPolling();
+};
+
 const stopChatPolling = () => {
     if (chatPollInterval) {
         clearInterval(chatPollInterval);
@@ -665,63 +622,117 @@ const stopChatPolling = () => {
     }
 };
 
-// Create modal functions
+// ============================================
+// New Create Modal Functions
+// ============================================
+
 const openCreateModal = async () => {
     showCreateModal.value = true;
-    createStep.value = 'type';
-    groupForm.value = { name: '', memberIds: [] };
+    selectedFriendIds.value = [];
     friendSearch.value = '';
+    
+    // 친구 목록 로드
     try {
         const res = await socialApi.getFriends();
         friends.value = res.data;
     } catch (e) {
         console.error(e);
     }
-};
-
-const startDMCreate = () => {
-    createStep.value = 'dm';
-};
-
-const startGroupCreate = () => {
-    createStep.value = 'group';
-};
-
-const startDMWithFriend = (friend) => {
-    showCreateModal.value = false;
-    activeChat.value = {
-        partnerId: friend.id,
-        partnerName: friend.username,
-        partnerAvatar: friend.avatarUrl,
-        partnerDecoration: ''
-    };
-};
-
-const toggleGroupMember = (friendId) => {
-    const idx = groupForm.value.memberIds.indexOf(friendId);
-    if (idx > -1) {
-        groupForm.value.memberIds.splice(idx, 1);
-    } else {
-        groupForm.value.memberIds.push(friendId);
+    
+    // 스터디 목록 업데이트를 위해 채팅방 목록도 새로고침
+    try {
+        const groupRes = await chatApi.getRooms();
+        groupRooms.value = groupRes.data;
+    } catch (e) {
+        // 무시
     }
 };
 
-const createGroupRoom = async () => {
-    if (!groupForm.value.name.trim() || creating.value) return;
+const toggleFriendSelection = (friendId) => {
+    const index = selectedFriendIds.value.indexOf(friendId);
+    if (index === -1) {
+        selectedFriendIds.value.push(friendId);
+    } else {
+        selectedFriendIds.value.splice(index, 1);
+    }
+};
+
+const openStudyRoom = (room) => {
+    openGroupChat(room);
+    showCreateModal.value = false;
+};
+
+const handleStartChat = async () => {
+    if (selectedFriendIds.value.length === 0) return;
+    
     creating.value = true;
     try {
-        const res = await chatApi.createRoom(groupForm.value.name, groupForm.value.memberIds);
-        showCreateModal.value = false;
-        await loadAllConversations();
-        // 바로 채팅방 열기
-        openGroupChat({ id: res.data.id, name: res.data.name });
+        if (selectedFriendIds.value.length === 1) {
+            // 1:1 대화
+            const friendId = selectedFriendIds.value[0];
+            const friend = friends.value.find(f => f.friend?.id === friendId)?.friend;
+            if (friend) {
+                startDMWithFriend(friend);
+            }
+        } else {
+            // 그룹 대화
+            // 이름 자동 생성: "나, 친구1, 친구2..."
+            const selectedFriends = friends.value
+                .filter(f => selectedFriendIds.value.includes(f.friend?.id))
+                .map(f => f.friend?.username);
+            
+            // 내 이름도 포함하거나, 그냥 친구들 이름만 나열
+            const roomName = [user.value.username, ...selectedFriends].join(', ');
+            // 너무 길면 자르기
+            const finalName = roomName.length > 20 ? roomName.substring(0, 20) + '...' : roomName;
+            
+            await createGroupRoom(finalName, selectedFriendIds.value);
+        }
     } catch (e) {
-        alert(e.response?.data?.message || '채팅방 생성에 실패했습니다.');
+        console.error(e);
+        alert('대화방 생성 실패: ' + e.message);
     } finally {
         creating.value = false;
     }
 };
 
+const createGroupRoom = async (name, memberIds) => {
+    try {
+        const res = await chatApi.createRoom(name, memberIds);
+        const newRoom = res.data;
+        
+        // 목록 새로고침
+        await loadAllConversations();
+        
+        // 바로 입장
+        openGroupChat(newRoom);
+        showCreateModal.value = false;
+    } catch (e) {
+        console.error(e);
+        throw e;
+    }
+};
+
+const startDMWithFriend = (friend) => {
+    // 1. 이미 존재하는 대화방인지 확인 (로컬 목록에서)
+    const existingConv = conversations.value.find(c => c.partnerId === friend.id);
+    
+    if (existingConv) {
+        // 이미 있으면 열기
+        openChat(existingConv);
+    } else {
+        // 없으면 새 activeChat 설정 (메시지 보내면 생성됨)
+        activeChat.value = {
+            partnerId: friend.id,
+            partnerName: friend.username,
+            partnerAvatar: friend.avatarUrl,
+            partnerDecoration: ''
+        };
+    }
+    showCreateModal.value = false;
+};
+
+// Utilities
 const openFullView = () => {
     router.push('/social?tab=messages');
     isOpen.value = false;
@@ -767,7 +778,7 @@ const showDateSeparator = (index) => {
     return currentMsgDate !== prevMsgDate;
 };
 
-// Setup
+// Lifecycle Hooks
 let refreshInterval = null;
 onMounted(() => {
     if (isAuthenticated.value) {
