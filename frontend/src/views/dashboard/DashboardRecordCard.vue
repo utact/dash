@@ -246,6 +246,7 @@ const ensureBoardExists = async () => {
             title: `${props.record.title}`,
             content: `Code review for ${props.record.title} (${props.record.problemNumber})`,
             boardType: 'CODE_REVIEW',
+            visibility: 'PRIVATE',
             algorithmRecordId: props.record.id
         });
         board.value = res.data;

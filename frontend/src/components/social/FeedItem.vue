@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-white rounded-2xl border border-slate-200 p-5 hover:border-slate-300 transition-colors">
+    <div class="bg-white rounded-2xl border border-slate-200 p-6 hover:border-slate-300 transition-colors w-full">
         <!-- 헤더: 유저 정보 + 시간 -->
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
