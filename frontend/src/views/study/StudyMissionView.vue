@@ -1,37 +1,45 @@
 <template>
-  <div class="min-h-screen bg-white font-sans pb-20">
+  <!-- Main Layout Wrapper matching DashboardView for consistency -->
+  <div class="flex h-screen overflow-hidden bg-white font-['Pretendard']">
+    <div class="w-full overflow-y-auto [scrollbar-gutter:stable]">
+      <div class="min-h-screen bg-white pb-20">
     
-    <!-- 관전 모드 배너 -->
-    <div v-if="isObserving" class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50 shadow-md">
-        <div class="flex items-center gap-2 font-bold">
-            <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-            <span>관리자 관전 모드</span>
-            <span class="text-slate-400 text-sm font-normal mx-2">|</span>
-            <span class="text-brand-300">{{ studyData?.name || 'Loading...' }}</span>
+        <!-- 관전 모드 배너 -->
+        <div v-if="isObserving" class="bg-slate-900 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50 shadow-md">
+            <div class="flex items-center gap-2 font-bold">
+                <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                <span>관리자 관전 모드</span>
+                <span class="text-slate-400 text-sm font-normal mx-2">|</span>
+                <span class="text-brand-300">{{ studyData?.name || 'Loading...' }}</span>
+            </div>
+            <button @click="exitObservation" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors font-bold flex items-center gap-1">
+                <X :size="14" /> 나가기
+            </button>
         </div>
-        <button @click="exitObservation" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors font-bold flex items-center gap-1">
-            <X :size="14" /> 나가기
-        </button>
-    </div>
 
-    <!-- 2열 레이아웃을 위한 중앙 컨테이너 -->
-    <div class="flex justify-center p-4 md:p-8">
-        <div class="flex gap-8 max-w-screen-xl w-full">
+        <!-- 2열 레이아웃을 위한 중앙 컨테이너 -->
+        <div class="flex justify-center p-4 md:p-8">
+        <div class="flex gap-8 max-w-screen-xl w-full items-start">
             
             <!-- 왼쪽 칼럼: 메인 콘텐츠 (미션) -->
             <main class="flex-1 min-w-0">
                 <!-- 헤더 섹션 -->
-                <div class="flex items-center justify-between mb-8">
-                    <h1 class="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-                        <MapIcon :size="28" class="text-brand-500 fill-brand-500" />
-                        미션
-                    </h1>
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <Target class="w-7 h-7 text-brand-500" stroke-width="2.5" fill="currentColor" />
+                            <h1 class="text-xl font-black text-slate-800">팀 미션</h1>
+                        </div>
+                        <p class="text-slate-500 font-medium">동료들과 함께 미션을 수행하고 성장하세요</p>
+                    </div>
                     
-                    <button v-if="isLeader" @click="openCreateModal"
-                            class="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-bold text-sm transition-all flex items-center gap-2 shadow-sm hover:translate-y-0.5 active:translate-y-1">
-                    <Plus :size="18" stroke-width="3" />
-                    <span>새 미션</span>
-                    </button>
+                    <div>
+                        <button v-if="isLeader" @click="openCreateModal"
+                                class="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-bold text-sm transition-all flex items-center gap-2 shadow-sm hover:translate-y-0.5 active:translate-y-1">
+                        <Plus :size="18" stroke-width="3" />
+                        <span>새 미션</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- 로딩 상태 -->
@@ -56,7 +64,7 @@
                 <!-- 미션 목록 -->
                 <div v-else class="space-y-6">
                     <div v-for="mission in missions" :key="mission.id"
-                        class="bg-white rounded-3xl p-6 md:p-8 shadow-sm transition-all hover:bg-slate-50 border border-slate-200 group relative overflow-hidden"
+                        class="bg-white rounded-3xl p-6 shadow-sm transition-all hover:bg-slate-50 border border-slate-200 group relative overflow-hidden"
                         :class="{ 'opacity-70 grayscale': mission.status === 'COMPLETED' }"
                     >
                         <!-- 상태 뱃지 (절대 위치) -->
@@ -221,32 +229,36 @@
             </main>
 
             <!-- 오른쪽 칼럼: 통계 및 활동 -->
-            <aside class="hidden xl:flex w-[380px] shrink-0 flex-col gap-6 sticky top-8 h-[calc(100vh-4rem)]">
+            <aside class="hidden lg:flex w-[380px] shrink-0 flex-col gap-6 sticky top-8 h-[calc(100vh-4rem)]">
                 
                 <!-- 1. 통계 열 -->
-                <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-around">
-                     <!-- 통계 1: 도토리 -->
-                     <div class="flex items-center gap-2 group cursor-pointer" title="Acorns">
-                        <IconAcorn class="text-fox w-8 h-8" stroke-width="2.5" fill="currentColor" />
-                        <span class="text-xl font-black text-slate-700">{{ studyData?.acornCount || 0 }}</span>
-                    </div>
-
-                    <div class="w-px h-8 bg-slate-100"></div>
-
-                    <!-- 통계 2: 스트릭 -->
-                    <div class="flex items-center gap-2 group cursor-pointer" title="Streak">
-                        <Flame class="w-7 h-7" :class="currentStreak > 0 ? 'text-rose-500 fill-rose-500 animate-pulse' : 'text-slate-300'" stroke-width="2.5" />
-                        <span class="text-xl font-black text-slate-700">{{ currentStreak }}</span>
-                    </div>
-                    
-                    <div class="w-px h-8 bg-slate-100"></div>
-
-                    <!-- Stat 3: Submissions -->
-                     <div class="flex items-center gap-2 group cursor-pointer" title="Submissions">
-                        <Send class="w-6 h-6 text-sky-400 fill-sky-400" stroke-width="2.5" />
-                        <span class="text-xl font-black text-slate-700">{{ recordCount }}</span>
-                    </div>
-                </div>
+                <!-- 1. 통계 열 (UserQuickStats) -->
+                <UserQuickStats 
+                    v-if="studyData"
+                    :items="[
+                        { 
+                            icon: IconAcorn, 
+                            value: (studyData.acornCount || 0).toLocaleString(), 
+                            tooltip: 'Acorns',
+                            iconClass: 'text-fox',
+                            fill: 'currentColor'
+                        },
+                        { 
+                            icon: Flame, 
+                            value: currentStreak, 
+                            tooltip: 'Streak',
+                            iconClass: currentStreak > 0 ? 'text-rose-500 animate-pulse' : 'text-slate-300',
+                            fill: currentStreak > 0 ? 'currentColor' : 'none'
+                        },
+                        { 
+                            icon: Send, 
+                            value: recordCount.toLocaleString(), 
+                            tooltip: 'Submissions',
+                            iconClass: 'text-sky-400',
+                            fill: 'currentColor'
+                        }
+                    ]"
+                />
 
                 <!-- 2. Activity Log -->
                 <div v-if="!loading && heatmapWeeks.length > 0" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
@@ -301,6 +313,8 @@
       @refresh="loadMissions"
     />
 
+      </div>
+    </div>
   </div>
 </template>
 
@@ -322,6 +336,7 @@ import {
     Flame,
     Flag,
     Map as MapIcon,
+    Target,
     Send,
     Pencil,
     Trash2,
@@ -330,6 +345,7 @@ import {
     X
 } from 'lucide-vue-next';
 import NicknameRenderer from '@/components/common/NicknameRenderer.vue';
+import UserQuickStats from '@/components/common/UserQuickStats.vue';
 
 // 관리자 관전 모드 Props
 const props = defineProps({

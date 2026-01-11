@@ -1,57 +1,41 @@
 <template>
-  <MobileRestrictionView v-if="isMobile" />
-  <template v-else>
     <Sidebar @scroll="scrollToSection" />
-    <div class="bg-slate-50 min-h-screen transition-all duration-300" :class="{ 'md:ml-64': isSidebarVisible }">
+    <div class="bg-slate-50 min-h-screen transition-all duration-300 pb-16 md:pb-0" :class="mainContentClass">
         <router-view />
     </div>
 
     <!-- Global Modals -->
     <UserProfileModal />
-    <DirectMessageModal 
-      v-if="isDMOpen && dmPartnerInfo"
-      :partner-id="dmPartnerInfo.partnerId"
-      :partner-name="dmPartnerInfo.partnerName"
-      :partner-avatar="dmPartnerInfo.partnerAvatar"
-      :partner-decoration="dmPartnerInfo.partnerDecoration"
-      @close="closeDM"
-    />
-  </template>
+
+    <!-- Global Floating Chat Button -->
+    <FloatingMessagePanel />
+
+    <!-- Admin Floating Button -->
+    <router-link
+      v-if="user?.role === 'ROLE_ADMIN'"
+      to="/admin"
+      class="fixed bottom-24 right-6 z-50 p-4 bg-slate-900 text-white rounded-full shadow-lg shadow-slate-900/40 hover:scale-110 active:scale-95 transition-all text-sm font-bold flex items-center group"
+    >
+        <Shield :size="24" stroke-width="2.5" />
+        <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs group-hover:ml-2 transition-all duration-300">관리자</span>
+    </router-link>
 </template>
 
 
 <script setup>
-import { computed, ref, onMounted, onUnmounted } from "vue";
+import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
 import Sidebar from "./components/layout/Sidebar.vue";
 import MobileRestrictionView from "@/views/MobileRestrictionView.vue";
+import { Shield } from 'lucide-vue-next';
 
 // Global Modals
 import UserProfileModal from "@/components/social/UserProfileModal.vue";
-import DirectMessageModal from "@/components/social/DirectMessageModal.vue";
-import { useDirectMessageModal } from "@/composables/useDirectMessageModal";
+import FloatingMessagePanel from "@/components/social/FloatingMessagePanel.vue";
 
 const route = useRoute();
 const { user } = useAuth();
-const isMobile = ref(false);
-
-const { isOpen: isDMOpen, partnerInfo: dmPartnerInfo, close: closeDM } = useDirectMessageModal();
-
-const checkMobile = () => {
-  if (typeof window !== "undefined") {
-    isMobile.value = window.innerWidth < 768;
-  }
-};
-
-onMounted(() => {
-  checkMobile();
-  window.addEventListener('resize', checkMobile);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('resize', checkMobile);
-});
 
 const isSidebarVisible = computed(() => {
   if (typeof window === "undefined") return false;
@@ -59,6 +43,12 @@ const isSidebarVisible = computed(() => {
   if (route.path && route.path.startsWith("/onboarding")) return false;
   if (route.path === '/' && !user.value) return false;
   return true;
+});
+
+// Responsive margin: xl=full sidebar, lg/md=icon sidebar, mobile=no sidebar
+const mainContentClass = computed(() => {
+  if (!isSidebarVisible.value) return '';
+  return 'xl:ml-64 lg:ml-20 md:ml-20';
 });
 
 const scrollToSection = (id) => {

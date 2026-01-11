@@ -25,22 +25,25 @@ public record UserResult(
         String role,
         String pendingStudyName,
         String friendshipStatus,
-        String equippedDecorationClass) {
+        Boolean hasAnalysis,
+        String equippedDecorationClass,
+        Integer logCount,
+        Boolean isDeleted) {
 
     public static UserResult from(User user) {
-        return from(user, null, null, null);
+        return from(user, null, null, null, false);
     }
 
     public static UserResult from(User user, com.ssafy.dash.onboarding.domain.Onboarding onboarding) {
-        return from(user, onboarding, null, null);
+        return from(user, onboarding, null, null, false);
     }
 
     public static UserResult from(User user, com.ssafy.dash.onboarding.domain.Onboarding onboarding, Study study) {
-        return from(user, onboarding, study, null);
+        return from(user, onboarding, study, null, false);
     }
 
     public static UserResult from(User user, com.ssafy.dash.onboarding.domain.Onboarding onboarding, Study study,
-            String pendingStudyName) {
+            String pendingStudyName, boolean hasAnalysis) {
         String repoName = onboarding != null ? onboarding.getRepositoryName() : null;
         Boolean webhook = onboarding != null ? onboarding.isWebhookConfigured() : null;
         Boolean isLeader = study != null && study.getCreatorId() != null && study.getCreatorId().equals(user.getId());
@@ -65,7 +68,10 @@ public record UserResult(
                 user.getRole(),
                 pendingStudyName,
                 null,
-                user.getEquippedDecorationClass());
+                hasAnalysis,
+                user.getEquippedDecorationClass(),
+                user.getLogCount(),
+                user.isDeleted());
     }
 
     public static UserResult from(User user, String friendshipStatus) {
@@ -88,7 +94,10 @@ public record UserResult(
                 user.getRole(),
                 null,
                 friendshipStatus,
-                user.getEquippedDecorationClass());
+                false,
+                user.getEquippedDecorationClass(),
+                user.getLogCount(),
+                user.isDeleted());
     }
 
 }

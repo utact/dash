@@ -25,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @DisplayName("UserController 통합 테스트")
+@SuppressWarnings("null")
 public class UserControllerIntegrationTest {
 
     @Autowired
@@ -43,20 +44,23 @@ public class UserControllerIntegrationTest {
         String location = mvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(createJson))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.id").isNumber())
-            .andExpect(jsonPath("$.username").value(TestFixtures.TEST_USERNAME))
-            .andReturn()
-            .getResponse()
-            .getHeader("Location");
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.username").value(TestFixtures.TEST_USERNAME))
+                .andReturn()
+                .getResponse()
+                .getHeader("Location");
+
+        if (location == null)
+            throw new IllegalStateException("Location header is missing");
 
         String[] parts = location.split("/");
         String id = parts[parts.length - 1];
 
         // 유저 조회
         mvc.perform(get("/api/users/" + id))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.username").value(TestFixtures.TEST_USERNAME));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value(TestFixtures.TEST_USERNAME));
 
         // 유저 수정
         UserUpdateRequest update = TestFixtures.createUserUpdateRequest();
@@ -65,21 +69,21 @@ public class UserControllerIntegrationTest {
         mvc.perform(put("/api/users/" + id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updateJson))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.username").value(update.getUsername()));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value(update.getUsername()));
 
         // 유저 목록
         mvc.perform(get("/api/users"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].id").isNumber());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").isNumber());
 
         // 유저 삭제
         mvc.perform(delete("/api/users/" + id))
-            .andExpect(status().isNoContent());
+                .andExpect(status().isNoContent());
 
         // 유저 삭제 후 찾을 수 없음
         mvc.perform(get("/api/users/" + id))
-            .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound());
     }
 
 }

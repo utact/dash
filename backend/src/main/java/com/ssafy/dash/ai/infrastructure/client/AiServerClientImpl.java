@@ -15,6 +15,7 @@ import org.springframework.web.client.RestClient;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class AiServerClientImpl implements AiServerClient {
 
     @Value("${ai.server.base-url:http://127.0.0.1:8000}")

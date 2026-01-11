@@ -66,25 +66,24 @@ public final class BoardFixtures {
             String boardType) {
 
         public Board toDomain(LocalDateTime timestamp) {
-            Board board = Board.create(userId, title, content, null, boardType, timestamp);
+            Board board = Board.create(userId, title, content, null, boardType, "PUBLIC", timestamp);
             board.setId(id);
             return board;
         }
 
         public BoardCreateCommand toCreateCommand() {
-            return new BoardCreateCommand(title, content, userId, null, boardType, null);
+            return new BoardCreateCommand(title, content, userId, null, boardType, "PUBLIC", null);
         }
 
         public BoardCreateRequest toCreateRequest() {
-            return new BoardCreateRequest(title, content, userId, null, boardType, null);
+            return new BoardCreateRequest(title, content, userId, null, boardType, "PUBLIC", null);
         }
 
         public BoardResult toResult(LocalDateTime createdAt, LocalDateTime updatedAt) {
             return new BoardResult(id, title, content, userId, authorName, null, null, null, null, boardType, 0, 0,
-                    false, null, null, createdAt,
+                    false, null, null, false, "PUBLIC", createdAt,
                     updatedAt);
         }
-
     }
 
 }

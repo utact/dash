@@ -1,9 +1,9 @@
-# DASH : 기록을 넘어 성장을 설계하다
+# DASH: Developers' Algorithm Study Hub
 
 <div align="center">
   <img src="frontend/public/images/icons/icon-512.png" alt="DASH Logo" width="120px" height="120px" />
   <br/>
-  <h3>All-in-One Algorithm Study Platform</h3>
+  <h3>올인원 알고리즘 스터디 플랫폼</h3>
   <br/>
 
   [![Java Version](https://img.shields.io/badge/Java-17-007396?style=flat-square&logo=java)](https://www.java.com/)

@@ -57,6 +57,7 @@ public class BoardService {
                 command.content(),
                 command.algorithmRecordId(),
                 command.boardType(),
+                command.visibility(),
                 now);
 
         boardRepository.save(board);
@@ -162,8 +163,9 @@ public class BoardService {
         }
 
         if (!board.getUserId().equals(requestUserId)) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED_ACCESS, 
-                String.format("User %d is not authorized to modify Board with id %d", requestUserId, board.getId()));
+            throw new BusinessException(ErrorCode.UNAUTHORIZED_ACCESS,
+                    String.format("User %d is not authorized to modify Board with id %d", requestUserId,
+                            board.getId()));
         }
     }
 
@@ -171,6 +173,7 @@ public class BoardService {
         String authorName = (user != null) ? user.getUsername() : "Unknown";
         String authorProfileImageUrl = (user != null) ? user.getAvatarUrl() : null;
         String authorDecorationClass = (user != null) ? user.getEquippedDecorationClass() : null;
+        boolean authorIsDeleted = (user == null) || user.isDeleted();
 
         // Get study name
         String studyName = null;
@@ -194,7 +197,8 @@ public class BoardService {
             }
         }
 
-        return BoardResult.from(board, authorName, authorProfileImageUrl, studyName, problemNumber, isLiked, authorDecorationClass);
+        return BoardResult.from(board, authorName, authorProfileImageUrl, studyName, problemNumber, isLiked,
+                authorDecorationClass, authorIsDeleted);
     }
 
 }

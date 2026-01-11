@@ -340,7 +340,7 @@
                     
                 <div v-if="hasAnyAnalysis" class="p-3 bg-white border-t border-slate-200 sticky bottom-0">
                     <div class="flex gap-2">
-                        <input v-model="tutorInput" @keypress.enter="sendTutorMessage" :disabled="loadingTutorResponse"
+                        <input ref="tutorInputRef" v-model="tutorInput" @keypress.enter="sendTutorMessage" :disabled="loadingTutorResponse"
                             placeholder="질문을 입력하세요..." class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-brand-700 focus:outline-none"/>
                         <button @click="sendTutorMessage" :disabled="!tutorInput.trim() || loadingTutorResponse"
                                 class="w-8 h-8 bg-brand-600 text-white rounded-lg flex items-center justify-center hover:bg-brand-500 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -395,6 +395,7 @@ const tutorInput = ref('');
 const tutorMessages = ref([]);
 const loadingTutorResponse = ref(false);
 const chatContainer = ref(null);
+const tutorInputRef = ref(null);
 
 // Reset when record changes
 watch(() => props.record, (newRecord) => {
@@ -598,6 +599,7 @@ const sendTutorMessage = async () => {
         }
     } finally {
         loadingTutorResponse.value = false;
+        // Scroll to bottom after response
         nextTick(() => { if(chatContainer.value) chatContainer.value.scrollTop = chatContainer.value.scrollHeight; });
     }
 };
@@ -606,6 +608,15 @@ const sendSuggestion = (q) => {
     tutorInput.value = q;
     sendTutorMessage();
 };
+
+// Auto-focus input when loading finishes (Reactive approach)
+watch(loadingTutorResponse, (isLoading) => {
+    if (!isLoading) {
+        nextTick(() => {
+            tutorInputRef.value?.focus();
+        });
+    }
+});
 </script>
 
 <style scoped>

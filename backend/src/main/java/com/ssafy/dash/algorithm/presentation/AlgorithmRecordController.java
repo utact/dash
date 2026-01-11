@@ -17,15 +17,19 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
-@RequestMapping("/api/algorithm-records")
+@RequestMapping("/api/algorithm")
+@RequiredArgsConstructor
+@Tag(name = "Algorithm Record", description = "알고리즘 풀이 기록 관리 API")
+@SuppressWarnings("null")
 public class AlgorithmRecordController {
 
     private final AlgorithmRecordService algorithmRecordService;
-
-    public AlgorithmRecordController(AlgorithmRecordService algorithmRecordService) {
-        this.algorithmRecordService = algorithmRecordService;
-    }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AlgorithmRecordResponse> create(

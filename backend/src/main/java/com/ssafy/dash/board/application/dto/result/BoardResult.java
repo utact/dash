@@ -20,11 +20,14 @@ public record BoardResult(
         Boolean isLiked,
         String authorRole,
         String authorDecorationClass,
+        Boolean authorIsDeleted,
+        String visibility,
         LocalDateTime createdAt,
         LocalDateTime updatedAt) {
 
     public static BoardResult from(Board board, String authorName, String authorProfileImageUrl,
-            String studyName, Integer problemNumber, Boolean isLiked, String authorDecorationClass) {
+            String studyName, Integer problemNumber, Boolean isLiked, String authorDecorationClass,
+            Boolean authorIsDeleted) {
         return new BoardResult(
                 board.getId(),
                 board.getTitle(),
@@ -41,6 +44,8 @@ public record BoardResult(
                 isLiked != null ? isLiked : false,
                 board.getAuthorRole(),
                 authorDecorationClass,
+                authorIsDeleted,
+                board.getVisibility(),
                 board.getCreatedAt(),
                 board.getUpdatedAt());
     }

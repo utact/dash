@@ -12,7 +12,6 @@ import com.ssafy.dash.analytics.domain.UserTagStat;
 import com.ssafy.dash.analytics.infrastructure.persistence.UserClassStatMapper;
 import com.ssafy.dash.analytics.infrastructure.persistence.UserTagStatMapper;
 import com.ssafy.dash.problem.domain.Tag;
-import com.ssafy.dash.problem.domain.CoreTagsConfig;
 import com.ssafy.dash.problem.infrastructure.persistence.TagMapper;
 import com.ssafy.dash.user.domain.User;
 import com.ssafy.dash.user.domain.UserRepository;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * AI 기반 개인화 학습 경로 서비스
@@ -172,9 +170,6 @@ public class AiLearningPathService {
                 // 현재 레벨
                 String currentLevel = buildCurrentLevel(user);
                 String goalLevel = determineNextGoal(classStats);
-
-                // 사용자 티어 기반 레이팅 (비교 기준)
-                int userTierRating = user.getSolvedacTier() != null ? user.getSolvedacTier() * 100 : 0;
 
                 // 분석 대상 태그 (Core + Basic) 전체 조회
                 List<Tag> candidateTags = tagMapper.findCandidateTags();

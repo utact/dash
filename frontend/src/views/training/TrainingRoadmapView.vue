@@ -1,11 +1,25 @@
 <template>
-  <div class="min-h-screen bg-white text-slate-800 pb-20">
+  <!-- Main Layout Wrapper matching DashboardView -->
+  <div class="flex h-screen overflow-hidden bg-white font-['Pretendard']">
+    <div class="w-full overflow-y-auto [scrollbar-gutter:stable]">
+      <div class="min-h-screen bg-white pb-20">
     <!-- Main Layout Container -->
     <div class="flex justify-center p-4 md:p-8">
       <div class="flex gap-8 max-w-screen-xl w-full items-start">
         
         <!-- LEFT COLUMN: Main Content (로드맵 중심) -->
-        <main class="flex-1 min-w-0 space-y-6 animate-in slide-in-from-left duration-500">
+        <main class="flex-1 min-w-0 space-y-8 animate-in slide-in-from-left duration-500">
+          
+          <!-- Page Header (외부) -->
+          <div class="mb-8">
+            <div class="flex items-center gap-3 mb-2">
+              <School class="w-7 h-7 text-brand-500" stroke-width="2.5" fill="currentColor" />
+              <h1 class="text-xl font-black text-slate-800">로드맵</h1>
+            </div>
+            <p class="text-slate-500 font-medium">나에게 맞는 학습 경로를 따라가보세요</p>
+          </div>
+          
+
           
           <!-- 승인 대기 배너 -->
           <div v-if="isPendingApproval" class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3 shadow-sm animate-pulse">
@@ -23,17 +37,16 @@
             </div>
           </div>
 
-          <!-- 맞춤형 학습 로드맵 -->
           <section class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-            <h2 class="text-xs font-black text-slate-500 uppercase tracking-wide mb-5 flex items-center gap-2">
-              <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+            <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+              <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
               맞춤형 학습 로드맵
             </h2>
             <LearningRoadmap :phases="learningPath?.aiAnalysis?.phases || []" class="w-full" />
           </section>
 
           <!-- AI 요약 (간결하게) -->
-          <section v-if="learningPath?.aiAnalysis?.analysisSummary" class="bg-brand-50 rounded-2xl p-5 border border-brand-100">
+          <section v-if="learningPath?.aiAnalysis?.analysisSummary" class="bg-brand-50 rounded-2xl p-6 border border-brand-100">
             <div class="flex items-start gap-3">
               <div class="w-8 h-8 bg-brand-100 rounded-lg flex items-center justify-center shrink-0">
                 <Sparkles class="w-4 h-4 text-brand-600" stroke-width="2.5" />
@@ -47,7 +60,7 @@
           <!-- 주간 목표 + 추천 태그 -->
           <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- 주간 목표 -->
-            <div v-if="learningPath?.aiAnalysis?.weeklyGoal" class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+            <div v-if="learningPath?.aiAnalysis?.weeklyGoal" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
               <div class="text-[10px] font-black text-brand-600 uppercase tracking-wider mb-2">이번 주 목표</div>
               <p class="text-sm font-bold text-slate-800">{{ learningPath.aiAnalysis.weeklyGoal }}</p>
               <div v-if="learningPath?.aiAnalysis?.estimatedDaysToGoal" class="mt-3 pt-3 border-t border-slate-100 flex items-center gap-2">
@@ -57,7 +70,7 @@
             </div>
 
             <!-- 추천 태그 -->
-            <div v-if="learningPath?.aiAnalysis?.recommendedTags?.length" class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+            <div v-if="learningPath?.aiAnalysis?.recommendedTags?.length" class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
               <div class="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-3">집중 추천 태그</div>
               <div class="flex flex-wrap gap-2">
                 <span 
@@ -73,23 +86,29 @@
         </main>
 
         <!-- 오른쪽 칼럼: 사이드바 -->
-        <aside class="hidden xl:flex w-[380px] shrink-0 flex-col gap-5 sticky top-8 h-fit">
+        <aside class="hidden xl:flex w-[380px] shrink-0 flex-col gap-6 sticky top-8 h-fit">
           
-          <!-- 1. 통계 열 -->
-          <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-around">
-            <div class="flex items-center gap-2" title="Current Tier">
-              <img :src="`https://static.solved.ac/tier_small/${userTier}.svg`" class="w-7 h-7 object-contain" />
-              <span class="text-sm font-black text-slate-700">{{ userTierName }}</span>
-            </div>
-            <div class="w-px h-6 bg-slate-100"></div>
-            <div class="flex items-center gap-2" title="Solved Problems">
-              <CheckCircle class="w-5 h-5 text-leaf" stroke-width="2.5" fill="currentColor" />
-              <span class="text-lg font-black text-slate-700">{{ user?.solvedCount || 0 }}</span>
-            </div>
-          </div>
+          <!-- 1. 통계 열 (UserQuickStats) -->
+          <UserQuickStats 
+            :items="[
+              { 
+                image: `https://static.solved.ac/tier_small/${userTier}.svg`,
+                value: userTierName,
+                tooltip: 'Current Tier',
+                textClass: 'text-sm'
+              },
+              { 
+                icon: CheckCircle, 
+                value: (user?.solvedCount || 0).toLocaleString(), 
+                tooltip: 'Solved Problems',
+                iconClass: 'text-leaf',
+                fill: 'currentColor'
+              }
+            ]"
+          />
 
           <!-- 2. 레이더 차트 (간결) -->
-          <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm">
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
             <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-wide mb-3 flex items-center gap-1">
               <BarChart3 class="w-3.5 h-3.5 text-brand-500" stroke-width="2.5" />
               알고리즘 역량
@@ -102,7 +121,7 @@
           </div>
 
           <!-- 3. 오늘의 복습 -->
-          <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-9 h-9 bg-brand-50 text-brand-600 rounded-lg flex items-center justify-center shrink-0">
                 <RefreshCw :size="18" stroke-width="2.5" fill="currentColor" />
@@ -123,7 +142,7 @@
           </div>
 
           <!-- 4. 오늘의 도전 -->
-          <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-9 h-9 bg-rose-50 text-rose-500 rounded-lg flex items-center justify-center shrink-0">
                 <Trophy :size="18" stroke-width="2.5" fill="currentColor" />
@@ -161,6 +180,8 @@
       :boj-tag-id="lectureBojTagId"
       @close="closeLectureModal"
     />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -168,13 +189,14 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router'; // Updated
 import { 
-    RefreshCw, Trophy, Swords, Play, AlertTriangle, CheckCircle, BarChart3, Sparkles, Clock
+    RefreshCw, Trophy, Swords, Play, AlertTriangle, CheckCircle, BarChart3, Sparkles, Clock, School
 } from 'lucide-vue-next';
 import LearningRoadmap from '@/components/skill/LearningRoadmap.vue';
 import AlgorithmRadarChart from '@/components/charts/AlgorithmRadarChart.vue';
 import LectureModal from '@/components/lecture/LectureModal.vue';
 import { useAuth } from '@/composables/useAuth';
 import { aiApi } from '@/api/ai';
+import UserQuickStats from '@/components/common/UserQuickStats.vue';
 
 const router = useRouter();
 const route = useRoute(); // ADDED

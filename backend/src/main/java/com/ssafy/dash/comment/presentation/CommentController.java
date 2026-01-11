@@ -27,6 +27,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @RestController
 @RequestMapping("/api/boards/{boardId}/comments")
+@SuppressWarnings("null")
 public class CommentController {
 
     private final CommentService commentService;

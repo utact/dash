@@ -20,6 +20,7 @@ import com.ssafy.dash.user.domain.User;
 import com.ssafy.dash.user.domain.UserRepository;
 import com.ssafy.dash.mockexam.application.MockExamService;
 import com.ssafy.dash.defense.application.DefenseService;
+import com.ssafy.dash.battle.application.BattleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +39,7 @@ import java.util.Optional;
 
 @Component
 @ConditionalOnProperty(value = "github.push-worker.enabled", havingValue = "true", matchIfMissing = true)
+@SuppressWarnings("null")
 public class GitHubPushEventWorker {
 
     private static final Logger log = LoggerFactory.getLogger(GitHubPushEventWorker.class);
@@ -57,6 +59,7 @@ public class GitHubPushEventWorker {
     private final com.ssafy.dash.study.application.StudyMissionService studyMissionService;
     private final MockExamService mockExamService;
     private final DefenseService defenseService;
+    private final BattleService battleService;
 
     public GitHubPushEventWorker(GitHubPushEventRepository pushEventRepository,
             OnboardingRepository onboardingRepository,
@@ -72,6 +75,7 @@ public class GitHubPushEventWorker {
             com.ssafy.dash.study.application.StudyMissionService studyMissionService,
             MockExamService mockExamService,
             DefenseService defenseService,
+            BattleService battleService,
             @Value("${github.push-worker.max-batch:5}") int maxBatchSize) {
         this.pushEventRepository = pushEventRepository;
         this.onboardingRepository = onboardingRepository;
@@ -88,6 +92,7 @@ public class GitHubPushEventWorker {
         this.studyMissionService = studyMissionService;
         this.mockExamService = mockExamService;
         this.defenseService = defenseService;
+        this.battleService = battleService;
     }
 
     @Scheduled(fixedDelayString = "${github.push-worker.fixed-delay:10000}")
@@ -207,10 +212,10 @@ public class GitHubPushEventWorker {
                 now);
 
         LocalDateTime committedAt = metadataExtractor.parseCommittedAt(file.committedAt());
-        // Docker 타임존이 Asia/Seoul로 설정되어 있으므로 수동 오프셋이 필요하지 않음
-        // if (committedAt != null) {
-        //     committedAt = committedAt.plusHours(9);
-        // }
+        // GitHub timestamp는 UTC로 오므로 KST로 변환 (9시간 추가)
+        if (committedAt != null) {
+            committedAt = committedAt.plusHours(9);
+        }
 
         record.enrichMetadata(
                 metadata.platform(),
@@ -248,6 +253,10 @@ public class GitHubPushEventWorker {
                     && user.getDefenseProblemId().equals(problemId)) {
                 tag = "DEFENSE";
             }
+            // 4. 배틀 체크
+            else if (battleService.isActiveBattleProblem(userId, problemId)) {
+                tag = "BATTLE";
+            }
         }
         record.setTag(tag);
         // ---------------------
@@ -263,6 +272,7 @@ public class GitHubPushEventWorker {
                 algorithmRecordRepository.update(record);
             }
             mockExamService.verifyExam(userId, problemId);
+            battleService.verifyBattleProblem(userId, problemId);
         }
 
         // 도토리 적립 로직

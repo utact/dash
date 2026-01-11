@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 
 @RestController
 @RequestMapping("/api/users")
+@SuppressWarnings("null")
 public class UserController {
 
     private final UserService service;
@@ -37,7 +38,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserResponse> create(@RequestBody UserCreateRequest req) {
         UserResponse created = UserResponse.from(service.create(req.toCommand()));
-        
+
         return ResponseEntity.created(URI.create("/api/users/" + created.id())).body(created);
     }
 
@@ -48,7 +49,8 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserResponse>> list(@org.springframework.web.bind.annotation.RequestParam(required = false) String keyword) {
+    public ResponseEntity<List<UserResponse>> list(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String keyword) {
 
         List<UserResponse> responses;
         if (keyword != null && !keyword.isBlank()) {
@@ -67,10 +69,10 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserResponse> me(@Parameter(hidden = true) @AuthenticationPrincipal OAuth2User principal) {
         if (principal instanceof CustomOAuth2User customUser) {
-            
+
             return ResponseEntity.ok(UserResponse.from(service.findById(customUser.getUserId())));
         }
-        
+
         return ResponseEntity.status(401).build();
     }
 

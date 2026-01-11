@@ -1,5 +1,8 @@
 <template>
-  <div class="min-h-screen bg-white text-slate-800 pb-20">
+  <!-- Main Layout Wrapper matching DashboardView -->
+  <div class="flex h-screen overflow-hidden bg-white font-['Pretendard']">
+    <div class="w-full overflow-y-auto [scrollbar-gutter:stable]">
+      <div class="min-h-screen bg-white pb-20">
     
     <!-- 활성화된 디펜스 오버레이 (전체화면 고정) -->
     <div v-if="status.defenseProblemId && !loading" class="fixed inset-0 z-50 bg-slate-50 flex items-center justify-center p-4">
@@ -59,12 +62,13 @@
       <div class="flex-1 min-w-0 space-y-8">
         
         <!-- Header -->
-        <h1 class="text-2xl font-black text-slate-800 flex items-center gap-3">
-          <div class="w-10 h-10 bg-brand-100 rounded-xl flex items-center justify-center">
-            <Shield class="w-6 h-6 text-brand-600" fill="currentColor" />
+        <div class="mb-8">
+          <div class="flex items-center gap-3 mb-2">
+            <Shield class="w-7 h-7 text-brand-500" stroke-width="2.5" fill="currentColor" />
+            <h1 class="text-xl font-black text-slate-800">랜덤 디펜스</h1>
           </div>
-          랜덤 디펜스
-        </h1>
+          <p class="text-slate-500 font-medium">무작위 문제를 해결하며 최다 연승에 도전해보세요</p>
+        </div>
 
         <!-- Loading -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-20">
@@ -81,28 +85,68 @@
             </h2>
             <div class="grid grid-cols-2 gap-6">
               <!-- Silver Card -->
-              <div @click="startDefense('SILVER')" class="group cursor-pointer flex flex-col items-center p-6 rounded-2xl hover:bg-slate-50 transition-all active:scale-95 border border-transparent hover:border-slate-200">
-                <div class="relative mb-4 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3">
-                  <img src="/images/defense/silver.png" alt="Silver Defense" class="w-32 h-32 object-contain drop-shadow-lg" />
+              <div class="group flex flex-col items-center p-6 rounded-2xl border border-transparent hover:border-slate-200 transition-all">
+                <div class="flex flex-col items-center w-full">
+                  <div class="relative mb-4 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3">
+                    <img src="/images/defense/silver.png" alt="Silver Defense" class="w-32 h-32 object-contain drop-shadow-lg" />
+                  </div>
+                  <h3 class="text-xl font-black text-slate-800 mb-1">실버 등급</h3>
+                  <p class="text-slate-400 text-sm font-bold mb-3">기본 알고리즘 역량</p>
+                  <div class="flex items-center gap-2 bg-slate-100 px-4 py-1.5 rounded-full mb-4">
+                    <span class="text-lg font-black text-slate-800">{{ status.silverStreak }}</span>
+                    <span class="text-slate-500 text-xs font-bold uppercase">연승중</span>
+                  </div>
                 </div>
-                <h3 class="text-xl font-black text-slate-800 mb-1">실버 등급</h3>
-                <p class="text-slate-400 text-sm font-bold mb-3">기본 알고리즘 역량</p>
-                <div class="flex items-center gap-2 bg-slate-100 px-4 py-1.5 rounded-full">
-                  <span class="text-lg font-black text-slate-800">{{ status.silverStreak }}</span>
-                  <span class="text-slate-500 text-xs font-bold uppercase">연승중</span>
+                <div class="flex gap-2 w-full">
+                  <button
+                    @click="startDefense('SILVER')"
+                    class="flex-1 py-2.5 px-3 bg-slate-100 text-slate-700 font-bold rounded-xl
+                           hover:bg-slate-200 transition-all active:scale-95 text-sm flex items-center justify-center gap-1"
+                  >
+                    <Sword class="w-4 h-4" />
+                    혼자하기
+                  </button>
+                  <button
+                    @click.stop="openBattleModal('SILVER')"
+                    class="flex-1 py-2.5 px-3 bg-violet-100 text-violet-700 font-bold rounded-xl
+                           hover:bg-violet-200 transition-all active:scale-95 text-sm flex items-center justify-center gap-1"
+                  >
+                    <Users class="w-4 h-4" />
+                    함께하기
+                  </button>
                 </div>
               </div>
 
               <!-- Gold Card -->
-              <div @click="startDefense('GOLD')" class="group cursor-pointer flex flex-col items-center p-6 rounded-2xl hover:bg-amber-50 transition-all active:scale-95 border border-transparent hover:border-amber-200">
-                <div class="relative mb-4 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                  <img src="/images/defense/gold.png" alt="Gold Defense" class="w-32 h-32 object-contain drop-shadow-lg" />
+              <div class="group flex flex-col items-center p-6 rounded-2xl border border-transparent hover:border-amber-200 transition-all">
+                <div class="flex flex-col items-center w-full">
+                  <div class="relative mb-4 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                    <img src="/images/defense/gold.png" alt="Gold Defense" class="w-32 h-32 object-contain drop-shadow-lg" />
+                  </div>
+                  <h3 class="text-xl font-black text-amber-800 mb-1">골드 등급</h3>
+                  <p class="text-amber-700/60 text-sm font-bold mb-3">심화 알고리즘 역량</p>
+                  <div class="flex items-center gap-2 bg-amber-100 px-4 py-1.5 rounded-full mb-4">
+                    <span class="text-lg font-black text-amber-900">{{ status.goldStreak }}</span>
+                    <span class="text-amber-700 text-xs font-bold uppercase">연승중</span>
+                  </div>
                 </div>
-                <h3 class="text-xl font-black text-amber-800 mb-1">골드 등급</h3>
-                <p class="text-amber-700/60 text-sm font-bold mb-3">심화 알고리즘 역량</p>
-                <div class="flex items-center gap-2 bg-amber-100 px-4 py-1.5 rounded-full">
-                  <span class="text-lg font-black text-amber-900">{{ status.goldStreak }}</span>
-                  <span class="text-amber-700 text-xs font-bold uppercase">연승중</span>
+                <div class="flex gap-2 w-full">
+                  <button
+                    @click="startDefense('GOLD')"
+                    class="flex-1 py-2.5 px-3 bg-amber-50 text-amber-700 font-bold rounded-xl
+                           hover:bg-amber-100 transition-all active:scale-95 text-sm flex items-center justify-center gap-1"
+                  >
+                    <Sword class="w-4 h-4" />
+                    혼자하기
+                  </button>
+                  <button
+                    @click.stop="openBattleModal('GOLD')"
+                    class="flex-1 py-2.5 px-3 bg-amber-100 text-amber-700 font-bold rounded-xl
+                           hover:bg-amber-200 transition-all active:scale-95 text-sm flex items-center justify-center gap-1"
+                  >
+                    <Users class="w-4 h-4" />
+                    함께하기
+                  </button>
                 </div>
               </div>
             </div>
@@ -111,7 +155,7 @@
       </div>
 
       <!-- 사이드바 -->
-      <aside class="w-[380px] hidden xl:flex flex-col sticky top-8 h-fit space-y-6">
+      <aside class="w-[380px] shrink-0 hidden xl:flex flex-col gap-6 sticky top-8 h-fit">
         
         <!-- 연승 기록 -->
         <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
@@ -181,14 +225,25 @@
         </div>
       </div>
     </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Battle Invite Modal -->
+  <BattleInviteModal
+    :isOpen="showBattleModal"
+    battleType="DEFENSE"
+    :battleSubType="selectedDefenseType"
+    @close="showBattleModal = false"
+  />
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import { Shield, Sword, Flame, RefreshCw, ClipboardList, Target, Clock, Zap } from 'lucide-vue-next';
+import { Shield, Sword, Flame, RefreshCw, ClipboardList, Target, Clock, Zap, Users } from 'lucide-vue-next';
+import BattleInviteModal from '@/components/battle/BattleInviteModal.vue';
 
 const router = useRouter();
 const loading = ref(true);
@@ -275,6 +330,15 @@ const startDefense = async (type) => {
 const resetAndPlayAgain = () => {
     showSuccessModal.value = false;
     // Just close modal, user sees selection screen
+};
+
+// Battle Modal
+const showBattleModal = ref(false);
+const selectedDefenseType = ref(null);
+
+const openBattleModal = (type) => {
+    selectedDefenseType.value = type;
+    showBattleModal.value = true;
 };
 </script>
 
