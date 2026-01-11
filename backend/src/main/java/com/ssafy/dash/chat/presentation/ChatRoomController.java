@@ -5,13 +5,15 @@ import com.ssafy.dash.chat.application.dto.ChatRoomDetailResult;
 import com.ssafy.dash.chat.application.dto.ChatRoomListResult;
 import com.ssafy.dash.chat.application.dto.ChatRoomMessageResult;
 import com.ssafy.dash.chat.domain.ChatRoom;
-import com.ssafy.dash.user.domain.User;
-import jakarta.servlet.http.HttpSession;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.ssafy.dash.oauth.presentation.security.CustomOAuth2User;
 
 @RestController
 @RequestMapping("/api/chat/rooms")
@@ -26,14 +28,10 @@ public class ChatRoomController {
     @PostMapping
     public ResponseEntity<ChatRoom> createRoom(
             @RequestBody CreateRoomRequest request,
-            HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).build();
-        }
+            @AuthenticationPrincipal CustomOAuth2User userPrincipal) {
 
         ChatRoom room = chatRoomService.createGroupRoom(
-                user.getId(),
+                userPrincipal.getUserId(),
                 request.name(),
                 request.memberIds());
 
@@ -44,13 +42,9 @@ public class ChatRoomController {
      * 내 채팅방 목록
      */
     @GetMapping
-    public ResponseEntity<List<ChatRoomListResult>> getChatRooms(HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).build();
-        }
-
-        return ResponseEntity.ok(chatRoomService.getChatRooms(user.getId()));
+    public ResponseEntity<List<ChatRoomListResult>> getChatRooms(
+            @AuthenticationPrincipal CustomOAuth2User userPrincipal) {
+        return ResponseEntity.ok(chatRoomService.getChatRooms(userPrincipal.getUserId()));
     }
 
     /**
@@ -59,13 +53,8 @@ public class ChatRoomController {
     @GetMapping("/{roomId}")
     public ResponseEntity<ChatRoomDetailResult> getChatRoom(
             @PathVariable Long roomId,
-            HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).build();
-        }
-
-        return ResponseEntity.ok(chatRoomService.getChatRoom(roomId, user.getId()));
+            @AuthenticationPrincipal CustomOAuth2User userPrincipal) {
+        return ResponseEntity.ok(chatRoomService.getChatRoom(roomId, userPrincipal.getUserId()));
     }
 
     /**
@@ -76,13 +65,8 @@ public class ChatRoomController {
             @PathVariable Long roomId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size,
-            HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).build();
-        }
-
-        return ResponseEntity.ok(chatRoomService.getMessages(roomId, user.getId(), page, size));
+            @AuthenticationPrincipal CustomOAuth2User userPrincipal) {
+        return ResponseEntity.ok(chatRoomService.getMessages(roomId, userPrincipal.getUserId(), page, size));
     }
 
     /**
@@ -92,13 +76,8 @@ public class ChatRoomController {
     public ResponseEntity<ChatRoomMessageResult> sendMessage(
             @PathVariable Long roomId,
             @RequestBody SendMessageRequest request,
-            HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).build();
-        }
-
-        return ResponseEntity.ok(chatRoomService.sendMessage(roomId, user.getId(), request.content()));
+            @AuthenticationPrincipal CustomOAuth2User userPrincipal) {
+        return ResponseEntity.ok(chatRoomService.sendMessage(roomId, userPrincipal.getUserId(), request.content()));
     }
 
     /**
@@ -108,13 +87,9 @@ public class ChatRoomController {
     public ResponseEntity<Void> addMember(
             @PathVariable Long roomId,
             @RequestBody AddMemberRequest request,
-            HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).build();
-        }
+            @AuthenticationPrincipal CustomOAuth2User userPrincipal) {
 
-        chatRoomService.addMember(roomId, request.userId(), user.getId());
+        chatRoomService.addMember(roomId, request.userId(), userPrincipal.getUserId());
         return ResponseEntity.ok().build();
     }
 
@@ -124,13 +99,9 @@ public class ChatRoomController {
     @DeleteMapping("/{roomId}/members/me")
     public ResponseEntity<Void> leaveRoom(
             @PathVariable Long roomId,
-            HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).build();
-        }
+            @AuthenticationPrincipal CustomOAuth2User userPrincipal) {
 
-        chatRoomService.removeMember(roomId, user.getId());
+        chatRoomService.removeMember(roomId, userPrincipal.getUserId());
         return ResponseEntity.ok().build();
     }
 
@@ -140,13 +111,9 @@ public class ChatRoomController {
     @PostMapping("/{roomId}/read")
     public ResponseEntity<Void> markAsRead(
             @PathVariable Long roomId,
-            HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).build();
-        }
+            @AuthenticationPrincipal CustomOAuth2User userPrincipal) {
 
-        chatRoomService.markAsRead(roomId, user.getId());
+        chatRoomService.markAsRead(roomId, userPrincipal.getUserId());
         return ResponseEntity.ok().build();
     }
 
@@ -156,13 +123,9 @@ public class ChatRoomController {
     @DeleteMapping("/{roomId}")
     public ResponseEntity<Void> deleteRoom(
             @PathVariable Long roomId,
-            HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            return ResponseEntity.status(401).build();
-        }
+            @AuthenticationPrincipal CustomOAuth2User userPrincipal) {
 
-        chatRoomService.deleteRoom(roomId, user.getId());
+        chatRoomService.deleteRoom(roomId, userPrincipal.getUserId());
         return ResponseEntity.ok().build();
     }
 
