@@ -71,7 +71,7 @@ public class MockExamService {
         checkAndTimeoutActiveExam(userId);
 
         MockExam mockExam = mockExamRepository.findActiveByUserId(userId).orElse(null);
-        
+
         if (mockExam == null) {
             return new ExamStatusResult(null, null, null, List.of(), List.of(), null, 0, 0, 0);
         }
@@ -98,7 +98,7 @@ public class MockExamService {
 
     public void verifyExam(Long userId, Integer solvedProblemId) {
         MockExam mockExam = mockExamRepository.findActiveByUserId(userId).orElse(null);
-        
+
         if (mockExam == null) {
             return; // 시험 모드가 아님
         }
@@ -133,7 +133,7 @@ public class MockExamService {
             mockExam.markProblemSolved();
 
             // 모든 문제를 풀었는지 확인
-            if (mockExam.getSolvedCount() >= examType.getProblemCount()) {
+            if (examType != null && mockExam.getSolvedCount() >= examType.getProblemCount()) {
                 mockExam.complete();
             }
 

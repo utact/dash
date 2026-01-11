@@ -27,6 +27,7 @@ import com.ssafy.dash.oauth.application.OAuthUserService;
 import com.ssafy.dash.oauth.application.dto.result.OAuthLoginResult;
 
 @Service
+@SuppressWarnings("null")
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private static final Logger log = LoggerFactory.getLogger(CustomOAuth2UserService.class);
@@ -71,13 +72,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             }
         }
 
-        OAuthLoginResult loginResult = oauthUserService.createOrUpdateOAuthUser(registrationId, providerId, login, email, avatarUrl);
+        OAuthLoginResult loginResult = oauthUserService.createOrUpdateOAuthUser(registrationId, providerId, login,
+                email, avatarUrl);
 
         try {
             OAuth2AccessToken accessToken = userRequest.getAccessToken();
             boolean hasToken = accessToken != null && accessToken.getTokenValue() != null;
             if (hasToken && log.isInfoEnabled()) {
-                log.info("GitHub token details userId={} issuedAtUTC={} expiresAtUTC={} scopes={} tokenType={} tokenSnippet={}",
+                log.info(
+                        "GitHub token details userId={} issuedAtUTC={} expiresAtUTC={} scopes={} tokenType={} tokenSnippet={}",
                         loginResult.user().getId(),
                         accessToken.getIssuedAt(),
                         accessToken.getExpiresAt(),

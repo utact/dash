@@ -42,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 @Import(OnboardingControllerTest.TestConfig.class)
 @DisplayName("OnboardingController 테스트")
+@SuppressWarnings("null")
 class OnboardingControllerTest {
 
     @Autowired
@@ -80,8 +81,8 @@ class OnboardingControllerTest {
         authenticateUser();
 
         mockMvc.perform(post("/api/onboarding/repository")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.repositoryName").value(request.getRepositoryName()))
                 .andExpect(jsonPath("$.webhookConfigured").value(true));
@@ -96,8 +97,8 @@ class OnboardingControllerTest {
                 .willThrow(new WebhookRegistrationException("GitHub 오류"));
 
         mockMvc.perform(post("/api/onboarding/repository")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadGateway());
     }
 
@@ -107,8 +108,8 @@ class OnboardingControllerTest {
         RepositorySetupRequest request = new RepositorySetupRequest("utact/dash-repo");
 
         mockMvc.perform(post("/api/onboarding/repository")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());
 
         Mockito.verifyNoInteractions(onboardingService);

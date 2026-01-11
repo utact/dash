@@ -9,6 +9,7 @@ import org.springframework.web.client.RestClient;
  * HTTP Client 설정
  */
 @Configuration
+@SuppressWarnings("null")
 public class RestClientConfig {
 
     @Bean
