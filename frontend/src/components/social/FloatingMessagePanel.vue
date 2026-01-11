@@ -18,7 +18,7 @@
 
         <!-- 패널 -->
         <Transition name="slide-up">
-            <div v-if="isOpen" class="absolute bottom-16 right-0 w-[380px] h-[600px] bg-white rounded-2xl shadow-2xl border border-slate-100 flex flex-col overflow-hidden origin-bottom-right">
+                <div v-if="isOpen" class="absolute bottom-6 right-0 w-[380px] h-[600px] bg-white rounded-2xl shadow-2xl border border-slate-100 flex flex-col overflow-hidden origin-bottom-right">
                 
                 <!-- 상단 헤더 -->
                 <div class="h-14 shrink-0 bg-brand-500 px-4 flex items-center justify-between shadow-sm z-10">
@@ -37,6 +37,9 @@
                         </button>
                         <button @click="openFullView" class="p-1.5 hover:bg-white/20 rounded-lg transition-colors" title="전체보기">
                             <Maximize2 :size="16" class="text-white" />
+                        </button>
+                        <button @click="toggle" class="p-1.5 hover:bg-white/20 rounded-lg transition-colors" title="닫기">
+                            <X :size="16" class="text-white" />
                         </button>
                     </div>
                 </div>
@@ -144,8 +147,9 @@
                     <div class="p-3 bg-white border-t border-slate-100 shrink-0">
                         <form @submit.prevent="sendMessage" class="relative flex items-end gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 focus-within:border-brand-300 focus-within:ring-2 focus-within:ring-brand-100 transition-all">
                             <textarea 
+                                ref="dmInputRef"
                                 v-model="newMessage"
-                                @keydown.enter.prevent="sendMessage"
+                                @keydown.enter="handleDmEnter"
                                 placeholder="메시지를 입력하세요..." 
                                 class="flex-1 bg-transparent border-none focus:ring-0 text-sm p-1 max-h-20 resize-none placeholder:text-slate-400"
                                 rows="1"
@@ -198,8 +202,9 @@
                     <div class="p-3 bg-white border-t border-slate-100 shrink-0">
                         <form @submit.prevent="sendGroupMessage" class="relative flex items-end gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 focus-within:border-indigo-300 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
                             <textarea 
+                                ref="groupInputRef"
                                 v-model="newGroupMessage"
-                                @keydown.enter.prevent="sendGroupMessage"
+                                @keydown.enter="handleGroupEnter"
                                 placeholder="메시지를 입력하세요..." 
                                 class="flex-1 bg-transparent border-none focus:ring-0 text-sm p-1 max-h-20 resize-none placeholder:text-slate-400"
                                 rows="1"
@@ -342,6 +347,8 @@ const newGroupMessage = ref('');
 const groupSending = ref(false);
 const showGroupMembers = ref(false);
 const groupMessagesContainer = ref(null);
+const dmInputRef = ref(null);
+const groupInputRef = ref(null);
 
 // Create modal state
 const showCreateModal = ref(false);
@@ -519,15 +526,18 @@ const goBack = () => {
 
 const fetchMessages = async () => {
     if (!activeChat.value) return;
-    if (messages.value.length === 0) messagesLoading.value = true;
+    const isInitialLoad = messages.value.length === 0;
+    if (isInitialLoad) messagesLoading.value = true;
     try {
         const res = await socialApi.getConversation(activeChat.value.partnerId);
         messages.value = res.data;
-        if (messagesLoading.value) scrollToBottom();
     } catch (e) {
         console.error(e);
     } finally {
         messagesLoading.value = false;
+        if (isInitialLoad) {
+            nextTick(() => scrollToBottom());
+        }
     }
 };
 
@@ -570,6 +580,18 @@ const sendGroupMessage = async () => {
     }
 };
 
+
+const handleDmEnter = (e) => {
+    if (e.isComposing) return;
+    e.preventDefault();
+    sendMessage();
+};
+
+const handleGroupEnter = (e) => {
+    if (e.isComposing) return;
+    e.preventDefault();
+    sendGroupMessage();
+};
 
 const scrollToBottom = () => {
     nextTick(() => {
@@ -797,6 +819,24 @@ onUnmounted(() => {
 watch(() => route.path, () => {
     isOpen.value = false;
     stopChatPolling();
+});
+
+// Auto-focus logic using watchers on sending states
+watch(sending, (isSending) => {
+    if (!isSending) {
+        // Wait for disabled attribute to be removed
+        nextTick(() => {
+            dmInputRef.value?.focus();
+        });
+    }
+});
+
+watch(groupSending, (isSending) => {
+    if (!isSending) {
+        nextTick(() => {
+            groupInputRef.value?.focus();
+        });
+    }
 });
 
 watch(isAuthenticated, (val) => {
