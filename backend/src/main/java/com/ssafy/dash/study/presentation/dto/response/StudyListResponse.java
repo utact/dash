@@ -3,6 +3,7 @@ package com.ssafy.dash.study.presentation.dto.response;
 import com.ssafy.dash.study.domain.Study;
 import com.ssafy.dash.user.domain.User;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -18,6 +19,7 @@ public record StudyListResponse(
         Integer acornCount,
         String mvpUsername,
         Integer streak,
+        LocalDate streakUpdatedAt, // streak 유효성 판단용
         Double averageSubmissionRate,
         List<MemberPreview> memberPreviews, // 멤버 미리보기 (프론트에서 표시 개수 조절)
         String description) {
@@ -39,6 +41,7 @@ public record StudyListResponse(
                 study.getAcornCount() != null ? study.getAcornCount() : 0,
                 study.getMvpUsername(),
                 study.getStreak() != null ? study.getStreak() : 0,
+                study.getStreakUpdatedAt(),
                 study.getAverageSubmissionRate() != null ? study.getAverageSubmissionRate() : 0.0,
                 previews,
                 study.getDescription());

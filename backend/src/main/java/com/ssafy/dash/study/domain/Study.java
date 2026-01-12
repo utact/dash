@@ -1,5 +1,6 @@
 package com.ssafy.dash.study.domain;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import lombok.Getter;
@@ -34,6 +35,7 @@ public class Study {
     private Double averageSubmissionRate; // 기록 제출률
     // averageTier는 기존 필드 사용
     private Integer streak; // 연속 활동 일수
+    private LocalDate streakUpdatedAt; // streak 마지막 갱신일 (캐싱용)
     private String activeMissionTitle; // 진행 중인 미션
     private Integer activeMissionProgress; // 미션 진행률
 

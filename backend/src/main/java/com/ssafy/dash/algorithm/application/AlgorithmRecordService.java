@@ -29,16 +29,19 @@ public class AlgorithmRecordService {
     private final DefenseService defenseService;
     private final MockExamService mockExamService;
     private final BattleService battleService;
+    private final com.ssafy.dash.study.application.StudyService studyService;
 
     public AlgorithmRecordService(AlgorithmRecordRepository algorithmRecordRepository, UserRepository userRepository,
             com.ssafy.dash.study.application.StudyMissionService studyMissionService,
-            DefenseService defenseService, MockExamService mockExamService, BattleService battleService) {
+            DefenseService defenseService, MockExamService mockExamService, BattleService battleService,
+            @org.springframework.context.annotation.Lazy com.ssafy.dash.study.application.StudyService studyService) {
         this.algorithmRecordRepository = algorithmRecordRepository;
         this.userRepository = userRepository;
         this.studyMissionService = studyMissionService;
         this.defenseService = defenseService;
         this.mockExamService = mockExamService;
         this.battleService = battleService;
+        this.studyService = studyService;
     }
 
     @Transactional
@@ -76,6 +79,11 @@ public class AlgorithmRecordService {
             battleService.verifyBattleProblem(command.userId(), problemId);
         } catch (NumberFormatException e) {
             // ignore non-integer problem numbers
+        }
+
+        // 스터디 streak 갱신 (O(1) 연산)
+        if (user.getStudyId() != null) {
+            studyService.updateStreakOnSolve(user.getStudyId());
         }
 
         return AlgorithmRecordResult.from(record);
@@ -156,6 +164,51 @@ public class AlgorithmRecordService {
     @Transactional(readOnly = true)
     public StudyStats getStudyStats(Long studyId) {
         return algorithmRecordRepository.countsByStudyId(studyId);
+    }
+
+    /**
+     * 스터디 활동 날짜 목록 조회 (streak 계산용)
+     */
+    @Transactional(readOnly = true)
+    public List<String> getActivityDates(Long studyId) {
+        return algorithmRecordRepository.findActivityDatesByStudyId(studyId);
+    }
+
+    /**
+     * 스터디의 연속 활동 일수 계산 (대시보드와 동일한 로직)
+     * 오늘부터 거슬러 올라가면서 연속으로 활동이 있었던 날 수를 계산
+     */
+    @Transactional(readOnly = true)
+    public int calculateStreak(Long studyId) {
+        List<String> activityDates = getActivityDates(studyId);
+        if (activityDates == null || activityDates.isEmpty()) {
+            return 0;
+        }
+
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.util.Set<java.time.LocalDate> activitySet = activityDates.stream()
+                .map(java.time.LocalDate::parse)
+                .collect(java.util.stream.Collectors.toSet());
+
+        int streak = 0;
+        java.time.LocalDate checkDate = today;
+
+        // 오늘부터 시작해서 연속으로 활동이 있는 날을 카운트
+        while (activitySet.contains(checkDate)) {
+            streak++;
+            checkDate = checkDate.minusDays(1);
+        }
+
+        // 오늘 활동이 없으면 어제부터 체크
+        if (streak == 0) {
+            checkDate = today.minusDays(1);
+            while (activitySet.contains(checkDate)) {
+                streak++;
+                checkDate = checkDate.minusDays(1);
+            }
+        }
+
+        return streak;
     }
 
 }

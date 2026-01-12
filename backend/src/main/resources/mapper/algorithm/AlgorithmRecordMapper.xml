@@ -1,185 +1,121 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ssafy.dash.algorithm.infrastructure.mapper.AlgorithmRecordMapper">
 
   <insert id="insert" parameterType="AlgorithmRecord" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO algorithm_records (
-      user_id, study_id, problem_number, title, code, language, platform, difficulty,
-      runtime_ms, memory_kb, repository_name, file_path, commit_sha, commit_message,
-      committed_at, created_at, updated_at, record_type, tag, defense_streak, elapsed_time_seconds
-    ) VALUES (
-      #{userId}, #{studyId}, #{problemNumber}, #{title}, #{code}, #{language}, #{platform}, #{difficulty},
-      #{runtimeMs}, #{memoryKb}, #{repositoryName}, #{filePath}, #{commitSha}, #{commitMessage},
-      #{committedAt}, #{createdAt}, #{updatedAt}, #{recordType}, #{tag}, #{defenseStreak}, #{elapsedTimeSeconds}
-    )
-  </insert>
+    INSERT INTO algorithm_records ( user_id, study_id, problem_number, title, code, language,
+    platform, difficulty, runtime_ms, memory_kb, repository_name, file_path, commit_sha,
+    commit_message, committed_at, created_at, updated_at, record_type, tag, defense_streak,
+    elapsed_time_seconds ) VALUES ( #{userId}, #{studyId}, #{problemNumber}, #{title}, #{code},
+    #{language}, #{platform}, #{difficulty}, #{runtimeMs}, #{memoryKb}, #{repositoryName},
+    #{filePath}, #{commitSha}, #{commitMessage}, #{committedAt}, #{createdAt}, #{updatedAt},
+    #{recordType}, #{tag}, #{defenseStreak}, #{elapsedTimeSeconds} ) </insert>
 
-  <select id="selectById" resultType="AlgorithmRecord" parameterType="long">
-    SELECT r.*, u.username,
-           car.score, car.time_complexity, car.space_complexity, car.complexity_explanation, 
-           car.patterns, car.algorithm_intuition, car.pitfalls, car.key_blocks, 
-           car.refactor_provided, car.refactor_code, car.refactor_explanation, car.full_response,
-           car.counter_example_input, car.counter_example_expected, car.counter_example_predicted, car.counter_example_reason
-    FROM algorithm_records r
-    LEFT JOIN users u ON r.user_id = u.id
-    LEFT JOIN code_analysis_results car ON r.id = car.algorithm_record_id
-    WHERE r.id = #{id}
-  </select>
+  <select id="selectById" resultType="AlgorithmRecord" parameterType="long"> SELECT r.*, u.username,
+    car.score, car.time_complexity, car.space_complexity, car.complexity_explanation, car.patterns,
+    car.algorithm_intuition, car.pitfalls, car.key_blocks, car.refactor_provided, car.refactor_code,
+    car.refactor_explanation, car.full_response, car.counter_example_input,
+    car.counter_example_expected, car.counter_example_predicted, car.counter_example_reason FROM
+    algorithm_records r LEFT JOIN users u ON r.user_id = u.id LEFT JOIN code_analysis_results car ON
+    r.id = car.algorithm_record_id WHERE r.id = #{id} </select>
 
-  <select id="selectAll" resultType="AlgorithmRecord">
-    SELECT r.*, r.tag, u.username,
-           car.score, car.time_complexity, car.space_complexity, car.complexity_explanation, 
-           car.patterns, car.algorithm_intuition, car.pitfalls, car.key_blocks, 
-           car.refactor_provided, car.refactor_code, car.refactor_explanation, car.full_response,
-           car.counter_example_input, car.counter_example_expected, car.counter_example_predicted, car.counter_example_reason
-    FROM algorithm_records r
-    LEFT JOIN users u ON r.user_id = u.id
-    LEFT JOIN code_analysis_results car ON r.id = car.algorithm_record_id
-    ORDER BY r.id DESC
-  </select>
+  <select id="selectAll" resultType="AlgorithmRecord"> SELECT r.*, r.tag, u.username, car.score,
+    car.time_complexity, car.space_complexity, car.complexity_explanation, car.patterns,
+    car.algorithm_intuition, car.pitfalls, car.key_blocks, car.refactor_provided, car.refactor_code,
+    car.refactor_explanation, car.full_response, car.counter_example_input,
+    car.counter_example_expected, car.counter_example_predicted, car.counter_example_reason FROM
+    algorithm_records r LEFT JOIN users u ON r.user_id = u.id LEFT JOIN code_analysis_results car ON
+    r.id = car.algorithm_record_id ORDER BY r.id DESC </select>
 
-  <select id="selectByUserId" resultType="AlgorithmRecord" parameterType="long">
-    SELECT r.*, u.username,
-           car.score, car.time_complexity, car.space_complexity, car.complexity_explanation, 
-           car.patterns, car.algorithm_intuition, car.pitfalls, car.key_blocks, 
-           car.refactor_provided, car.refactor_code, car.refactor_explanation, car.full_response,
-           car.counter_example_input, car.counter_example_expected, car.counter_example_predicted, car.counter_example_reason
-    FROM algorithm_records r
-    LEFT JOIN users u ON r.user_id = u.id
-    LEFT JOIN code_analysis_results car ON r.id = car.algorithm_record_id
-    WHERE r.user_id = #{userId} AND r.record_type = 'USER_SOLUTION'
-    ORDER BY r.id DESC
-  </select>
+  <select id="selectByUserId" resultType="AlgorithmRecord" parameterType="long"> SELECT r.*,
+    u.username, car.score, car.time_complexity, car.space_complexity, car.complexity_explanation,
+    car.patterns, car.algorithm_intuition, car.pitfalls, car.key_blocks, car.refactor_provided,
+    car.refactor_code, car.refactor_explanation, car.full_response, car.counter_example_input,
+    car.counter_example_expected, car.counter_example_predicted, car.counter_example_reason FROM
+    algorithm_records r LEFT JOIN users u ON r.user_id = u.id LEFT JOIN code_analysis_results car ON
+    r.id = car.algorithm_record_id WHERE r.user_id = #{userId} AND r.record_type = 'USER_SOLUTION'
+    ORDER BY r.id DESC </select>
 
-  <select id="selectByStudyId" resultType="AlgorithmRecord" parameterType="long">
-    SELECT r.*, u.username,
-           car.score, car.time_complexity, car.space_complexity, car.complexity_explanation, 
-           car.patterns, car.algorithm_intuition, car.pitfalls, car.key_blocks, 
-           car.refactor_provided, car.refactor_code, car.refactor_explanation, car.full_response,
-           car.counter_example_input, car.counter_example_expected, car.counter_example_predicted, car.counter_example_reason
-    FROM algorithm_records r
-    LEFT JOIN users u ON r.user_id = u.id
-    LEFT JOIN code_analysis_results car ON r.id = car.algorithm_record_id
-    WHERE r.study_id = #{studyId} AND r.record_type = 'USER_SOLUTION' 
-    ORDER BY r.id DESC
-  </select>
+  <select id="selectByStudyId" resultType="AlgorithmRecord" parameterType="long"> SELECT r.*,
+    u.username, car.score, car.time_complexity, car.space_complexity, car.complexity_explanation,
+    car.patterns, car.algorithm_intuition, car.pitfalls, car.key_blocks, car.refactor_provided,
+    car.refactor_code, car.refactor_explanation, car.full_response, car.counter_example_input,
+    car.counter_example_expected, car.counter_example_predicted, car.counter_example_reason FROM
+    algorithm_records r LEFT JOIN users u ON r.user_id = u.id LEFT JOIN code_analysis_results car ON
+    r.id = car.algorithm_record_id WHERE r.study_id = #{studyId} AND r.record_type = 'USER_SOLUTION'
+    ORDER BY r.id DESC </select>
 
-  <select id="selectFriendFeed" resultType="AlgorithmRecord">
-    SELECT r.*, u.username, u.avatar_url, u.solvedac_tier,
-           car.score, car.time_complexity, car.space_complexity, car.complexity_explanation,
-           car.patterns, car.algorithm_intuition, car.pitfalls, car.key_blocks,
-           car.refactor_provided, car.refactor_code, car.refactor_explanation, car.full_response,
-           car.counter_example_input, car.counter_example_expected, car.counter_example_predicted, car.counter_example_reason
-    FROM algorithm_records r
-    JOIN users u ON r.user_id = u.id
-    LEFT JOIN code_analysis_results car ON r.id = car.algorithm_record_id
-    WHERE r.user_id IN
-    <foreach item="userId" collection="userIds" open="(" separator="," close=")">
-      #{userId}
-    </foreach>
-    AND r.record_type = 'USER_SOLUTION'
-    ORDER BY r.created_at DESC
-    LIMIT #{size} OFFSET #{offset}
-  </select>
+  <select id="selectFriendFeed" resultType="AlgorithmRecord"> SELECT r.*, u.username, u.avatar_url,
+    u.solvedac_tier, car.score, car.time_complexity, car.space_complexity,
+    car.complexity_explanation, car.patterns, car.algorithm_intuition, car.pitfalls, car.key_blocks,
+    car.refactor_provided, car.refactor_code, car.refactor_explanation, car.full_response,
+    car.counter_example_input, car.counter_example_expected, car.counter_example_predicted,
+    car.counter_example_reason FROM algorithm_records r JOIN users u ON r.user_id = u.id LEFT JOIN
+    code_analysis_results car ON r.id = car.algorithm_record_id WHERE r.user_id IN <foreach
+      item="userId" collection="userIds" open="(" separator="," close=")"> #{userId} </foreach> AND
+    r.record_type = 'USER_SOLUTION' ORDER BY r.created_at DESC LIMIT #{size} OFFSET #{offset} </select>
 
-  <update id="update" parameterType="AlgorithmRecord">
-    UPDATE algorithm_records
-    SET problem_number = #{problemNumber}, title = #{title}, code = #{code}, language = #{language},
-        platform = #{platform}, difficulty = #{difficulty}, runtime_ms = #{runtimeMs}, memory_kb = #{memoryKb},
-        repository_name = #{repositoryName}, file_path = #{filePath}, commit_sha = #{commitSha},
-        commit_message = #{commitMessage}, committed_at = #{committedAt}, updated_at = #{updatedAt},
-        defense_streak = #{defenseStreak}, tag = #{tag}, elapsed_time_seconds = #{elapsedTimeSeconds}
-    WHERE id = #{id}
-  </update>
+  <update id="update" parameterType="AlgorithmRecord"> UPDATE algorithm_records SET problem_number =
+    #{problemNumber}, title = #{title}, code = #{code}, language = #{language}, platform =
+    #{platform}, difficulty = #{difficulty}, runtime_ms = #{runtimeMs}, memory_kb = #{memoryKb},
+    repository_name = #{repositoryName}, file_path = #{filePath}, commit_sha = #{commitSha},
+    commit_message = #{commitMessage}, committed_at = #{committedAt}, updated_at = #{updatedAt},
+    defense_streak = #{defenseStreak}, tag = #{tag}, elapsed_time_seconds = #{elapsedTimeSeconds}
+    WHERE id = #{id} </update>
 
-  <delete id="delete" parameterType="long">
-    DELETE FROM algorithm_records WHERE id = #{id}
-  </delete>
+  <delete id="delete" parameterType="long"> DELETE FROM algorithm_records WHERE id = #{id} </delete>
 
-  <select id="countsByStudyId" resultType="com.ssafy.dash.algorithm.domain.StudyStats" parameterType="long">
-    SELECT
-      COALESCE(SUM(CASE WHEN r.difficulty LIKE '%Bronze%' OR (r.difficulty REGEXP '^[1-5]$') THEN 1 ELSE 0 END), 0) as bronze,
-      COALESCE(SUM(CASE WHEN r.difficulty LIKE '%Silver%' OR (r.difficulty REGEXP '^([6-9]|10)$') THEN 1 ELSE 0 END), 0) as silver,
-      COALESCE(SUM(CASE WHEN r.difficulty LIKE '%Gold%' OR (r.difficulty REGEXP '^(1[1-5])$') THEN 1 ELSE 0 END), 0) as gold,
-      COALESCE(SUM(CASE WHEN r.difficulty LIKE '%Platinum%' OR (r.difficulty REGEXP '^(1[6-9]|20)$') THEN 1 ELSE 0 END), 0) as platinum
-    FROM algorithm_records r
-    INNER JOIN users u ON r.user_id = u.id
-    WHERE u.study_id = #{studyId} AND u.deleted_at IS NULL AND r.record_type = 'USER_SOLUTION'
-  </select>
+  <select id="countsByStudyId" resultType="com.ssafy.dash.algorithm.domain.StudyStats"
+    parameterType="long"> SELECT COALESCE(SUM(CASE WHEN r.difficulty LIKE '%Bronze%' OR
+    (r.difficulty REGEXP '^[1-5]$') THEN 1 ELSE 0 END), 0) as bronze, COALESCE(SUM(CASE WHEN
+    r.difficulty LIKE '%Silver%' OR (r.difficulty REGEXP '^([6-9]|10)$') THEN 1 ELSE 0 END), 0) as
+    silver, COALESCE(SUM(CASE WHEN r.difficulty LIKE '%Gold%' OR (r.difficulty REGEXP '^(1[1-5])$')
+    THEN 1 ELSE 0 END), 0) as gold, COALESCE(SUM(CASE WHEN r.difficulty LIKE '%Platinum%' OR
+    (r.difficulty REGEXP '^(1[6-9]|20)$') THEN 1 ELSE 0 END), 0) as platinum FROM algorithm_records
+    r INNER JOIN users u ON r.user_id = u.id WHERE u.study_id = #{studyId} AND u.deleted_at IS NULL
+    AND r.record_type = 'USER_SOLUTION' </select>
 
-  <select id="countSuccessfulSubmissionByUserIdAndProblemNumber" resultType="int">
-    SELECT COUNT(*)
-    FROM algorithm_records
-    WHERE user_id = #{userId} AND record_type = 'USER_SOLUTION'
-      AND problem_number = #{problemNumber}
-      AND runtime_ms IS NOT NULL
-      AND memory_kb IS NOT NULL
-  </select>
+  <select id="countSuccessfulSubmissionByUserIdAndProblemNumber" resultType="int"> SELECT COUNT(*)
+    FROM algorithm_records WHERE user_id = #{userId} AND record_type = 'USER_SOLUTION' AND
+    problem_number = #{problemNumber} AND runtime_ms IS NOT NULL AND memory_kb IS NOT NULL </select>
 
-  <select id="selectSolvedProblemNumbersByUserId" resultType="string" parameterType="long">
-    SELECT DISTINCT problem_number
-    FROM algorithm_records
-    WHERE user_id = #{userId}
-      AND (record_type = 'SOLVED_AC_SYNC' 
-           OR (runtime_ms IS NOT NULL AND memory_kb IS NOT NULL))
-  </select>
+  <select id="selectSolvedProblemNumbersByUserId" resultType="string" parameterType="long"> SELECT
+    DISTINCT problem_number FROM algorithm_records WHERE user_id = #{userId} AND (record_type =
+    'SOLVED_AC_SYNC' OR (runtime_ms IS NOT NULL AND memory_kb IS NOT NULL)) </select>
 
-  <select id="selectLatestSuccessfulByUserAndProblem" resultType="AlgorithmRecord">
-    SELECT *
-    FROM algorithm_records
-    WHERE user_id = #{userId}
-      AND problem_number = #{problemNumber}
-      AND runtime_ms IS NOT NULL
-      AND memory_kb IS NOT NULL
-    ORDER BY created_at DESC
-    LIMIT 1
-  </select>
+  <select id="selectLatestSuccessfulByUserAndProblem" resultType="AlgorithmRecord"> SELECT * FROM
+    algorithm_records WHERE user_id = #{userId} AND problem_number = #{problemNumber} AND runtime_ms
+    IS NOT NULL AND memory_kb IS NOT NULL ORDER BY created_at DESC LIMIT 1 </select>
 
-  <update id="migrateStudyId">
-    UPDATE algorithm_records
-    SET study_id = #{newStudyId}
-    WHERE study_id = #{oldStudyId}
-  </update>
+  <update id="migrateStudyId"> UPDATE algorithm_records SET study_id = #{newStudyId} WHERE study_id
+    = #{oldStudyId} </update>
 
-  <update id="migrateUserRecords">
-    UPDATE algorithm_records
-    SET study_id = #{newStudyId}
-    WHERE user_id = #{userId}
-  </update>
+  <update id="migrateUserRecords"> UPDATE algorithm_records SET study_id = #{newStudyId} WHERE
+    user_id = #{userId} </update>
 
-  <select id="selectHeatmapDataByStudyId" resultType="com.ssafy.dash.dashboard.application.dto.response.HeatmapRawData">
-    SELECT
-      DATE_FORMAT(r.committed_at, '%Y-%m-%d') as date,
-      u.id as userId,
-      u.username,
-      u.avatar_url as avatarUrl,
-      COUNT(*) as dailyCount
-    FROM algorithm_records r
-    JOIN users u ON r.user_id = u.id
-    WHERE r.study_id = #{studyId} AND r.record_type = 'USER_SOLUTION'
-    GROUP BY DATE_FORMAT(r.committed_at, '%Y-%m-%d'), u.id
-    ORDER BY date ASC
-  </select>
+  <select id="selectHeatmapDataByStudyId"
+    resultType="com.ssafy.dash.dashboard.application.dto.response.HeatmapRawData"> SELECT
+    DATE_FORMAT(r.committed_at, '%Y-%m-%d') as date, u.id as userId, u.username, u.avatar_url as
+    avatarUrl, COUNT(*) as dailyCount FROM algorithm_records r JOIN users u ON r.user_id = u.id
+    WHERE r.study_id = #{studyId} AND r.record_type = 'USER_SOLUTION' GROUP BY
+    DATE_FORMAT(r.committed_at, '%Y-%m-%d'), u.id ORDER BY date ASC </select>
 
-  <select id="selectHeatmapDataByUserId" resultType="com.ssafy.dash.dashboard.application.dto.response.HeatmapRawData">
-    SELECT
-      DATE_FORMAT(r.committed_at, '%Y-%m-%d') as date,
-      u.id as userId,
-      u.username,
-      u.avatar_url as avatarUrl,
-      COUNT(*) as dailyCount
-    FROM algorithm_records r
-    JOIN users u ON r.user_id = u.id
-    WHERE r.user_id = #{userId} AND r.record_type = 'USER_SOLUTION'
-    GROUP BY DATE_FORMAT(r.committed_at, '%Y-%m-%d'), u.id
-    ORDER BY date ASC
-  </select>
+  <select id="selectHeatmapDataByUserId"
+    resultType="com.ssafy.dash.dashboard.application.dto.response.HeatmapRawData"> SELECT
+    DATE_FORMAT(r.committed_at, '%Y-%m-%d') as date, u.id as userId, u.username, u.avatar_url as
+    avatarUrl, COUNT(*) as dailyCount FROM algorithm_records r JOIN users u ON r.user_id = u.id
+    WHERE r.user_id = #{userId} AND r.record_type = 'USER_SOLUTION' GROUP BY
+    DATE_FORMAT(r.committed_at, '%Y-%m-%d'), u.id ORDER BY date ASC </select>
 
-  <insert id="insertSolvedProblemIfNotExists">
-    INSERT IGNORE INTO algorithm_records 
-      (user_id, problem_number, title, difficulty, record_type, created_at, updated_at)
-    VALUES 
-      (#{userId}, #{problemNumber}, #{title}, #{level}, 'SOLVED_AC_SYNC', NOW(), NOW())
-  </insert>
+  <insert id="insertSolvedProblemIfNotExists"> INSERT IGNORE INTO algorithm_records (user_id,
+    problem_number, title, difficulty, record_type, created_at, updated_at) VALUES (#{userId},
+    #{problemNumber}, #{title}, #{level}, 'SOLVED_AC_SYNC', NOW(), NOW()) </insert>
+
+  <!-- 스터디의 활동 날짜 목록 조회 (streak 계산용) -->
+  <select id="selectActivityDatesByStudyId" resultType="string" parameterType="long"> SELECT
+    DISTINCT DATE_FORMAT(r.committed_at, '%Y-%m-%d') as activity_date FROM algorithm_records r JOIN
+    users u ON r.user_id = u.id WHERE u.study_id = #{studyId} AND u.deleted_at IS NULL AND
+    r.record_type = 'USER_SOLUTION' AND r.committed_at >= DATE_SUB(CURDATE(), INTERVAL 60 DAY) ORDER
+    BY activity_date DESC </select>
 
 </mapper>

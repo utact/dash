@@ -101,4 +101,9 @@ public class AlgorithmRecordRepositoryImpl implements AlgorithmRecordRepository 
     public List<AlgorithmRecord> findFeed(List<Long> userIds, int offset, int size) {
         return mapper.selectFriendFeed(userIds, offset, size);
     }
+
+    @Override
+    public List<String> findActivityDatesByStudyId(Long studyId) {
+        return mapper.selectActivityDatesByStudyId(studyId);
+    }
 }
