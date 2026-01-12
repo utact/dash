@@ -11,46 +11,51 @@ import com.ssafy.dash.algorithm.domain.StudyStats;
 @Mapper
 public interface AlgorithmRecordMapper {
 
-    void insert(AlgorithmRecord record);
+        void insert(AlgorithmRecord record);
 
-    AlgorithmRecord selectById(Long id);
+        AlgorithmRecord selectById(Long id);
 
-    List<AlgorithmRecord> selectAll();
+        List<AlgorithmRecord> selectAll();
 
-    List<AlgorithmRecord> selectByUserId(Long userId);
+        List<AlgorithmRecord> selectByUserId(Long userId);
 
-    List<AlgorithmRecord> selectByStudyId(Long studyId);
+        List<AlgorithmRecord> selectByStudyId(Long studyId);
 
-    void save(AlgorithmRecord record);
+        void save(AlgorithmRecord record);
 
-    void update(AlgorithmRecord record);
+        void update(AlgorithmRecord record);
 
-    StudyStats countsByStudyId(Long studyId);
+        StudyStats countsByStudyId(Long studyId);
 
-    int delete(Long id);
+        int delete(Long id);
 
-    int countSuccessfulSubmissionByUserIdAndProblemNumber(Long userId, String problemNumber);
+        int countSuccessfulSubmissionByUserIdAndProblemNumber(Long userId, String problemNumber);
 
-    List<String> selectSolvedProblemNumbersByUserId(Long userId);
+        List<String> selectSolvedProblemNumbersByUserId(Long userId);
 
-    AlgorithmRecord selectLatestSuccessfulByUserAndProblem(Long userId, String problemNumber);
+        AlgorithmRecord selectLatestSuccessfulByUserAndProblem(Long userId, String problemNumber);
 
-    void migrateStudyId(Long oldStudyId, Long newStudyId);
+        void migrateStudyId(Long oldStudyId, Long newStudyId);
 
-    void migrateUserRecords(Long userId, Long oldStudyId, Long newStudyId);
+        void migrateUserRecords(Long userId, Long oldStudyId, Long newStudyId);
 
-    List<com.ssafy.dash.dashboard.application.dto.response.HeatmapRawData> selectHeatmapDataByStudyId(Long studyId);
+        List<com.ssafy.dash.dashboard.application.dto.response.HeatmapRawData> selectHeatmapDataByStudyId(Long studyId);
 
-    List<com.ssafy.dash.dashboard.application.dto.response.HeatmapRawData> selectHeatmapDataByUserId(Long userId);
+        List<com.ssafy.dash.dashboard.application.dto.response.HeatmapRawData> selectHeatmapDataByUserId(Long userId);
 
-    List<AlgorithmRecord> selectFriendFeed(@Param("userIds") List<Long> userIds, @Param("offset") int offset,
-            @Param("size") int size);
+        List<AlgorithmRecord> selectFriendFeed(@Param("userIds") List<Long> userIds, @Param("offset") int offset,
+                        @Param("size") int size);
 
-    /**
-     * Solved.ac에서 동기화한 푼 문제 삽입 (중복 무시)
-     */
-    void insertSolvedProblemIfNotExists(@org.apache.ibatis.annotations.Param("userId") Long userId,
-            @org.apache.ibatis.annotations.Param("problemNumber") String problemNumber,
-            @org.apache.ibatis.annotations.Param("title") String title,
-            @org.apache.ibatis.annotations.Param("level") int level);
+        /**
+         * Solved.ac에서 동기화한 푼 문제 삽입 (중복 무시)
+         */
+        void insertSolvedProblemIfNotExists(@org.apache.ibatis.annotations.Param("userId") Long userId,
+                        @org.apache.ibatis.annotations.Param("problemNumber") String problemNumber,
+                        @org.apache.ibatis.annotations.Param("title") String title,
+                        @org.apache.ibatis.annotations.Param("level") int level);
+
+        /**
+         * 스터디의 활동 날짜 목록 조회 (streak 계산용) - 최근 60일
+         */
+        List<String> selectActivityDatesByStudyId(Long studyId);
 }

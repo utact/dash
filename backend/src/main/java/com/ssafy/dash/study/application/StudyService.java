@@ -39,18 +39,29 @@ public class StudyService {
                 ? studyRepository.searchByKeyword(keyword)
                 : studyRepository.findAll();
 
-        // 2. 로그인하지 않은 유저라면 전체 목록 반환
+        // 2. streak 유효성 판단 (O(1) - DB 쿼리 없음, 날짜 비교만)
+        java.time.LocalDate yesterday = java.time.LocalDate.now().minusDays(1);
+        for (Study study : studies) {
+            // streakUpdatedAt이 어제 이전이면 체인 끊김 → 0으로 표시
+            if (study.getStreakUpdatedAt() == null ||
+                    study.getStreakUpdatedAt().isBefore(yesterday)) {
+                study.setStreak(0);
+            }
+            // 그 외: DB에 저장된 streak 값 그대로 사용
+        }
+
+        // 3. 로그인하지 않은 유저라면 전체 목록 반환
         if (userId == null) {
             return studies;
         }
 
-        // 3. 유저 정보 조회
+        // 4. 유저 정보 조회
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             return studies;
         }
 
-        // 4. 본인 스터디 제외 로직 제거.
+        // 5. 본인 스터디 제외 로직 제거.
         // 리더보드/전체 목록에 "내 스터디"가 표시되어야 합니다.
         // "추천 스터디"에서의 제외는 프론트엔드에서 처리합니다.
 
@@ -474,6 +485,41 @@ public class StudyService {
             // 일반 멤버 -> 탈퇴 (Personal 스터디로 이동)
             leaveStudy(user.getId());
         }
+    }
+
+    /**
+     * 문제 풀이 시 스터디 streak 갱신 (O(1) 연산)
+     * - 이미 오늘 갱신됨: 스킵
+     * - 어제 활동 있음: streak + 1 (연속)
+     * - 그 외: streak = 1 (새로 시작)
+     */
+    @Transactional
+    public void updateStreakOnSolve(Long studyId) {
+        if (studyId == null)
+            return;
+
+        Study study = studyRepository.findById(studyId).orElse(null);
+        if (study == null)
+            return;
+
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalDate yesterday = today.minusDays(1);
+
+        // 이미 오늘 갱신됨 → 스킵
+        if (today.equals(study.getStreakUpdatedAt())) {
+            return;
+        }
+
+        // 어제 활동 있음 → 연속
+        if (yesterday.equals(study.getStreakUpdatedAt())) {
+            study.setStreak((study.getStreak() != null ? study.getStreak() : 0) + 1);
+        } else {
+            // 체인 끊김 또는 첫 활동 → 새로 시작
+            study.setStreak(1);
+        }
+
+        study.setStreakUpdatedAt(today);
+        studyRepository.update(study);
     }
 
 }

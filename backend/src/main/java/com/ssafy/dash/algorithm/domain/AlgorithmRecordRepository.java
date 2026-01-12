@@ -37,4 +37,6 @@ public interface AlgorithmRecordRepository {
     List<com.ssafy.dash.dashboard.application.dto.response.HeatmapRawData> findHeatmapDataByUserId(Long userId);
 
     List<AlgorithmRecord> findFeed(List<Long> userIds, int offset, int size);
+
+    List<String> findActivityDatesByStudyId(Long studyId);
 }
