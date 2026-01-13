@@ -24,7 +24,7 @@
         <!-- SOLVED -->
         <div v-if="item.type === 'SOLVED'">
             <p class="text-slate-600">
-                <a :href="`https://www.acmicpc.net/problem/${item.problemId}`" target="_blank" class="font-bold text-slate-800 hover:text-brand-600 hover:underline transition-colors">#{{ item.problemId }} {{ item.problemTitle }}</a> 문제를 풀었어요! 🎉
+                <a :href="getProblemLink(item.problemId, item.platform)" target="_blank" class="font-bold text-slate-800 hover:text-brand-600 hover:underline transition-colors">#{{ item.problemId }} {{ item.problemTitle }}</a> 문제를 풀었어요! 🎉
             </p>
         </div>
 
@@ -136,5 +136,15 @@ const formatTimeAgo = (dateStr) => {
     const days = Math.floor(hours / 24);
     if (days < 7) return `${days}일 전`;
     return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+};
+
+const getProblemLink = (problemId, platform) => {
+    const p = platform?.toLowerCase();
+    if (p === 'swea') {
+        // SWEA는 고유 ID가 필요하므로 검색 페이지로 연결
+        return `https://swexpertacademy.com/main/searchAll/searchMore.do?category=CODE&pageIndex=1&keyword=${problemId}`;
+    }
+    // 기본: 백준
+    return `https://www.acmicpc.net/problem/${problemId}`;
 };
 </script>
