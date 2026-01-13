@@ -43,7 +43,7 @@ public class AiLearningPathService {
 
         /**
          * AI 개인화 학습 경로 생성 (대시보드용 종합 데이터 반환)
-         * 하루에 한 번만 새로 생성하고, 이후에는 캐시된 데이터를 반환합니다.
+         * Stale-While-Revalidate 패턴: 캐시 만료 시에도 기존 캐시를 즉시 반환하고 백그라운드에서 갱신합니다.
          */
         public LearningDashboardResponse generateAiLearningPath(Long userId) {
                 log.info("Generating AI learning path for user: {}", userId);
@@ -52,58 +52,76 @@ public class AiLearningPathService {
                 LearningPathCache cache = cacheMapper.findByUserId(userId);
                 LocalDate today = LocalDate.now();
 
-                if (cache != null && cache.getGeneratedAt().equals(today)) {
-                        log.info("Returning cached learning path for user: {} (generated at: {})", userId,
-                                        cache.getGeneratedAt());
+                // 2. 캐시가 존재하면 일단 반환 (Stale-While-Revalidate)
+                if (cache != null) {
+                        boolean isStale = !cache.getGeneratedAt().equals(today);
+
+                        if (isStale) {
+                                // 날짜가 지났으면 백그라운드에서 갱신 시작
+                                log.info("Cache is stale for user: {}, triggering async refresh", userId);
+                                refreshCacheAsync(userId);
+                        } else {
+                                log.info("Returning fresh cached learning path for user: {}", userId);
+                        }
+
+                        // 기존 캐시 즉시 반환 (stale이든 fresh든)
                         try {
                                 LearningDashboardResponse response = objectMapper.readValue(cache.getAnalysisJson(),
                                                 LearningDashboardResponse.class);
 
-                                // 1-1. Patch missing Daily Challenge (for backward compatibility)
+                                // Patch missing Daily Challenge (for backward compatibility)
                                 if (response.getDailyChallenge() == null && response.getClassStats() != null) {
                                         LearningDashboardResponse.DailyChallenge challenge = determineDailyChallengeFromDto(
                                                         response.getClassStats());
                                         response.setDailyChallenge(challenge);
-
-                                        // Update cache with patched data
-                                        String updatedJson = objectMapper.writeValueAsString(response);
-                                        cacheMapper.update(userId, updatedJson, today);
                                 }
 
-                                // 4. Force Korean Names (Display Name) - Apply to cache as well
+                                // Force Korean Names (Display Name)
                                 translateTagsToKorean(response);
 
                                 return response;
                         } catch (Exception e) {
-                                log.warn("Failed to parse or patch cached data, regenerating: {}", e.getMessage());
+                                log.warn("Failed to parse cached data, regenerating synchronously: {}", e.getMessage());
                         }
                 }
 
-                // 2. Generate fresh analysis
+                // 3. 캐시가 없으면 동기적으로 생성 (첫 방문 사용자)
+                log.info("No cache found for user: {}, generating fresh analysis", userId);
                 LearningDashboardResponse response = generateFreshAnalysis(userId);
 
-                // 3. Save/Update cache
+                // 4. Save new cache
                 try {
                         String json = objectMapper.writeValueAsString(response);
-                        if (cache == null) {
-                                cacheMapper.save(LearningPathCache.builder()
-                                                .userId(userId)
-                                                .analysisJson(json)
-                                                .generatedAt(today)
-                                                .build());
-                                log.info("Created new learning path cache for user: {}", userId);
-                        } else {
-                                cacheMapper.update(userId, json, today);
-                                log.info("Updated learning path cache for user: {}", userId);
-                        }
+                        cacheMapper.save(LearningPathCache.builder()
+                                        .userId(userId)
+                                        .analysisJson(json)
+                                        .generatedAt(today)
+                                        .build());
+                        log.info("Created new learning path cache for user: {}", userId);
                 } catch (Exception e) {
                         log.error("Failed to save cache: {}", e.getMessage());
                 }
 
-                // 4. Force Korean Names (Display Name)
+                // 5. Force Korean Names (Display Name)
                 translateTagsToKorean(response);
 
                 return response;
+        }
+
+        /**
+         * 비동기로 캐시를 갱신합니다 (Stale-While-Revalidate)
+         */
+        @org.springframework.scheduling.annotation.Async
+        public void refreshCacheAsync(Long userId) {
+                log.info("Async cache refresh started for user: {}", userId);
+                try {
+                        LearningDashboardResponse response = generateFreshAnalysis(userId);
+                        String json = objectMapper.writeValueAsString(response);
+                        cacheMapper.update(userId, json, LocalDate.now());
+                        log.info("Async cache refresh completed for user: {}", userId);
+                } catch (Exception e) {
+                        log.error("Async cache refresh failed for user: {}: {}", userId, e.getMessage());
+                }
         }
 
         private void translateTagsToKorean(LearningDashboardResponse response) {

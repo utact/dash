@@ -1,6 +1,6 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col">
       
       <!-- 헤더 -->
       <div class="bg-gradient-to-r from-brand-600 to-brand-500 p-8 text-white relative overflow-hidden">
@@ -23,7 +23,7 @@
          <span class="text-brand-800 font-bold text-sm">✨ 새로운 주차 미션을 생성합니다</span>
       </div>
       
-      <div class="p-6 space-y-5">
+      <div class="p-6 space-y-5 flex-1 overflow-y-auto">
         <!-- 모드별 UI -->
         <template v-if="creationMode === 'NEW' || creationMode === 'EDIT'">
             <!-- 주차 및 제목 Row -->

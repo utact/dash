@@ -828,9 +828,12 @@ const filteredRecords = computed(() => {
         result = result.filter(r => r.tag === selectedFilter.value);
     }
     
-    // 3. 성공만 보기
+    // 3. 성공만 보기 (isPassed 로직과 일관성 유지)
     if (showSuccessOnly.value) {
-        result = result.filter(r => ['SUCCESS', 'PASSED'].includes(r.result));
+        result = result.filter(r => 
+            r.result === 'SUCCESS' || r.result === 'PASSED' || 
+            (r.runtimeMs !== null && r.runtimeMs !== undefined && r.runtimeMs !== -1)
+        );
     }
     
     return result;
@@ -937,7 +940,7 @@ const isProblemSolvedRaw = (problemId) => {
     return records.value.some(r => 
         r.problemNumber == problemId && 
         r.userId === user.value?.id &&
-        (r.result === 'SUCCESS' || r.result === 'PASSED' || (r.runtimeMs !== undefined && r.runtimeMs !== -1))
+        (r.result === 'SUCCESS' || r.result === 'PASSED' || (r.runtimeMs !== null && r.runtimeMs !== undefined && r.runtimeMs !== -1))
     );
 };
 

@@ -23,7 +23,7 @@
             <Users class="w-5 h-5 text-slate-400" stroke-width="2" /> 멤버별 정보
         </h3>
         <div class="space-y-2">
-          <div v-for="(member, idx) in analysis.memberStats.slice(0, 5)" :key="'legend-' + idx"
+          <div v-for="(member, idx) in analysis.memberStats" :key="'legend-' + idx"
                class="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-xl transition-colors">
             <!-- 범례 색상 점 -->
             <div class="w-3.5 h-3.5 rounded-full ring-2 ring-white shadow-sm flex-shrink-0" :style="{ backgroundColor: memberColors[idx % memberColors.length] }"></div>
