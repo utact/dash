@@ -139,12 +139,25 @@
                   'bg-gradient-to-br from-amber-50/50 to-white border-amber-200/60': idx === 2
                 }"
               >
-                <div class="flex items-center gap-2 mb-2">
-                  <span v-if="post.problemNumber" class="px-2.5 py-1 bg-white/80 backdrop-blur-sm border border-orange-200 text-orange-700 text-xs font-bold rounded-lg shadow-sm">P{{ post.problemNumber }}</span>
-                  <span v-else class="px-2.5 py-1 bg-white/80 backdrop-blur-sm border border-slate-200 text-slate-500 text-xs font-bold rounded-lg shadow-sm">자유</span>
-                  <div class="flex items-center gap-1.5 ml-auto">
-                    <div class="w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center text-white shadow-sm shadow-rose-200">
-                       <ThumbsUp :size="11" stroke-width="3" />
+                <div class="flex items-center gap-3">
+                  <!-- 순위 뱃지 -->
+                  <div class="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg font-black text-xs shadow-sm"
+                       :class="{
+                         'bg-orange-100 text-orange-600': idx === 0,
+                         'bg-slate-100 text-slate-500': idx === 1,
+                         'bg-amber-100 text-amber-600': idx === 2
+                       }">
+                    {{ idx + 1 }}
+                  </div>
+                  
+                  <!-- 콘텐츠 -->
+                  <div class="flex-1 min-w-0">
+                    <h3 class="font-bold text-slate-800 text-sm truncate group-hover:text-orange-600 transition-colors">
+                      {{ post.title }}
+                    </h3>
+                    <div class="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                      <span v-if="post.problemNumber" class="text-blue-600 font-bold">P{{ post.problemNumber }}</span>
+                      <span class="truncate">{{ post.authorName }}</span>
                     </div>
                   </div>
                   
