@@ -248,8 +248,19 @@ const keyBlocksByLine = computed(() => {
         else if (block.code) {
            const lines = codeLines.value;
            const targetCode = block.code.trim();
+           
+           // Escape special regex characters
+           const escaped = targetCode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+           
+           // Add word boundaries if valid identifier characters are at edges
+           const startBoundary = /^\w/.test(targetCode) ? '\\b' : '';
+           const endBoundary = /\w$/.test(targetCode) ? '\\b' : '';
+           
+           // Create regex pattern
+           const pattern = new RegExp(`${startBoundary}${escaped}${endBoundary}`);
+
            for(let i=0; i<lines.length; i++) {
-               if(lines[i].includes(targetCode)) {
+               if(pattern.test(lines[i])) {
                    if (!map[i+1]) map[i+1] = [];
                    map[i+1].push({...block, startLine: i+1});
                }
