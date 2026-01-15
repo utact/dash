@@ -16,6 +16,7 @@
                             :nickname="partnerName" 
                             :decorationClass="partnerDecoration"
                             :enable-decoration="true"
+                            :is-deleted="partnerIsDeleted"
                             class="text-base"
                         />
                         <p class="text-xs text-brand-500 font-bold">Online</p>
@@ -57,7 +58,11 @@
             
             <!-- Input Area -->
             <div class="p-4 bg-white border-t border-slate-100 shrink-0">
-                <form @submit.prevent="sendMessage" class="flex items-center gap-2">
+                <div v-if="partnerIsDeleted" class="flex items-center justify-center py-3 bg-slate-50 rounded-xl text-slate-500 font-medium text-sm gap-2">
+                     <AlertCircle :size="18" />
+                     상대방이 탈퇴하여 대화를 보낼 수 없습니다.
+                </div>
+                <form v-else @submit.prevent="sendMessage" class="flex items-center gap-2">
                     <input 
                         v-model="newMessage" 
                         type="text" 
@@ -82,14 +87,15 @@
 <script setup>
 import { ref, onMounted, nextTick, onBeforeUnmount } from 'vue';
 import { socialApi } from '@/api/social';
-import { X, Send, Loader2 } from 'lucide-vue-next';
+import { X, Send, Loader2, AlertCircle } from 'lucide-vue-next';
 import NicknameRenderer from '@/components/common/NicknameRenderer.vue';
 
 const props = defineProps({
     partnerId: Number,
     partnerName: String,
     partnerAvatar: String,
-    partnerDecoration: String
+    partnerDecoration: String,
+    partnerIsDeleted: Boolean
 });
 
 const emit = defineEmits(['close']);

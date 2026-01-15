@@ -200,7 +200,7 @@ public class SocialService {
         List<Long> partnerIds = directMessageRepository.findRecentChatPartners(userId);
 
         return partnerIds.stream().map(partnerId -> {
-            User partner = userRepository.findById(partnerId).orElse(null);
+            User partner = userRepository.findByIdIncludingDeleted(partnerId).orElse(null);
             if (partner == null)
                 return null;
 
@@ -219,7 +219,8 @@ public class SocialService {
                     partner.getEquippedDecorationClass(),
                     lastMessagePreview,
                     lastMessage != null ? lastMessage.getCreatedAt() : null,
-                    unreadCount);
+                    unreadCount,
+                    partner.isDeleted());
         }).filter(java.util.Objects::nonNull).collect(Collectors.toList());
     }
 
