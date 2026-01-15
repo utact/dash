@@ -65,6 +65,7 @@
                                         :decorationClass="conv.partnerDecoration"
                                         :enable-decoration="true"
                                         :show-text="false"
+                                        :is-deleted="conv.isPartnerDeleted"
                                         avatar-class="w-12 h-12 rounded-full object-cover border border-slate-100"
                                     />
                                     <div v-if="conv.isGroup" class="absolute -bottom-1 -right-1 bg-indigo-500 text-white rounded-full p-0.5 border-2 border-white">
@@ -79,6 +80,7 @@
                                                 :decorationClass="conv.partnerDecoration"
                                                 :enable-decoration="true"
                                                 :show-avatar="false"
+                                                :is-deleted="conv.isPartnerDeleted"
                                                 text-class="font-bold text-slate-800 text-sm truncate"
                                             />
                                             <span v-if="conv.isGroup" class="text-xs font-normal text-slate-500 shrink-0">({{ conv.memberCount }})</span>
@@ -134,6 +136,8 @@
                                         :decorationClass="activeChat?.partnerDecoration"
                                         :enable-decoration="true"
                                         :show-text="false"
+                                        :is-deleted="isPartnerDeleted"
+                                        class="shrink-0"
                                         avatar-class="w-8 h-8 rounded-full self-start border border-slate-100"
                                     />
                                     
@@ -152,17 +156,16 @@
                             </div>
                         </template>
 
-                        <div v-if="isPartnerDeleted" class="flex justify-center my-4">
-                            <div class="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-lg opacity-70">
-                                <AlertCircle :size="14" class="text-slate-500" />
-                                <span class="text-xs text-slate-500">상대방이 탈퇴하여 대화를 보낼 수 없습니다.</span>
-                            </div>
-                        </div>
+
                     </div>
 
                     <!-- 입력창 -->
                     <div class="p-3 bg-white border-t border-slate-100 shrink-0">
-                        <form @submit.prevent="sendMessage" class="relative flex items-end gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 focus-within:border-brand-300 focus-within:ring-2 focus-within:ring-brand-100 transition-all">
+                        <div v-if="isPartnerDeleted" class="flex items-center justify-center py-3 bg-slate-50 rounded-xl text-slate-500 font-medium text-xs gap-2">
+                            <AlertCircle :size="14" />
+                            상대방이 탈퇴하여 대화를 보낼 수 없습니다.
+                        </div>
+                        <form v-else @submit.prevent="sendMessage" class="relative flex items-end gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 focus-within:border-brand-300 focus-within:ring-2 focus-within:ring-brand-100 transition-all">
                             <textarea 
                                 ref="dmInputRef"
                                 v-model="newMessage"
@@ -170,11 +173,11 @@
                                 placeholder="메시지를 입력하세요..." 
                                 class="flex-1 bg-transparent border-none focus:ring-0 text-sm p-1 max-h-20 resize-none placeholder:text-slate-400"
                                 rows="1"
-                                :disabled="sending || isPartnerDeleted"
+                                :disabled="sending"
                             ></textarea>
                             <button 
                                 type="submit" 
-                                :disabled="!newMessage.trim() || sending || isPartnerDeleted"
+                                :disabled="!newMessage.trim() || sending"
                                 class="p-2 bg-brand-500 hover:bg-brand-600 active:scale-95 disabled:opacity-50 disabled:active:scale-100 text-white rounded-lg transition-all"
                             >
                                 <Send :size="16" />
@@ -208,6 +211,7 @@
                                     :decorationClass="msg.senderDecoration"
                                     :enable-decoration="true"
                                     :show-text="false"
+                                    class="shrink-0"
                                     avatar-class="w-8 h-8 rounded-full self-start border border-slate-100" 
                                 />
                                 
@@ -416,8 +420,10 @@ const allConversations = computed(() => {
         partnerAvatar: c.partnerAvatar,
         partnerDecoration: c.partnerDecorationClass,
         lastMessagePreview: c.lastMessagePreview,
+        lastMessagePreview: c.lastMessagePreview,
         lastMessageTime: c.lastMessageTime,
-        unreadCount: c.unreadCount || 0
+        unreadCount: c.unreadCount || 0,
+        isPartnerDeleted: c.isPartnerDeleted
     }));
 
     const groupList = groupRooms.value.map(r => ({

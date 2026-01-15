@@ -48,50 +48,53 @@
                     나의 프로필입니다
                 </div>
 
-                <!-- Case: Deleted User -->
-                <div v-else-if="targetUserInfo.isDeleted" class="p-3 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl text-sm font-bold flex items-center justify-center gap-2">
-                    <AlertCircle :size="16"/> 탈퇴한 회원입니다
-                </div>
-
-                <!-- Case: Friend -->
-                <template v-else-if="friendshipStatus === 'ACCEPTED'">
-                    <button 
-                        @click="openDM" 
-                        class="w-full py-3 bg-brand-500 text-white rounded-xl text-sm font-bold hover:bg-brand-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-500/20"
-                    >
-                        <MessageCircle :size="18"/> 쪽지 보내기
-                    </button>
-                    <div class="flex items-center justify-between mt-2">
-                        <div class="text-xs text-brand-600 font-bold flex items-center gap-1">
-                            <Users :size="14"/> 서로 친구입니다
-                        </div>
-                        <button 
-                            @click="handleDeleteFriend" 
-                            class="text-xs text-slate-400 hover:text-rose-500 font-bold flex items-center gap-1 transition-colors"
-                        >
-                            <UserMinus :size="14"/> 친구 끊기
-                        </button>
+                <template v-else>
+                    <!-- Case: Deleted User Warning -->
+                    <div v-if="targetUserInfo.isDeleted" class="p-3 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl text-sm font-bold flex items-center justify-center gap-2 mb-3">
+                        <AlertCircle :size="16"/> 탈퇴한 회원입니다
                     </div>
+
+                    <!-- Case: Friend (Visible even if deleted) -->
+                    <template v-if="friendshipStatus === 'ACCEPTED'">
+                        <button 
+                            @click="openDM" 
+                            class="w-full py-3 bg-brand-500 text-white rounded-xl text-sm font-bold hover:bg-brand-600 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-500/20"
+                        >
+                            <MessageCircle :size="18"/> 쪽지 보내기
+                        </button>
+                        <div class="flex items-center justify-between mt-2">
+                            <div class="text-xs text-brand-600 font-bold flex items-center gap-1">
+                                <Users :size="14"/> 서로 친구입니다
+                            </div>
+                            <button 
+                                @click="handleDeleteFriend" 
+                                class="text-xs text-slate-400 hover:text-rose-500 font-bold flex items-center gap-1 transition-colors"
+                            >
+                                <UserMinus :size="14"/> 친구 끊기
+                            </button>
+                        </div>
+                    </template>
+
+                    <!-- Case: Pending / Not Friend (Only if NOT deleted) -->
+                    <template v-else-if="!targetUserInfo.isDeleted">
+                        <button 
+                            v-if="friendshipStatus === 'PENDING' || requested"
+                            disabled
+                            class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl text-sm font-bold cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                            <CheckCircle2 :size="18"/> 친구 요청 보냄
+                        </button>
+
+                        <button 
+                            v-else
+                            @click="sendFriendRequest"
+                            class="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10"
+                        >
+                            <UserPlus :size="18"/> 친구 신청
+                        </button>
+                    </template>
                 </template>
-
-                <!-- Case: Pending / Strings attached -->
-                <button 
-                        v-else-if="friendshipStatus === 'PENDING' || requested"
-                        disabled
-                        class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl text-sm font-bold cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                        <CheckCircle2 :size="18"/> 친구 요청 보냄
-                    </button>
-
-                    <!-- Case: Not Friend -->
-                    <button 
-                        v-else
-                        @click="sendFriendRequest"
-                        class="w-full py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-slate-900/10"
-                    >
-                        <UserPlus :size="18"/> 친구 신청
-                    </button>
-                </div>
+            </div>
 
             </div>
         </div>

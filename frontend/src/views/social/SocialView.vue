@@ -155,11 +155,19 @@
                                             @click="openUserProfile(item.friend)"
                                         >
                                             <div class="flex items-center gap-2.5 min-w-0">
-                                                <img :src="getAvatar(item.friend?.avatarUrl)" class="w-8 h-8 rounded-full border border-slate-200"/>
+                                                <NicknameRenderer 
+                                                    :username="item.friend?.username"
+                                                    :nickname="item.friend?.nickname"
+                                                    :avatar-url="item.friend?.avatarUrl"
+                                                    :decorationClass="item.friend?.equippedDecorationClass"
+                                                    :enable-decoration="true"
+                                                    :is-deleted="item.friend?.isDeleted"
+                                                    avatar-class="w-8 h-8"
+                                                    text-class="text-sm font-bold text-slate-700 truncate"
+                                                />
                                                 <div class="min-w-0">
                                                     <div class="flex items-center gap-1">
-                                                        <span class="text-sm font-bold text-slate-700 truncate" :class="item.friend?.equippedDecorationClass">{{ item.friend?.username || '알 수 없음' }}</span>
-                                                        <TierBadge v-if="item.friend?.solvedacTier" :tier="item.friend.solvedacTier" size="xs" :show-roman="false" />
+                                                        <TierBadge v-if="item.friend?.solvedacTier && !item.friend?.isDeleted" :tier="item.friend.solvedacTier" size="xs" :show-roman="false" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -190,6 +198,7 @@ import TierBadge from '@/components/common/TierBadge.vue';
 import FeedItem from '@/components/social/FeedItem.vue';
 import { useFloatingChat } from '@/composables/useFloatingChat';
 import { useUserProfileModal } from '@/composables/useUserProfileModal';
+import NicknameRenderer from '@/components/common/NicknameRenderer.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -320,7 +329,6 @@ const rejectRequest = async (requestId) => {
 // 액션
 const openDM = (friend) => {
     if (!friend) return; // null/undefined 체크
-    if (friend.isDeleted) return; // 탈퇴 회원 클릭 방지
     openGlobalDM({
         partnerId: friend.id,
         partnerName: friend.username,
