@@ -291,9 +291,11 @@ public class SocialService {
                             user.getId(),
                             user.getUsername(),
                             user.getAvatarUrl(),
+                            user.getEquippedDecorationClass(),
                             user.getSolvedacTier(),
                             Long.parseLong(record.getProblemNumber()),
                             record.getTitle(),
+                            record.getPlatform(),
                             record.getCreatedAt());
                 })
                 .collect(Collectors.toList());

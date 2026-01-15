@@ -87,7 +87,7 @@
                                                 <img :src="getAvatar(user.avatarUrl)" class="w-8 h-8 rounded-full border border-slate-200"/>
                                                 <div class="min-w-0">
                                                     <div class="flex items-center gap-1">
-                                                        <span class="text-sm font-bold text-slate-700 truncate">{{ user.username }}</span>
+                                                        <span class="text-sm font-bold text-slate-700 truncate" :class="user.equippedDecorationClass">{{ user.username }}</span>
                                                         <TierBadge v-if="user.solvedacTier" :tier="user.solvedacTier" size="xs" :show-roman="false" />
                                                     </div>
                                                 </div>

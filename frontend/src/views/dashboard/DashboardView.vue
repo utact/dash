@@ -201,6 +201,7 @@
 
                                         <!-- 렌더러 -->
                                         <NicknameRenderer 
+                                            :show-text="false"
                                             :username="member.username"
                                             :avatar-url="getMemberProfileImage(member)"
                                             :class="[
@@ -543,7 +544,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { dashboardApi } from '@/api/dashboard';
 import { studyApi } from '@/api/study';
@@ -816,10 +817,16 @@ const formatSelectedDate = computed(() => {
 const filteredRecords = computed(() => {
     let result = records.value;
     
-    // 1. 날짜 필터링
-    const selectedDateStr = selectedDate.value.toISOString().split('T')[0];
+    // 로컬 타임존 기준 날짜 추출 헬퍼
+    const toLocalDateStr = (d) => {
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    };
+    
+    // 1. 날짜 필터링 (로컬 타임존 기준)
+    const selectedDateStr = toLocalDateStr(selectedDate.value);
     result = result.filter(r => {
-        const recordDate = new Date(r.committedAt || r.createdAt).toISOString().split('T')[0];
+        if (!r.createdAt) return false;
+        const recordDate = toLocalDateStr(new Date(r.createdAt));
         return recordDate === selectedDateStr;
     });
     
@@ -868,7 +875,7 @@ const groupedRecords = computed(() => {
     // 시간순 정렬 (최신순)
     return Array.from(groups.values()).map(g => ({
         ...g,
-        records: g.records.sort((a, b) => new Date(b.committedAt || b.createdAt) - new Date(a.committedAt || a.createdAt))
+        records: g.records.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     }));
 });
 
@@ -1009,7 +1016,8 @@ const processHeatmap = (data) => {
         let currentWeek = [];
 
         for (let i = 0; i < 52 * 7; i++) {
-             const dateStr = current.toISOString().split('T')[0];
+             // 로컬 타임존 기준 날짜 문자열 생성
+             const dateStr = `${current.getFullYear()}-${String(current.getMonth()+1).padStart(2,'0')}-${String(current.getDate()).padStart(2,'0')}`;
              const activity = activityMap.get(dateStr);
              
              // --- 참여 로직 시작 ---
@@ -1216,6 +1224,18 @@ onMounted(async () => {
   } finally {
       loading.value = false;
   }
+});
+
+// 페이지 포커스 시 스터디 데이터 새로고침 (스트릭 위젯 갱신)
+const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible' && currentStudyId.value) {
+        fetchStudyData();
+    }
+};
+document.addEventListener('visibilitychange', handleVisibilityChange);
+
+onUnmounted(() => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
 });
 
 const getProblemLink = (problemId) => `https://www.acmicpc.net/problem/${problemId}`;
