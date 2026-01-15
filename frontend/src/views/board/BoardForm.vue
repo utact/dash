@@ -214,7 +214,7 @@ const getExtension = (lang) => {
 
 // 게시판 유형 변경 감지하여 스터디 기록 로드
 watch(() => form.value.boardType, async (newType) => {
-    if (newType === 'CODE_REVIEW' && user.value?.studyId) {
+    if (newType === 'CODE_REVIEW') {
         await loadStudyRecords();
     }
 });
