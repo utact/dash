@@ -59,6 +59,12 @@
           </p>
       </div>
 
+      <div v-if="isOnboarding" class="flex justify-end -mt-4 mb-8 pr-2">
+          <button @click="handleCreatePersonalStudy" class="text-xs text-slate-500 hover:text-brand-600 underline underline-offset-4 flex items-center gap-1 transition-colors">
+              일단 혼자 시작할래요 <ArrowRight :size="12" />
+          </button>
+      </div>
+
       <!-- 검색창 제외 나머지 영역에 스크롤 적용 -->
       <div :class="{ 'flex-1 min-h-0 overflow-y-auto custom-scrollbar px-1 -mx-1 pb-2': isOnboarding }">
       <!-- 추천 스터디 섹션 -->
