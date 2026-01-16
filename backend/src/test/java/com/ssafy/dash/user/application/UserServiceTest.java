@@ -109,18 +109,25 @@ class UserServiceTest {
     @Test
     @DisplayName("유저 삭제에 성공하면 예외 없이 끝난다")
     void deleteUser() {
+        // given
+        User user = TestFixtures.createUser();
+        given(userRepository.findById(TestFixtures.TEST_USER_ID)).willReturn(Optional.of(user));
         given(userRepository.delete(TestFixtures.TEST_USER_ID)).willReturn(true);
 
+        // when
         userService.delete(TestFixtures.TEST_USER_ID);
 
+        // then
         verify(userRepository).delete(TestFixtures.TEST_USER_ID);
     }
 
     @Test
     @DisplayName("삭제 대상이 없으면 UserNotFoundException이 발생한다")
     void deleteUserThrowsWhenMissing() {
-        given(userRepository.delete(TestFixtures.TEST_USER_ID)).willReturn(false);
+        // given
+        given(userRepository.findById(TestFixtures.TEST_USER_ID)).willReturn(Optional.empty());
 
+        // when & then
         assertThatThrownBy(() -> userService.delete(TestFixtures.TEST_USER_ID))
                 .isInstanceOf(UserNotFoundException.class);
     }
