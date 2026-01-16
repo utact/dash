@@ -130,7 +130,7 @@
                 </div>
     
                 <!-- 통계 정보 -->
-                <div class="flex flex-wrap items-center py-3 mb-6 relative z-10 gap-2">
+                <div class="flex flex-wrap items-center py-3 mb-6 relative z-30 gap-2">
                    <!-- Tier -->
                    <div class="flex-1 min-w-[100px] flex items-center justify-center gap-2 px-3 py-2 rounded-xl cursor-default relative group/tier hover:bg-slate-50 transition-colors">
                       <img :src="`https://static.solved.ac/tier_small/${Math.round(study.averageTier || 0)}.svg`" class="w-6 h-6 object-contain" alt="Tier" />
@@ -293,7 +293,7 @@
             </div>
 
             <!-- 통계 정보 (Horizontal Divided Layout) -->
-            <div class="flex flex-wrap items-center py-3 mb-6 relative z-10 gap-2">
+            <div class="flex flex-wrap items-center py-3 mb-6 relative z-30 gap-2">
                
                <!-- Tier (Solved.ac Icon) -->
                <div class="flex-1 min-w-[100px] flex items-center justify-center gap-2 px-3 py-2 rounded-xl cursor-default relative group/tier hover:bg-slate-50 transition-colors">
