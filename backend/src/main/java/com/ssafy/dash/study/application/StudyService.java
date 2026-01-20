@@ -50,6 +50,26 @@ public class StudyService {
             // 그 외: DB에 저장된 streak 값 그대로 사용
         }
 
+        // 2-1. 메모리 상에서 재정렬 (DB 정렬은 stale된 streak 기준일 수 있으므로)
+        // 1순위: streak (내림차순)
+        // 2순위: totalSolved (내림차순)
+        // 3순위: id (오름차순)
+        studies.sort((s1, s2) -> {
+            int s1Streak = s1.getStreak() == null ? 0 : s1.getStreak();
+            int s2Streak = s2.getStreak() == null ? 0 : s2.getStreak();
+            if (s1Streak != s2Streak) {
+                return Integer.compare(s2Streak, s1Streak);
+            }
+
+            int s1Solved = s1.getTotalSolved() == null ? 0 : s1.getTotalSolved();
+            int s2Solved = s2.getTotalSolved() == null ? 0 : s2.getTotalSolved();
+            if (s1Solved != s2Solved) {
+                return Integer.compare(s2Solved, s1Solved);
+            }
+
+            return Long.compare(s1.getId(), s2.getId());
+        });
+
         // 3. 로그인하지 않은 유저라면 전체 목록 반환
         if (userId == null) {
             return studies;
