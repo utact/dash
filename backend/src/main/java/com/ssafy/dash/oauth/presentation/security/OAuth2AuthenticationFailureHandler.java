@@ -22,7 +22,7 @@ public class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationF
             AuthenticationException exception) throws IOException, ServletException {
 
         String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl)
-                .path("/login")
+                .path("/")
                 .queryParam("error", exception.getLocalizedMessage())
                 .build().toUriString();
 

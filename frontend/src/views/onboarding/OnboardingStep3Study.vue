@@ -212,7 +212,7 @@ const startSolo = async () => {
     emit('next');
   } catch (error) {
     console.error('개인 스터디 생성 실패', error);
-    alert('개인 스터디 생성 중 오류가 발생했습니다.');
+    alert('개인 스터디 생성 실패: ' + (error.response?.data?.message || '오류가 발생했습니다.'));
   } finally {
     soloLoading.value = false;
   }
