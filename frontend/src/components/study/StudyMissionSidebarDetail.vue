@@ -59,11 +59,15 @@
                         class="px-1 py-2 text-center group relative h-10"> <!-- 정렬을 위한 고정 높이 -->
                        
                        <div class="flex items-center justify-center w-full h-full">
-                           <!-- 해결됨 -->
+                           <!-- 해결됨 (클릭 시 대시보드로 이동하여 코드 보기) -->
                            <div v-if="isSolved(member, pid)" class="flex justify-center">
-                              <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                              <button 
+                                  @click="goToDashboard(pid, member.userId)"
+                                  class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center hover:bg-emerald-200 hover:scale-110 transition-all"
+                                  title="코드 보러 가기"
+                              >
                                  <CheckIcon class="w-3 h-3" stroke-width="3" />
-                              </span>
+                              </button>
                            </div>
                            
                            <!-- 미해결 -->
@@ -153,6 +157,7 @@
 
 <script setup>
 import { computed, ref, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
 import { 
     X as XIcon, 
     Check as CheckIcon, 
@@ -174,6 +179,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'refresh', 'open-add-modal']);
+
+const router = useRouter();
 
 const isAddingProblem = ref(false);
 const newProblemId = ref('');
@@ -251,5 +258,17 @@ const submitAddProblem = async () => {
         console.error('문제 추가 실패', e);
         alert('문제 추가 중 오류가 발생했습니다.');
     }
+};
+
+const goToDashboard = (problemId, userId) => {
+    // 관리자가 아닌 일반 유저의 대시보드 경로는 /dashboard 입니다.
+    router.push({
+        path: '/dashboard',
+        query: {
+            problemNumber: problemId,
+            userId: userId,
+            // drawer: 'true' // 추후 상세 뷰 바로 열기 지원 시 활성화
+        }
+    });
 };
 </script>

@@ -9,14 +9,15 @@ import com.ssafy.dash.study.domain.StudyMission.MissionStatus;
  * 미션 진행 현황 Result DTO
  */
 public record MissionWithProgressResult(
-        Long id,
-        Integer week,
-        String title,
-        List<Integer> problemIds,
-        String sourceType,
-        LocalDate deadline,
-        MissionStatus status,
-        int solvedCount,
-        int totalProblems,
-        List<MemberProgressResult> memberProgressList) {
+                Long id,
+                Integer week,
+                String title,
+                List<Integer> problemIds,
+                List<MissionProblemInfo> problems, // NEW: 문제 상세 정보
+                String sourceType,
+                LocalDate deadline,
+                MissionStatus status,
+                int solvedCount,
+                int totalProblems,
+                List<MemberProgressResult> memberProgressList) {
 }

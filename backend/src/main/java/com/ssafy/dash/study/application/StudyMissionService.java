@@ -21,8 +21,12 @@ import com.ssafy.dash.user.domain.User;
 import com.ssafy.dash.user.domain.UserRepository;
 import com.ssafy.dash.study.application.dto.result.MissionWithProgressResult;
 import com.ssafy.dash.study.application.dto.result.MemberProgressResult;
+import com.ssafy.dash.study.application.dto.result.MissionProblemInfo;
 import com.ssafy.dash.notification.application.NotificationService;
 import com.ssafy.dash.notification.domain.NotificationType;
+import com.ssafy.dash.problem.infrastructure.persistence.ProblemMapper;
+import com.ssafy.dash.problem.application.TagService;
+import com.ssafy.dash.problem.domain.Problem;
 
 import lombok.RequiredArgsConstructor;
 
@@ -40,6 +44,8 @@ public class StudyMissionService {
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
     private final NotificationService notificationService;
+    private final ProblemMapper problemMapper;
+    private final TagService tagService;
 
     /**
      * 미션 생성 (직접 입력)
@@ -288,51 +294,66 @@ public class StudyMissionService {
         }
 
         List<User> members = userRepository.findByStudyId(studyId);
-        List<Long> missionIds = missions.stream().map(StudyMission::getId).collect(java.util.stream.Collectors.toList());
+        List<Long> missionIds = missions.stream().map(StudyMission::getId)
+                .collect(java.util.stream.Collectors.toList());
 
         // 모든 제출 내역을 한 번에 가져오기 (Batch Fetch)
         List<StudyMissionSubmission> allSubmissions = submissionRepository.findByMissionIds(missionIds);
-        
-        // MissionID -> UserID -> List<Submission> (또는 Map<ProblemId, Submission>) 형태로 그룹화
+
+        // MissionID -> UserID -> List<Submission> (또는 Map<ProblemId, Submission>) 형태로
+        // 그룹화
         // Map<MissionId, Map<UserId, List<Submission>>>
         java.util.Map<Long, java.util.Map<Long, List<StudyMissionSubmission>>> submissionMap = allSubmissions.stream()
                 .collect(java.util.stream.Collectors.groupingBy(
                         StudyMissionSubmission::getMissionId,
-                        java.util.stream.Collectors.groupingBy(StudyMissionSubmission::getUserId)
-                ));
+                        java.util.stream.Collectors.groupingBy(StudyMissionSubmission::getUserId)));
 
         List<MissionWithProgressResult> result = new ArrayList<>();
 
         for (StudyMission mission : missions) {
             List<Integer> problemIds = parseProblems(mission.getProblemIds());
             int totalProblems = problemIds.size();
-            
+
+            // 문제 상세 정보 조회
+            List<MissionProblemInfo> problems = new ArrayList<>();
+            if (!problemIds.isEmpty()) {
+                List<String> problemNumberStrs = problemIds.stream().map(String::valueOf).toList();
+                List<Problem> problemEntities = problemMapper.findProblemsByNumbers(problemNumberStrs);
+                for (Problem p : problemEntities) {
+                    List<String> tags = problemMapper.findTagsByProblemNumber(p.getProblemNumber())
+                            .stream()
+                            .map(tagService::getKoreanName)
+                            .toList();
+                    problems.add(new MissionProblemInfo(p.getProblemNumber(), p.getTitle(), p.getLevel(), tags));
+                }
+            }
+
             // 현재 미션에 대한 제출 내역 가져오기
-            java.util.Map<Long, List<StudyMissionSubmission>> missionSubmissions = submissionMap.getOrDefault(mission.getId(), new java.util.HashMap<>());
+            java.util.Map<Long, List<StudyMissionSubmission>> missionSubmissions = submissionMap
+                    .getOrDefault(mission.getId(), new java.util.HashMap<>());
 
             // algorithm_records와 동기화 (누락된 완료 상태 업데이트)
             syncSubmissionsWithRecords(mission.getId(), members, problemIds);
 
-
-
-
-            List<StudyMissionSubmission> mySubmissions = missionSubmissions.getOrDefault(requestUserId, new ArrayList<>());
+            List<StudyMissionSubmission> mySubmissions = missionSubmissions.getOrDefault(requestUserId,
+                    new ArrayList<>());
             int solvedCount = (int) mySubmissions.stream().filter(s -> Boolean.TRUE.equals(s.getCompleted())).count();
 
             // 모든 멤버의 진행률 계산
             List<MemberProgressResult> memberProgressList = new ArrayList<>();
             for (User member : members) {
 
+                List<StudyMissionSubmission> userSubmissions = missionSubmissions.getOrDefault(member.getId(),
+                        new ArrayList<>());
 
-                List<StudyMissionSubmission> userSubmissions = missionSubmissions.getOrDefault(member.getId(), new ArrayList<>());
-                
-                int memberCompleted = (int) userSubmissions.stream().filter(s -> Boolean.TRUE.equals(s.getCompleted())).count();
-                
+                int memberCompleted = (int) userSubmissions.stream().filter(s -> Boolean.TRUE.equals(s.getCompleted()))
+                        .count();
+
                 List<Integer> solvedProblemIds = userSubmissions.stream()
                         .filter(s -> Boolean.TRUE.equals(s.getCompleted()))
                         .map(StudyMissionSubmission::getProblemId)
                         .collect(java.util.stream.Collectors.toList());
-                        
+
                 List<Integer> sosProblemIds = userSubmissions.stream()
                         .filter(s -> Boolean.TRUE.equals(s.getIsSos()))
                         .map(StudyMissionSubmission::getProblemId)
@@ -358,6 +379,7 @@ public class StudyMissionService {
                     mission.getWeek(),
                     mission.getTitle(),
                     problemIds,
+                    problems, // NEW: 문제 상세 정보
                     mission.getSourceType(),
                     mission.getDeadline(),
                     mission.getStatus(),

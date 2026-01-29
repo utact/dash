@@ -259,12 +259,32 @@
                                 {{ filter === 'ALL' ? '전체' : filter === 'MOCK_EXAM' ? '모의고사' : filter === 'MISSION' ? '과제' : filter === 'DEFENSE' ? '디펜스' : '일반' }}
                             </button>
                         </div>
+
+                        <!-- 검색창 -->
+                        <div class="relative w-full max-w-xs">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <Search :size="14" class="text-slate-400" />
+                            </div>
+                            <input 
+                                v-model="searchQuery"
+                                type="text"
+                                placeholder="문제 번호, 제목 검색..."
+                                class="w-full pl-9 pr-4 py-2 bg-slate-100 border-none rounded-xl text-sm font-bold text-slate-700 placeholder:text-slate-400 focus:ring-2 focus:ring-brand-200 focus:bg-white transition-all"
+                            />
+                            <button 
+                                v-if="searchQuery"
+                                @click="searchQuery = ''"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                            >
+                                <X :size="14" />
+                            </button>
+                        </div>
                     </div>
 
                     <!-- 날짜 네비게이터 + 추가 필터 -->
                     <div class="bg-white rounded-2xl p-4 border border-slate-200 mb-4 shadow-sm">
-                        <!-- 날짜 탐색 -->
-                        <div class="flex items-center justify-between mb-3">
+                        <!-- 날짜 탐색 (날짜별 보기 활성화 시에만 표시) -->
+                        <div v-if="dateFilterEnabled" class="flex items-center justify-between mb-3">
                             <button 
                                 @click="goToPrevDate"
                                 class="p-2 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all active:scale-95"
@@ -294,28 +314,51 @@
                             </button>
                         </div>
                         
-                        <!-- 추가 필터 토글 -->
-                        <div class="flex items-center gap-4 pt-3 border-t border-slate-100">
-                            <label class="flex items-center gap-2 cursor-pointer group">
-                                <input 
-                                    type="checkbox" 
-                                    v-model="showSuccessOnly"
-                                    class="w-4 h-4 rounded border-slate-300 text-brand-500 focus:ring-brand-500/30"
-                                />
-                                <span class="text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors">성공만 보기</span>
-                            </label>
+                        <!-- 필터 옵션 -->
+                        <div class="flex items-center gap-4" :class="dateFilterEnabled ? 'pt-3 border-t border-slate-100' : ''">
+                            <!-- 전체/날짜별 세그먼트 버튼 (슬라이딩 애니메이션) -->
+                            <div class="relative flex bg-slate-100 rounded-xl p-1 h-9 cursor-pointer">
+                                <!-- 움직이는 배경 -->
+                                <div 
+                                    class="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-lg shadow-sm transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]"
+                                    :style="{ left: dateFilterEnabled ? 'calc(50% + 2px)' : '4px' }"
+                                ></div>
+
+                                <button 
+                                    @click="dateFilterEnabled = false"
+                                    class="relative z-10 px-3 w-16 rounded-lg text-xs font-bold transition-colors duration-300"
+                                    :class="!dateFilterEnabled ? 'text-slate-800' : 'text-slate-400 hover:text-slate-600'"
+                                >전체</button>
+                                <button 
+                                    @click="dateFilterEnabled = true"
+                                    class="relative z-10 px-3 w-16 rounded-lg text-xs font-bold transition-colors duration-300"
+                                    :class="dateFilterEnabled ? 'text-slate-800' : 'text-slate-400 hover:text-slate-600'"
+                                >날짜별</button>
+                            </div>
                             
-                            <label class="flex items-center gap-2 cursor-pointer group">
-                                <input 
-                                    type="checkbox" 
-                                    v-model="groupByProblem"
-                                    class="w-4 h-4 rounded border-slate-300 text-brand-500 focus:ring-brand-500/30"
-                                />
-                                <span class="text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors">문제별 그룹</span>
-                            </label>
-                            
-                            <div class="ml-auto text-xs font-bold text-slate-400">
-                                {{ filteredRecords.length }}건
+                            <!-- 필터 버튼들 (오른쪽 정렬) -->
+                            <div class="ml-auto flex items-center gap-2">
+                                <button 
+                                    @click="showSuccessOnly = !showSuccessOnly"
+                                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5"
+                                    :class="showSuccessOnly 
+                                        ? 'bg-emerald-50 border-emerald-200 text-emerald-600' 
+                                        : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600'"
+                                >
+                                    <Check v-if="showSuccessOnly" :size="12" stroke-width="3" />
+                                    성공만
+                                </button>
+                                
+                                <button 
+                                    @click="groupByProblem = !groupByProblem"
+                                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5"
+                                    :class="groupByProblem 
+                                        ? 'bg-brand-50 border-brand-200 text-brand-600' 
+                                        : 'bg-white border-slate-200 text-slate-400 hover:border-slate-300 hover:text-slate-600'"
+                                >
+                                    <LayoutGrid v-if="groupByProblem" :size="12" stroke-width="3" />
+                                    문제별
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -325,9 +368,14 @@
                         <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
                             <Code2 :size="32" class="text-slate-300" />
                         </div>
-                        <h3 class="text-lg font-bold text-slate-800 mb-1">이 날의 기록이 없습니다</h3>
+                        <h3 class="text-lg font-bold text-slate-800 mb-1">
+                            {{ dateFilterEnabled ? '이 날의 기록이 없습니다' : '아직 기록이 없습니다' }}
+                        </h3>
                         <p class="text-sm text-slate-400 mb-0 font-medium">
-                            {{ isToday ? '오늘 첫 번째 문제를 풀어보세요!' : '다른 날짜를 선택해보세요.' }}
+                            {{ dateFilterEnabled 
+                                ? (isToday ? '오늘 첫 번째 문제를 풀어보세요!' : '다른 날짜를 선택해보세요.')
+                                : '첫 번째 문제를 풀어보세요!' 
+                            }}
                         </p>
                     </div>
 
@@ -384,8 +432,31 @@
 
                     <!-- 일반 리스트 뷰 -->
                     <div v-else class="space-y-4 pb-20">
-                        <template v-for="record in filteredRecords" :key="record.id">
+                        <!-- 날짜 구분선 있는 뷰 (전체 보기 시) -->
+                        <template v-if="!dateFilterEnabled">
+                            <template v-for="(group, idx) in recordsGroupedByDate" :key="group.date">
+                                <!-- 날짜 구분선 -->
+                                <div class="flex items-center gap-3 py-2" :class="idx > 0 ? 'mt-4' : ''">
+                                    <div class="flex-1 h-px bg-slate-200"></div>
+                                    <span class="text-xs font-bold text-slate-400 whitespace-nowrap">{{ group.dateLabel }}</span>
+                                    <div class="flex-1 h-px bg-slate-200"></div>
+                                </div>
+                                <!-- 해당 날짜의 기록들 -->
+                                <DashboardRecordCard 
+                                    v-for="record in group.records"
+                                    :key="record.id"
+                                    :ref="el => { if (expandedRecordId === record.id) activeCardRef = el }"
+                                    :record="record"
+                                    :is-expanded="expandedRecordId === record.id"
+                                    @toggle-expand="handleToggleExpand"
+                                />
+                            </template>
+                        </template>
+                        <!-- 날짜별 보기 시 기존 방식 -->
+                        <template v-else>
                             <DashboardRecordCard 
+                                v-for="record in filteredRecords"
+                                :key="record.id"
                                 :ref="el => { if (expandedRecordId === record.id) activeCardRef = el }"
                                 :record="record"
                                 :is-expanded="expandedRecordId === record.id"
@@ -589,7 +660,8 @@ import {
   Clock,
   ChevronLeft,
   ChevronRight,
-  Filter
+  Filter,
+  Search
 } from 'lucide-vue-next';
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
@@ -656,8 +728,12 @@ const handleToggleExpand = (recordId) => {
     } else {
         expandedRecordId.value = recordId;
         const record = records.value.find(r => r.id === recordId) || 
-                       groupedRecords.value.flatMap(g => g.records).find(r => r.id === recordId);
-        activeAnalysisRecord.value = record;
+                       groupedRecords.value?.flatMap(g => g.records).find(r => r.id === recordId) ||
+                       (recordsGroupedByDate.value ? recordsGroupedByDate.value.flatMap(g => g.records).find(r => r.id === recordId) : null);
+                       
+        if (record) {
+             activeAnalysisRecord.value = record;
+        }
     }
 };
 
@@ -764,10 +840,12 @@ const getDefaultProfileImage = (userId) => {
 const selectedFilter = ref('ALL');
 
 // 날짜 탐색 관련 state
+const dateFilterEnabled = ref(false); // 기본값 false: 전체 날짜 표시
 const selectedDate = ref(new Date());
 const showSuccessOnly = ref(false);
 const groupByProblem = ref(false);
 const expandedGroups = ref(new Set());
+const searchQuery = ref('');
 
 // 날짜 네비게이션 함수
 const goToPrevDate = () => {
@@ -822,13 +900,25 @@ const filteredRecords = computed(() => {
         return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     };
     
-    // 1. 날짜 필터링 (로컬 타임존 기준)
-    const selectedDateStr = toLocalDateStr(selectedDate.value);
-    result = result.filter(r => {
-        if (!r.createdAt) return false;
-        const recordDate = toLocalDateStr(new Date(r.createdAt));
-        return recordDate === selectedDateStr;
-    });
+    // 0. 검색어 필터링
+    if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase();
+        result = result.filter(r => 
+            r.title?.toLowerCase().includes(query) || 
+            String(r.problemNumber).includes(query) ||
+            r.language?.toLowerCase().includes(query)
+        );
+    }
+
+    // 1. 날짜 필터링 (날짜별 보기가 활성화된 경우에만)
+    if (dateFilterEnabled.value) {
+        const selectedDateStr = toLocalDateStr(selectedDate.value);
+        result = result.filter(r => {
+            if (!r.createdAt) return false;
+            const recordDate = toLocalDateStr(new Date(r.createdAt));
+            return recordDate === selectedDateStr;
+        });
+    }
     
     // 2. 카테고리 필터링
     if (selectedFilter.value !== 'ALL') {
@@ -877,6 +967,43 @@ const groupedRecords = computed(() => {
         ...g,
         records: g.records.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     }));
+});
+
+// 날짜별 그룹화 (전체 보기 시 사용)
+const recordsGroupedByDate = computed(() => {
+    const toLocalDateStr = (d) => {
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    };
+    
+    const formatDateLabel = (d) => {
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        return `${d.getFullYear()}. ${String(d.getMonth() + 1).padStart(2, '0')}. ${String(d.getDate()).padStart(2, '0')} (${days[d.getDay()]})`;
+    };
+    
+    const groups = new Map();
+    
+    for (const record of filteredRecords.value) {
+        if (!record.createdAt) continue;
+        const recordDate = new Date(record.createdAt);
+        const dateKey = toLocalDateStr(recordDate);
+        
+        if (!groups.has(dateKey)) {
+            groups.set(dateKey, {
+                date: dateKey,
+                dateLabel: formatDateLabel(recordDate),
+                records: []
+            });
+        }
+        groups.get(dateKey).records.push(record);
+    }
+    
+    // 최신 날짜순 정렬, 각 날짜 내에서는 최신 기록순
+    return Array.from(groups.values())
+        .sort((a, b) => b.date.localeCompare(a.date))
+        .map(g => ({
+            ...g,
+            records: g.records.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        }));
 });
 
 const toggleGroup = (problemNumber) => {
@@ -1219,6 +1346,27 @@ onMounted(async () => {
             processHeatmap([]);
           }
       }
+
+
+      // 5. URL 파라미터 기반 자동 필터링 (팀 미션 등에서 유입)
+      if (route.query.problemNumber) {
+          const pNum = route.query.problemNumber;
+          // 1. 검색어 설정 (필터링)
+          searchQuery.value = pNum.toString();
+          // 2. 전체 날짜 보기
+          dateFilterEnabled.value = false;
+          // 3. 문제별 그룹 보기 활성화
+          groupByProblem.value = true;
+          // 4. 해당 그룹 펼치기
+          nextTick(() => {
+              expandedGroups.value.add(parseInt(pNum));
+              expandedGroups.value = new Set(expandedGroups.value);
+              
+              // 5. 특정 유저 기록 상세 보기 (딥링크)
+              // (추후 구현: drawer=true일 때 해당 기록 찾아서 openDrawer 호출)
+          });
+      }
+
   } catch (globalError) {
       console.error("Critical Dashboard Error:", globalError);
   } finally {
