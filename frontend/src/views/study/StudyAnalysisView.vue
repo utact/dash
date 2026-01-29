@@ -156,7 +156,7 @@
             <span class="text-slate-900">{{ currentPopupProblem.solvedMembers.length }}명</span>
           </div>
           <div v-for="member in currentPopupProblem.solvedMembers" :key="member.id" class="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 px-2 rounded-lg transition-colors">
-             <NicknameRenderer :username="member.username" :avatar-url="member.avatarUrl" avatar-class="w-8 h-8 ring-2 ring-white shadow-sm" text-class="text-sm font-bold text-slate-700" :show-avatar="true" />
+             <NicknameRendererComp :username="member.username" :avatar-url="member.avatarUrl" avatar-class="w-8 h-8 ring-2 ring-white shadow-sm" text-class="text-sm font-bold text-slate-700" :show-avatar="true" />
           </div>
        </div>
     </Teleport>
@@ -173,6 +173,7 @@ import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler,
 import StudyMissionCreateModal from '@/components/study/StudyMissionCreateModal.vue';
 import StudyAnalysisSidebar from '@/components/study/StudyAnalysisSidebar.vue';
 import { BookOpen, AlertTriangle, Pin, Users, BookMarked, Activity, PieChart, Loader2 } from 'lucide-vue-next';
+import NicknameRendererComp from '@/components/common/NicknameRenderer.vue';
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
