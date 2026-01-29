@@ -1,9 +1,9 @@
 <template>
   <div class="space-y-6 w-full">
-      <!-- 1. 팀 약점 태그 -->
+      <!-- 1. 스터디 약점 태그 -->
       <div class="bg-amber-50 rounded-2xl p-6 border border-amber-100/50 shadow-sm">
         <h3 class="font-black text-amber-800 text-sm mb-4 flex items-center gap-2">
-          <AlertTriangle class="w-5 h-5 text-fox" stroke-width="2.5" fill="currentColor" /> 팀 약점 태그
+          <AlertTriangle class="w-5 h-5 text-fox" stroke-width="2.5" fill="currentColor" /> 스터디 약점 태그
         </h3>
         <div class="space-y-2">
           <div v-for="weakness in analysis.topWeaknesses" :key="weakness.tagKey" 
@@ -55,13 +55,13 @@
             </div>
           </div>
           
-          <!-- 팀 평균 범례 -->
+          <!-- 스터디 평균 범례 -->
           <div class="flex items-center gap-3 mt-3 pt-3 border-t border-slate-100 p-2">
             <div class="w-3.5 h-3.5 rounded-full bg-brand-500 ring-2 ring-white shadow-sm flex-shrink-0"></div>
             <div class="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center border-2 border-white">
                  <Users class="w-4 h-4 text-brand-500" stroke-width="2.5" />
             </div>
-            <span class="text-sm font-bold text-slate-700 flex-1">팀 평균</span>
+            <span class="text-sm font-bold text-slate-700 flex-1">스터디 평균</span>
             
             <div class="flex items-center gap-1.5 flex-shrink-0 bg-brand-50 px-2.5 py-1 rounded-lg border border-brand-100" v-if="analysis.averageTier">
               <img :src="getTierIconUrl(analysis.averageTier)" class="w-4 h-4 object-contain" />

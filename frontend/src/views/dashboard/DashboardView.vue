@@ -130,7 +130,7 @@
                                 </div>
                                 <div>
                                     <h2 class="text-2xl font-black text-slate-800 mb-1">이번 주 미션 ALL CLEAR!</h2>
-                                    <p class="text-sm text-slate-500 font-medium">모든 팀원이 미션을 완수했습니다.<br/>스터디장님, 다음 미션을 등록해주세요!</p>
+                                    <p class="text-sm text-slate-500 font-medium">모든 스터디원이 미션을 완수했습니다.<br/>스터디장님, 다음 미션을 등록해주세요!</p>
                                 </div>
                                 <div class="flex flex-wrap gap-2 justify-center mt-2 w-full">
                                      <a 
@@ -1038,7 +1038,7 @@ const handleScrollToLine = ({ start, end }) => {
 const acornLogs = ref([]);
 const missions = ref([]);
 
-// 마감되지 않은 + 모든 팀원이 완료하지 않은 미션만 표시
+// 마감되지 않은 + 모든 스터디원이 완료하지 않은 미션만 표시
 const activeMissions = computed(() => {
     if (!missions.value || missions.value.length === 0) return [];
     const today = new Date();
@@ -1050,7 +1050,7 @@ const activeMissions = computed(() => {
             deadline.setHours(23, 59, 59, 999);
             const notExpired = deadline >= today;
             
-            // 모든 팀원이 완료했는지 확인 (memberProgressList가 있는 경우)
+            // 모든 스터디원이 완료했는지 확인 (memberProgressList가 있는 경우)
             // const allMembersCompleted = m.memberProgressList?.length > 0 && 
             //     m.memberProgressList.every(member => member.allCompleted);
             
@@ -1078,7 +1078,7 @@ const isProblemSolvedRaw = (problemId) => {
     );
 };
 
-// 특정 문제가 나에 의해 해결되었는지 확인 (팀원 미포함)
+// 특정 문제가 나에 의해 해결되었는지 확인 (스터디원 미포함)
 const isProblemSolved = (problemId) => {
     return isProblemSolvedRaw(problemId);
 };
@@ -1348,7 +1348,7 @@ onMounted(async () => {
       }
 
 
-      // 5. URL 파라미터 기반 자동 필터링 (팀 미션 등에서 유입)
+      // 5. URL 파라미터 기반 자동 필터링 (스터디 미션 등에서 유입)
       if (route.query.problemNumber) {
           const pNum = route.query.problemNumber;
           // 1. 검색어 설정 (필터링)

@@ -378,11 +378,11 @@ const visible = computed(() => {
 const navGroups = computed(() => {
     return [
   {
-    title: '팀 스페이스',
+    title: '스터디 스페이스',
     items: [
       { label: '대시보드', path: '/dashboard', icon: LayoutGrid, color: 'bg-sky-500' },
-      { label: '팀 미션', path: '/study/missions', icon: Target, color: 'bg-rose-500' },
-      { label: '팀 분석', path: '/study/analysis', icon: PieChart, color: 'bg-emerald-500' },
+      { label: '스터디 미션', path: '/study/missions', icon: Target, color: 'bg-rose-500' },
+      { label: '스터디 분석', path: '/study/analysis', icon: PieChart, color: 'bg-emerald-500' },
     ]
   },
   {
