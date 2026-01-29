@@ -28,7 +28,7 @@
                     <div>
                         <div class="flex items-center gap-3 mb-2">
                             <Target class="w-7 h-7 text-brand-500" stroke-width="2.5" fill="currentColor" />
-                            <h1 class="text-xl font-black text-slate-800">팀 미션</h1>
+                            <h1 class="text-xl font-black text-slate-800">스터디 미션</h1>
                         </div>
                         <p class="text-slate-500 font-medium">동료들과 함께 미션을 수행하고 성장하세요</p>
                     </div>
@@ -148,6 +148,35 @@
                                         <span class="font-mono">{{ problemId }}</span>
                                         <Check v-if="idx < mission.solvedCount" :size="14" stroke-width="3" />
                                     </a>
+                                </div>
+                                <!-- 미션 분석 (스터디원 성과 기반) -->
+                                <div v-if="mission.memberProgressList && mission.memberProgressList.length > 0" class="mt-4 pt-4 border-t border-slate-100">
+                                    <div class="flex flex-wrap items-center gap-3">
+                                        <!-- 완주자 수 -->
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-[10px] font-bold text-slate-400 uppercase">완주</span>
+                                            <span class="px-2 py-0.5 rounded-lg text-xs font-bold"
+                                                  :class="getCompletionCount(mission).count > 0 
+                                                    ? 'bg-emerald-50 text-emerald-600' 
+                                                    : 'bg-slate-100 text-slate-400'">
+                                                {{ getCompletionCount(mission).count }}/{{ mission.memberProgressList.length }}명
+                                            </span>
+                                        </div>
+
+                                        <!-- 1등 완주자 -->
+                                        <div v-if="getFirstCompleter(mission)" class="flex items-center gap-1.5">
+                                            <span class="text-[10px] font-bold text-slate-400">·</span>
+                                            <span class="px-2 py-0.5 bg-yellow-50 text-yellow-600 rounded-lg text-xs font-bold flex items-center gap-1">
+                                                👑 {{ getFirstCompleter(mission) }}
+                                            </span>
+                                        </div>
+
+                                        <!-- 상태 멘트 -->
+                                        <span class="text-xs font-bold px-2 py-0.5 rounded-lg"
+                                              :class="getTeamStatusStyle(mission)">
+                                            {{ getTeamStatusMessage(mission) }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -612,7 +641,7 @@ const openEditModal = (mission) => {
 };
 
 const confirmDeleteMission = async (missionId) => {
-    if (!confirm('정말로 이 미션을 삭제하시겠습니까? 삭제된 미션은 복구할 수 없으며, 팀원들의 제출 기록도 함께 삭제됩니다.')) {
+    if (!confirm('정말로 이 미션을 삭제하시겠습니까? 삭제된 미션은 복구할 수 없으며, 스터디원들의 제출 기록도 함께 삭제됩니다.')) {
         return;
     }
     
@@ -688,6 +717,41 @@ const stringToColor = (str) => {
     }
     const c = (hash & 0x00ffffff).toString(16).toUpperCase();
     return '#' + '00000'.substring(0, 6 - c.length) + c;
+};
+
+// 스터디원 성과 기반 helper 함수들
+const getCompletionCount = (mission) => {
+  if (!mission.memberProgressList) return { count: 0, total: 0 };
+  const completed = mission.memberProgressList.filter(m => m.allCompleted).length;
+  return { count: completed, total: mission.memberProgressList.length };
+};
+
+const getFirstCompleter = (mission) => {
+  if (!mission.memberProgressList) return null;
+  const first = mission.memberProgressList.find(m => m.allCompleted);
+  return first ? first.username : null;
+};
+
+const getTeamStatusMessage = (mission) => {
+  if (!mission.memberProgressList) return '';
+  const { count, total } = getCompletionCount(mission);
+  const rate = total > 0 ? count / total : 0;
+  
+  if (rate === 0) return '� 아직 시작 전!';
+  if (rate < 0.5) return '� 달리는 중...';
+  if (rate < 1) return '� 거의 다 왔어요!';
+  return '🎉 전원 완주!';
+};
+
+const getTeamStatusStyle = (mission) => {
+  if (!mission.memberProgressList) return 'bg-slate-100 text-slate-500';
+  const { count, total } = getCompletionCount(mission);
+  const rate = total > 0 ? count / total : 0;
+  
+  if (rate === 0) return 'bg-slate-100 text-slate-500';
+  if (rate < 0.5) return 'bg-blue-50 text-blue-600';
+  if (rate < 1) return 'bg-orange-50 text-orange-600';
+  return 'bg-emerald-50 text-emerald-600';
 };
 </script>
 

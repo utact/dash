@@ -12,7 +12,7 @@
           <table class="w-full text-xs text-left">
              <thead class="text-xs text-slate-500 uppercase">
                 <tr>
-                   <th class="px-2 py-2 font-bold w-12 min-w-[3rem] sticky left-0 bg-white z-10 text-center">팀원</th>
+                   <th class="px-2 py-2 font-bold w-12 min-w-[3rem] sticky left-0 bg-white z-10 text-center">스터디원</th>
                    <th v-for="pid in mission.problemIds" :key="pid" class="px-2 py-2 text-center min-w-[40px]">
                       <a :href="`https://www.acmicpc.net/problem/${pid}`" target="_blank" class="hover:text-emerald-600 hover:underline font-bold">
                         {{ pid }}
@@ -26,7 +26,7 @@
                      class="hover:bg-slate-50/50"
                      :class="{ 'bg-emerald-50/30': isCurrentUser(member.userId) }">
                    
-                   <!-- 팀원 이름 (아바타만 표시) -->
+                   <!-- 스터디원 이름 (아바타만 표시) -->
                    <td class="px-2 py-2 font-medium sticky left-0 z-10 group relative"
                        :class="isCurrentUser(member.userId) ? 'bg-emerald-50/30' : 'bg-white'">
                       <div class="relative flex justify-center">
@@ -101,6 +101,53 @@
                 </tr>
              </tbody>
           </table>
+       </div>
+    </div>
+
+    <!-- 1.5 미션 분석 (난이도 분포 & 태그) -->
+    <div v-if="mission.problems && mission.problems.length > 0" class="mb-8 p-4 bg-gradient-to-br from-slate-50 to-white rounded-xl border border-slate-100">
+       <h4 class="font-bold text-slate-700 text-sm mb-3 flex items-center gap-2">
+          📈 미션 분석
+       </h4>
+       
+       <!-- 난이도 분포 바 -->
+       <div class="mb-4">
+          <div class="flex items-center justify-between mb-1.5">
+             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">난이도 분포</span>
+          </div>
+          <div class="flex h-3 rounded-full overflow-hidden shadow-inner bg-slate-200">
+             <div v-for="tier in tierDistribution" :key="tier.name"
+                  :style="{ width: tier.percentage + '%' }"
+                  :class="tier.colorClass"
+                  :title="`${tier.name}: ${tier.count}문제`"
+                  class="transition-all duration-500"
+             />
+          </div>
+          <div class="flex flex-wrap gap-1.5 mt-2">
+             <span v-for="tier in tierDistribution" :key="'legend-'+tier.name"
+                   class="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-1"
+                   :class="tier.legendClass">
+                <span class="w-1.5 h-1.5 rounded-full" :class="tier.colorClass"></span>
+                {{ tier.name }} {{ tier.count }}
+             </span>
+          </div>
+       </div>
+
+       <!-- 재미있는 멘트 -->
+       <p class="text-sm font-bold text-center py-2 px-3 rounded-lg mb-4"
+          :class="difficultyMessageStyle">
+          {{ difficultyMessage }}
+       </p>
+       
+       <!-- 핵심 알고리즘 태그 -->
+       <div v-if="topTags.length > 0">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wide block mb-2">핵심 키워드</span>
+          <div class="flex flex-wrap gap-1.5">
+             <span v-for="tag in topTags" :key="tag.name"
+                   class="px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold border border-indigo-100">
+                {{ tag.name }}
+             </span>
+          </div>
        </div>
     </div>
 
@@ -193,6 +240,60 @@ const sortedMemberProgressList = computed(() => {
       if (b.userId === props.currentUserId) return 1;
       return 0;
    });
+});
+
+// 난이도 분포 계산
+const tierDistribution = computed(() => {
+  const tiers = { bronze: 0, silver: 0, gold: 0, platinum: 0, diamond: 0 };
+  props.mission.problems?.forEach(p => {
+    if (p.level <= 5) tiers.bronze++;
+    else if (p.level <= 10) tiers.silver++;
+    else if (p.level <= 15) tiers.gold++;
+    else if (p.level <= 20) tiers.platinum++;
+    else tiers.diamond++;
+  });
+  const total = Object.values(tiers).reduce((a, b) => a + b, 0) || 1;
+  return [
+    { name: '브론즈', count: tiers.bronze, percentage: (tiers.bronze / total) * 100, colorClass: 'bg-amber-700', legendClass: 'bg-amber-100 text-amber-700' },
+    { name: '실버', count: tiers.silver, percentage: (tiers.silver / total) * 100, colorClass: 'bg-slate-400', legendClass: 'bg-slate-100 text-slate-600' },
+    { name: '골드', count: tiers.gold, percentage: (tiers.gold / total) * 100, colorClass: 'bg-yellow-400', legendClass: 'bg-yellow-100 text-yellow-700' },
+    { name: '플래티넘', count: tiers.platinum, percentage: (tiers.platinum / total) * 100, colorClass: 'bg-emerald-400', legendClass: 'bg-emerald-100 text-emerald-700' },
+    { name: '다이아', count: tiers.diamond, percentage: (tiers.diamond / total) * 100, colorClass: 'bg-sky-400', legendClass: 'bg-sky-100 text-sky-700' },
+  ].filter(t => t.count > 0);
+});
+
+// 평균 난이도 기반 재미있는 멘트
+const difficultyMessage = computed(() => {
+  const problems = props.mission.problems || [];
+  if (problems.length === 0) return '';
+  const avg = problems.reduce((sum, p) => sum + (p.level || 0), 0) / problems.length;
+  if (avg <= 5) return '🌱 가볍게 몸 풀어볼까요?';
+  if (avg <= 10) return '💪 적당한 챌린지!';
+  if (avg <= 15) return '🔥 불지옥 주간입니다!';
+  if (avg <= 20) return '💀 생존을 기원합니다...';
+  return '🚀 전설을 향해!';
+});
+
+const difficultyMessageStyle = computed(() => {
+  const problems = props.mission.problems || [];
+  if (problems.length === 0) return 'bg-slate-100 text-slate-500';
+  const avg = problems.reduce((sum, p) => sum + (p.level || 0), 0) / problems.length;
+  if (avg <= 5) return 'bg-emerald-50 text-emerald-600';
+  if (avg <= 10) return 'bg-blue-50 text-blue-600';
+  if (avg <= 15) return 'bg-orange-50 text-orange-600';
+  return 'bg-rose-50 text-rose-600';
+});
+
+// 핵심 알고리즘 태그 (상위 5개)
+const topTags = computed(() => {
+  const tagCount = {};
+  props.mission.problems?.forEach(p => {
+    p.tags?.forEach(t => { tagCount[t] = (tagCount[t] || 0) + 1; });
+  });
+  return Object.entries(tagCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([name, count]) => ({ name, count }));
 });
 
 const isCurrentUser = (userId) => props.currentUserId === userId;
