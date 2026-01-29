@@ -339,6 +339,12 @@ public class StudyMissionService {
                     new ArrayList<>());
             int solvedCount = (int) mySubmissions.stream().filter(s -> Boolean.TRUE.equals(s.getCompleted())).count();
 
+            // 현재 사용자가 해결한 문제 ID 목록
+            List<Integer> mySolvedProblemIds = mySubmissions.stream()
+                    .filter(s -> Boolean.TRUE.equals(s.getCompleted()))
+                    .map(StudyMissionSubmission::getProblemId)
+                    .collect(java.util.stream.Collectors.toList());
+
             // 모든 멤버의 진행률 계산
             List<MemberProgressResult> memberProgressList = new ArrayList<>();
             for (User member : members) {
@@ -385,6 +391,7 @@ public class StudyMissionService {
                     mission.getStatus(),
                     solvedCount,
                     totalProblems,
+                    mySolvedProblemIds, // NEW: 현재 사용자가 해결한 문제 ID 목록
                     memberProgressList));
         }
 
