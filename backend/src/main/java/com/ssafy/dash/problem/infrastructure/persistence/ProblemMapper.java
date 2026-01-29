@@ -23,4 +23,7 @@ public interface ProblemMapper {
             @org.apache.ibatis.annotations.Param("minLevel") int minLevel,
             @org.apache.ibatis.annotations.Param("maxLevel") int maxLevel,
             @org.apache.ibatis.annotations.Param("excludedIds") List<String> excludedIds);
+
+    List<Problem> findProblemsByNumbers(
+            @org.apache.ibatis.annotations.Param("problemNumbers") List<String> problemNumbers);
 }

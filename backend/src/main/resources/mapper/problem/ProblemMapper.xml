@@ -55,4 +55,13 @@
         LIMIT 20
     </select>
 
+    <select id="findProblemsByNumbers" resultType="Problem">
+        SELECT problem_number, title, level, class as problemClass, essential, sprout
+        FROM problems
+        WHERE problem_number IN
+        <foreach item="num" collection="problemNumbers" open="(" separator="," close=")">
+            #{num}
+        </foreach>
+    </select>
+
 </mapper>

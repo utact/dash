@@ -8,7 +8,7 @@
       <!-- Loading State -->
       <div v-if="loadingAnalysis" class="flex flex-col items-center justify-center py-40 w-full">
         <div class="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-6"></div>
-        <p class="text-slate-600 text-xl font-medium animate-pulse">팀 역량을 분석하고 있습니다...</p>
+        <p class="text-slate-600 text-xl font-medium animate-pulse">스터디 역량을 분석하고 있습니다...</p>
       </div>
 
       <!-- 콘텐츠 상태 -->
@@ -21,16 +21,16 @@
              <div class="mb-8">
                <div class="flex items-center gap-3 mb-2">
                  <PieChart class="w-7 h-7 text-brand-500" stroke-width="2.5" fill="currentColor" />
-                 <h1 class="text-xl font-black text-slate-800">팀 분석</h1>
+                 <h1 class="text-xl font-black text-slate-800">스터디 분석</h1>
                </div>
-               <p class="text-slate-500 font-medium">팀에 맞는 추천 문제를 등록해보세요</p>
+               <p class="text-slate-500 font-medium">스터디에 맞는 추천 문제를 등록해보세요</p>
              </div>
              
 
              
              <div class="bg-white border border-slate-200 shadow-sm rounded-3xl p-6">
                  <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                   <Activity class="w-5 h-5 text-brand-500" stroke-width="2.5" fill="currentColor" /> 팀 스킬 분석
+                   <Activity class="w-5 h-5 text-brand-500" stroke-width="2.5" fill="currentColor" /> 스터디 스킬 분석
                  </h2>
                  <div class="flex flex-col items-center justify-center">
                     <div class="w-full max-w-[400px] aspect-square relative z-0">
@@ -40,7 +40,7 @@
                       </div>
                     </div>
                     <p class="text-center text-xs text-slate-400 mt-6 bg-slate-50 px-3 py-1 rounded-full">
-                      팀원별 정규화 후 평균 (본인 최대=100%)
+                      스터디원별 정규화 후 평균 (본인 최대=100%)
                     </p>
                  </div>
              </div>
@@ -49,7 +49,7 @@
               <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
                 <div class="flex items-center justify-between mb-6">
                   <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                      <BookOpen class="w-5 h-5 text-brand-500" stroke-width="2.5" fill="currentColor" /> 팀 문제 추천 (커리큘럼)
+                      <BookOpen class="w-5 h-5 text-brand-500" stroke-width="2.5" fill="currentColor" /> 스터디 문제 추천 (커리큘럼)
                   </h2>
                   <div v-if="loadingCurriculum" class="flex items-center gap-2 text-brand-600">
                      <Loader2 class="w-4 h-4 animate-spin" />
@@ -60,7 +60,7 @@
                 <!-- 커리큘럼 로딩 -->
                 <div v-if="loadingCurriculum" class="flex flex-col items-center py-16 animate-fade-in">
                   <div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-                  <p class="text-slate-600 font-bold text-sm animate-pulse">팀에 맞는 문제를 찾고 있습니다...</p>
+                  <p class="text-slate-600 font-bold text-sm animate-pulse">스터디에 맞는 문제를 찾고 있습니다...</p>
                 </div>
   
                 <!-- 커리큘럼 결과 -->
@@ -100,7 +100,7 @@
                            <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded-md">멘토 가능</span>
                       </div>
                     </a>
-                    <!-- 팀장 전용: 미션 등록 버튼 -->
+                    <!-- 스터디장 전용: 미션 등록 버튼 -->
                     <button v-if="isLeader"
                             @click.prevent.stop="registerAsMission(problem)"
                             class="absolute top-3 right-3 px-2 py-1 bg-brand-500 hover:bg-brand-600 text-white text-[10px] font-bold rounded-lg shadow-md transition-all opacity-0 group-hover:opacity-100 flex items-center gap-1">
@@ -124,7 +124,7 @@
 
       <!-- 스터디 없음 상태 -->
       <div v-else class="flex flex-col items-center justify-center py-40 text-center w-full">
-        <p class="text-slate-500 text-xl mb-6">스터디에 가입해야 팀 분석을 이용할 수 있습니다.</p>
+        <p class="text-slate-500 text-xl mb-6">스터디에 가입해야 스터디 분석을 이용할 수 있습니다.</p>
         <router-link to="/onboarding" class="px-8 py-4 bg-brand-600 text-white rounded-2xl font-bold shadow-lg shadow-brand-200 hover:shadow-brand-300 transition-all hover:-translate-y-1">
           스터디 가입하기
         </router-link>
@@ -156,7 +156,7 @@
             <span class="text-slate-900">{{ currentPopupProblem.solvedMembers.length }}명</span>
           </div>
           <div v-for="member in currentPopupProblem.solvedMembers" :key="member.id" class="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0 hover:bg-slate-50 px-2 rounded-lg transition-colors">
-             <NicknameRenderer :username="member.username" :avatar-url="member.avatarUrl" avatar-class="w-8 h-8 ring-2 ring-white shadow-sm" text-class="text-sm font-bold text-slate-700" :show-avatar="true" />
+             <NicknameRendererComp :username="member.username" :avatar-url="member.avatarUrl" avatar-class="w-8 h-8 ring-2 ring-white shadow-sm" text-class="text-sm font-bold text-slate-700" :show-avatar="true" />
           </div>
        </div>
     </Teleport>
@@ -173,6 +173,7 @@ import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler,
 import StudyMissionCreateModal from '@/components/study/StudyMissionCreateModal.vue';
 import StudyAnalysisSidebar from '@/components/study/StudyAnalysisSidebar.vue';
 import { BookOpen, AlertTriangle, Pin, Users, BookMarked, Activity, PieChart, Loader2 } from 'lucide-vue-next';
+import NicknameRendererComp from '@/components/common/NicknameRenderer.vue';
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
@@ -254,7 +255,7 @@ const chartLabels = computed(() => {
   );
 });
 
-// 레이더차트 데이터 - 멤버별 오버레이 + 팀 평균
+// 레이더차트 데이터 - 멤버별 오버레이 + 스터디 평균
 const radarChartData = computed(() => {
   if (familyStats.value.length === 0 || !analysis.value?.memberStats) return null;
   
@@ -286,14 +287,14 @@ const radarChartData = computed(() => {
     });
   });
   
-  // 팀 평균 (정규화된 값들의 평균)
+  // 스터디 평균 (정규화된 값들의 평균)
   const teamAvg = familyKeys.map((_, i) => {
     const sum = normalizedMembers.reduce((acc, m) => acc + m[i], 0);
     return Math.round(sum / normalizedMembers.length);
   });
   
   datasets.push({
-    label: '팀 평균',
+    label: '스터디 평균',
     data: teamAvg,
     backgroundColor: 'rgba(99, 102, 241, 0.15)',
     borderColor: 'rgba(99, 102, 241, 0.9)',
@@ -368,7 +369,7 @@ onMounted(async () => {
       loadMissions();
     }
   } catch (e) {
-    console.error('팀 분석 로드 실패', e);
+    console.error('스터디 분석 로드 실패', e);
   } finally {
     loadingAnalysis.value = false;
   }
