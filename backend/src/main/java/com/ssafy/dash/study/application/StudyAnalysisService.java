@@ -3,8 +3,10 @@ package com.ssafy.dash.study.application;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -110,13 +112,12 @@ public class StudyAnalysisService {
     }
 
     /**
-     * 커리큘럼 문제 추천 (v2) - 세부 태그 기반 점수화 시스템 + 최저 티어 기준
+     * 커리큘럼 문제 추천 (v5) - 점수 기반 통합 랭킹 + 엄격한 필터링
      * 
-     * 점수화 로직:
-     * - S티어 = 3.0, A티어 = 2.0, B티어 = 1.0 (C티어 제외)
-     * - isCore = true면 ×1.5 추가
-     * - 팀 평균 풀이수 <= 5: ×2.0, <= 15: ×1.5
-     * - 1명 이상 학습중(1~9문제): ×1.2 보너스
+     * 변경 사항:
+     * - 태그별 고정 할당량(2개) 폐지 -> 전체 문제 풀에서 점수순 상위 18개 선정
+     * - 필터링 강화: 최대 2명이 푼 문제까지만 추천 (3명 이상 풀면 제외)
+     * - 점수 요소: 태그 중요도 + 난이도 적합성 + 미풀이 보너스
      */
     public List<ProblemRecommendationResponse> getCurriculumProblems(Long studyId) {
         List<User> members = userRepository.findByStudyId(studyId);
@@ -124,24 +125,23 @@ public class StudyAnalysisService {
             return List.of();
         }
 
-        // 팀 최저 티어 계산 (모든 팀원이 풀 수 있는 난이도)
+        // 1. 팀 최저 티어 계산
         int minTier = members.stream()
                 .filter(m -> m.getSolvedacTier() != null)
                 .mapToInt(User::getSolvedacTier)
                 .min()
                 .orElse(1);
 
-        // 모든 세부 태그 조회 (S, A, B 티어이면서 코테 빈출 태그만)
+        // 2. 후보 태그 선정 (코테 빈출 태그 중 점수 상위)
         List<Tag> allTags = tagMapper.findAllTags().stream()
                 .filter(tag -> TIER_WEIGHTS.containsKey(tag.getImportanceTier()))
-                .filter(tag -> CoreTagsConfig.isCoreTag(tag.getTagKey())) // 코테 빈출 태그만
+                .filter(tag -> CoreTagsConfig.isCoreTag(tag.getTagKey()))
                 .toList();
 
         if (allTags.isEmpty()) {
             return List.of();
         }
 
-        // 태그별 점수 계산
         List<ScoredTag> scoredTags = new ArrayList<>();
         for (Tag tag : allTags) {
             double score = calculateTagScore(tag, members);
@@ -150,92 +150,90 @@ public class StudyAnalysisService {
             }
         }
 
-        // 점수 높은 순으로 정렬 후 상위 10개 후보 선택 (넉넉하게)
+        // 상위 10개 태그 선정
         scoredTags.sort(Comparator.comparing(ScoredTag::score).reversed());
         List<ScoredTag> candidateTags = scoredTags.stream().limit(10).toList();
 
-        // 각 태그별로 문제 2개씩 추천 (모든 멤버가 푼 문제는 제외)
+        // 3. 제외할 문제 ID 수집 (이미 푼 문제, 미션 문제)
         List<java.util.Set<String>> memberSolvedSets = members.stream()
                 .map(m -> algorithmRecordRepository.findSolvedProblemNumbers(m.getId()))
                 .toList();
 
-        // 3. 진행 중인 미션의 문제들도 제외 목록에 추가
-        List<String> missionProblemIds = new ArrayList<>();
+        Set<String> excludeProblemIds = new HashSet<>();
         List<StudyMission> missions = studyMissionRepository.findByStudyId(studyId);
         for (StudyMission mission : missions) {
             try {
                 List<Integer> ids = objectMapper.readValue(mission.getProblemIds(), new TypeReference<List<Integer>>() {
                 });
-                missionProblemIds.addAll(ids.stream().map(String::valueOf).toList());
+                excludeProblemIds.addAll(ids.stream().map(String::valueOf).toList());
             } catch (Exception e) {
-                // 파싱 에러 무시
+                // ignore
             }
         }
 
-        List<ProblemRecommendationResponse> curriculum = new ArrayList<>();
-        int selectedTagCount = 0;
+        // 4. 모든 후보 문제 수집 및 점수화
+        List<ScoredProblem> candidateProblems = new ArrayList<>();
+        int teamSize = members.size();
 
         for (ScoredTag tag : candidateTags) {
-            // 목표: 태그 5개 선정
-            if (selectedTagCount >= 5)
-                break;
-
-            // 필터링을 위해 넉넉히 20개 조회 (Mapper LIMIT 20)
-            // excludeIds에 미션 문제 목록 전달
+            // 태그별로 넉넉히 10개씩 조회
             List<ProblemRecommendationResponse> problems = problemService.getRecommendedProblems(
-                    tag.tagKey(), minTier, null, missionProblemIds);
-
-            List<ProblemRecommendationResponse> newProblems = new ArrayList<>();
+                    tag.tagKey(), minTier, null, new ArrayList<>(excludeProblemIds));
 
             for (ProblemRecommendationResponse p : problems) {
-                if (newProblems.size() >= 2)
-                    break;
+                // 중복 체크
+                if (excludeProblemIds.contains(p.getProblemId()))
+                    continue;
 
-                String pNum = p.getProblemId();
-
-                // 해당 문제를 푼 멤버 식별 (N+1 문제 해결을 위해 memberSolvedSets 사용)
+                // 푼 멤버 확인
                 List<ProblemRecommendationResponse.SolvedMember> solvedBy = new ArrayList<>();
                 for (int i = 0; i < members.size(); i++) {
-                    User m = members.get(i);
-                    java.util.Set<String> solvedSet = memberSolvedSets.get(i);
-                    if (solvedSet.contains(pNum)) {
-                        solvedBy.add(new ProblemRecommendationResponse.SolvedMember(
-                                m.getId(),
-                                m.getUsername(),
+                    if (memberSolvedSets.get(i).contains(p.getProblemId())) {
+                        User m = members.get(i);
+                        solvedBy.add(new ProblemRecommendationResponse.SolvedMember(m.getId(), m.getUsername(),
                                 m.getAvatarUrl()));
                     }
                 }
 
                 int solvedCount = solvedBy.size();
-                int teamSize = members.size();
 
-                // 필터링 로직:
-                // 1. 과반수 미만이 푼 문제만 추천 (solvedCount < teamSize / 2.0)
-                // - 예: 5명 중 0~2명 (O), 3명 (X)
-                // - 예: 4명 중 0~1명 (O), 2명 (X - 딱 절반도 제외)
-                // 2. 당연히 전원이 푼 문제는 제외
-                boolean isMinoritySolved = solvedCount < (teamSize / 2.0);
+                // [필터링 핵심]
+                // 1. 전원 풀이 제외 (solvedCount < teamSize)
+                // 2. 최대 2명까지만 푼 문제 허용 (solvedCount <= 2)
+                if (solvedCount < teamSize && solvedCount <= 2) {
 
-                if (isMinoritySolved && solvedCount < teamSize) {
-                    // Response 객체 재생성 (solvedMembers 추가)
+                    // 점수 계산
+                    double problemScore = tag.score();
+
+                    // 난이도 적합도 (최저 티어와 가까울수록 점수 높음)
+                    double tierDiff = Math.abs(p.getLevel() - minTier);
+                    problemScore += (10.0 / (tierDiff + 1));
+
+                    // 미풀이 보너스 (아무도 안 풀었으면 가산점)
+                    if (solvedCount == 0) {
+                        problemScore += 5.0;
+                    }
+
+                    // Response 객체 업데이트
                     ProblemRecommendationResponse updatedResponse = new ProblemRecommendationResponse(
-                            p.getProblemId(),
-                            p.getTitle(),
-                            p.getLevel(),
-                            p.getTags(),
-                            solvedBy);
-                    newProblems.add(updatedResponse);
-                }
-            }
+                            p.getProblemId(), p.getTitle(), p.getLevel(), p.getTags(), solvedBy);
 
-            // 안 푼 문제가 2개 이상 확보된 경우에만 이 태그를 커리큘럼에 포함
-            if (newProblems.size() >= 2) {
-                curriculum.addAll(newProblems);
-                selectedTagCount++;
+                    candidateProblems.add(new ScoredProblem(updatedResponse, problemScore));
+                    excludeProblemIds.add(p.getProblemId()); // 중복 방지용 추가
+                }
             }
         }
 
-        return curriculum;
+        // 5. 점수 높은 순으로 정렬 후 상위 18개 반환
+        return candidateProblems.stream()
+                .sorted(Comparator.comparing(ScoredProblem::score).reversed())
+                .limit(18)
+                .map(ScoredProblem::problem)
+                .toList();
+    }
+
+    // 내부 헬퍼 레코드
+    record ScoredProblem(ProblemRecommendationResponse problem, double score) {
     }
 
     /**
