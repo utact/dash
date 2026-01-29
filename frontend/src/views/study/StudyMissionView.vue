@@ -73,18 +73,18 @@
                         </div>
 
                             <!-- 절대 위치: 리더 액션 버튼 (카드 우측 상단) -->
-                            <div v-if="isLeader && mission.status !== 'COMPLETED'" class="absolute top-6 right-6 flex items-center gap-1 z-10 bg-white/80 backdrop-blur-sm p-1 rounded-xl border border-slate-100 shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                            <div v-if="isLeader && mission.status !== 'COMPLETED'" class="absolute top-4 right-4 flex items-center gap-2 z-10 bg-white/90 backdrop-blur-sm p-1.5 rounded-xl border border-slate-200 shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
                                 <button 
                                     @click.stop="openEditModal(mission)"
-                                    class="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
+                                    class="p-2.5 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
                                     title="미션 수정">
-                                    <Pencil class="w-4 h-4" />
+                                    <Pencil class="w-5 h-5" />
                                 </button>
                                 <button 
                                     @click.stop="confirmEndMission(mission.id)"
-                                    class="p-2 text-slate-400 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-colors"
+                                    class="p-2.5 text-slate-500 hover:text-orange-500 hover:bg-orange-50 rounded-lg transition-colors"
                                     title="미션 종료">
-                                    <CheckCircle2 class="w-4 h-4" />
+                                    <CheckCircle2 class="w-5 h-5" />
                                 </button>
                             </div>
                             <div v-else-if="isLeader && mission.status === 'COMPLETED'" class="absolute top-6 right-6 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -98,6 +98,27 @@
                             </div>
 
                         <div class="flex flex-col md:flex-row gap-6">
+                            <!-- ALL CLEAR 축하 UI -->
+                            <div v-if="isMissionAllClear(mission)" class="flex-1 flex flex-col items-center text-center gap-4 py-6">
+                                <div class="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-200 animate-bounce">
+                                    <Trophy :size="32" stroke-width="3" />
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-black text-slate-800 mb-1">🎉 ALL CLEAR!</h3>
+                                    <p class="text-sm text-slate-500 font-medium">모든 스터디원이 미션을 완주했습니다!</p>
+                                </div>
+                                <div class="flex flex-wrap gap-2 justify-center">
+                                    <a v-for="problemId in mission.problemIds" :key="problemId"
+                                       :href="`https://www.acmicpc.net/problem/${problemId}`" target="_blank"
+                                       class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-100 transition-colors">
+                                        {{ problemId }}번
+                                        <Check :size="14" stroke-width="3" />
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- 일반 미션 UI (ALL CLEAR 아닐 때) -->
+                            <template v-else>
                             <!-- 왼쪽: 정보 -->
                             <div class="flex-1 flex flex-col">
                                 <div class="flex items-center gap-2 mb-2">
@@ -138,15 +159,15 @@
 
                                 <!-- 문제 칩 -->
                                 <div class="flex flex-wrap gap-2 mt-auto">
-                                    <a v-for="(problemId, idx) in mission.problemIds" :key="problemId"
+                                    <a v-for="problemId in mission.problemIds" :key="problemId"
                                         :href="`https://www.acmicpc.net/problem/${problemId}`" target="_blank"
                                         class="px-3 py-1.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 hover:-translate-y-0.5"
-                                        :class="idx < mission.solvedCount 
+                                        :class="mission.solvedProblemIds?.includes(problemId) 
                                             ? 'bg-emerald-500 text-white shadow-md shadow-emerald-200' 
                                             : 'bg-white text-slate-500 border border-slate-200 hover:border-brand-300 hover:text-brand-600'"
                                     >
                                         <span class="font-mono">{{ problemId }}</span>
-                                        <Check v-if="idx < mission.solvedCount" :size="14" stroke-width="3" />
+                                        <Check v-if="mission.solvedProblemIds?.includes(problemId)" :size="14" stroke-width="3" />
                                     </a>
                                 </div>
                                 <!-- 미션 분석 (스터디원 성과 기반) -->
@@ -252,6 +273,7 @@
                                     </div>
                                 </div>
                             </div>
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -371,7 +393,8 @@ import {
     Trash2,
     CheckCircle2,
     Check,
-    X
+    X,
+    Trophy
 } from 'lucide-vue-next';
 import NicknameRenderer from '@/components/common/NicknameRenderer.vue';
 import UserQuickStats from '@/components/common/UserQuickStats.vue';
@@ -735,12 +758,23 @@ const getFirstCompleter = (mission) => {
 const getTeamStatusMessage = (mission) => {
   if (!mission.memberProgressList) return '';
   const { count, total } = getCompletionCount(mission);
-  const rate = total > 0 ? count / total : 0;
+  const completionRate = total > 0 ? count / total : 0;
   
-  if (rate === 0) return '� 아직 시작 전!';
-  if (rate < 0.5) return '� 달리는 중...';
-  if (rate < 1) return '� 거의 다 왔어요!';
-  return '🎉 전원 완주!';
+  // 전체 진행률 (문제 해결률)
+  const totalProblems = mission.memberProgressList.length * (mission.totalProblems || mission.problemIds?.length || 1);
+  const solvedProblems = mission.memberProgressList.reduce((acc, m) => acc + m.completedCount, 0);
+  const progressRate = totalProblems > 0 ? solvedProblems / totalProblems : 0;
+  
+  if (completionRate === 1) return '🎉 전원 완주!';
+  if (completionRate >= 0.5) return '🔥 거의 다 왔어요!';
+  if (count > 0 || progressRate > 0) return '💪 달리는 중...';
+  return '🚀 아직 시작 전!';
+};
+
+// ALL CLEAR 확인 (모든 스터디원이 완주)
+const isMissionAllClear = (mission) => {
+  if (!mission.memberProgressList || mission.memberProgressList.length === 0) return false;
+  return mission.memberProgressList.every(m => m.allCompleted);
 };
 
 const getTeamStatusStyle = (mission) => {
